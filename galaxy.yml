@@ -1,0 +1,20 @@
+authors:
+- Kevin Breit
+dependencies: {}
+description: An Ansible collection for managing the Cisco Meraki Dashboard
+documentation: ''
+homepage: ''
+issues: ''
+license:
+- GNU General Public License v3.0
+name: meraki
+namespace: cisco
+readme: README.md
+repository: https://github.com/CiscoDevNet/ansible-meraki
+tags:
+- network
+- wireless
+- firewall
+- switching
+- cisco
+version: 0.0.0
