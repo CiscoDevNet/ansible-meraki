@@ -6,7 +6,7 @@ documentation: ''
 homepage: ''
 issues: ''
 license:
-- GNU General Public License v3.0
+- GPL-3.0-only
 name: meraki
 namespace: cisco
 readme: README.md
