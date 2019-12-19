@@ -4,7 +4,7 @@ dependencies: {}
 description: An Ansible collection for managing the Cisco Meraki Dashboard
 documentation: ''
 homepage: ''
-issues: ''
+issues: https://github.com/CiscoDevNet/ansible-meraki/issues
 license:
 - GNU General Public License v3.0
 name: meraki
