@@ -47,17 +47,21 @@ options:
     servers:
         description:
         - List of syslog server settings
+        type: list
         suboptions:
             host:
                 description:
                 - IP address or hostname of Syslog server.
+                type: str
             port:
                 description:
                 - Port number Syslog server is listening on.
                 default: "514"
+                type: int
             roles:
                 description:
                 - List of applicable Syslog server roles.
+                type: list
                 choices: ['Wireless event log',
                           'Appliance event log',
                           'Switch event log',
@@ -136,10 +140,7 @@ data:
         sample: "Wireless event log, URLs"
 '''
 
-import os
-from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils.urls import fetch_url
-from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule, json
 from ansible.module_utils.common.dict_transformations import recursive_diff
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
@@ -151,7 +152,7 @@ def main():
 
     server_arg_spec = dict(host=dict(type='str'),
                            port=dict(type='int', default="514"),
-                           roles=dict(type='list', choices=['Wireless Event log',
+                           roles=dict(type='list', choices=['Wireless event log',
                                                             'Appliance event log',
                                                             'Switch event log',
                                                             'Air Marshal events',

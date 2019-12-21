@@ -28,9 +28,11 @@ options:
         - C(absent) WILL DELETE YOUR ENTIRE ORGANIZATION, AND ALL ASSOCIATED OBJECTS, WITHOUT CONFIRMATION. USE WITH CAUTION.
         choices: ['absent', 'present', 'query']
         default: present
+        type: str
     clone:
         description:
         - Organization to clone to a new organization.
+        type: str
     org_name:
         description:
         - Name of organization.
@@ -110,10 +112,7 @@ data:
 
 '''
 
-import os
-from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils.urls import fetch_url
-from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule, json
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
 
@@ -137,14 +136,6 @@ def main():
                          org_id=dict(type='str', aliases=['id']),
                          )
 
-    # seed the result dict in the object
-    # we primarily care about changed and state
-    # change is if this module effectively modified the target
-    # state will include any data that you want your module to pass back
-    # for consumption, for example, in a subsequent task
-    result = dict(
-        changed=False,
-    )
     # the AnsibleModule object will be our abstraction working with Ansible
     # this includes instantiation, a couple of common attr would be the
     # args/params passed to the execution, as well as if the module

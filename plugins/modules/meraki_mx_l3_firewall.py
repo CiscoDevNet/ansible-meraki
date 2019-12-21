@@ -29,43 +29,55 @@ options:
         - Create or modify an organization.
         choices: ['present', 'query']
         default: present
+        type: str
     net_name:
         description:
         - Name of network which MX firewall is in.
+        type: str
     net_id:
         description:
         - ID of network which MX firewall is in.
+        type: str
     rules:
         description:
-        - List of firewall rules.
+        - List of firewall rules
+        type: list
         suboptions:
             policy:
                 description:
                 - Policy to apply if rule is hit.
                 choices: [allow, deny]
+                type: str
             protocol:
                 description:
                 - Protocol to match against.
                 choices: [any, icmp, tcp, udp]
+                type: str
             dest_port:
                 description:
                 - Comma separated list of destination port numbers to match against.
+                type: str
             dest_cidr:
                 description:
                 - Comma separated list of CIDR notation destination networks.
+                type: str
             src_port:
                 description:
                 - Comma separated list of source port numbers to match against.
+                type: str
             src_cidr:
                 description:
                 - Comma separated list of CIDR notation source networks.
+                type: str
             comment:
                 description:
                 - Optional comment to describe the firewall rule.
+                type: str
             syslog_enabled:
                 description:
                 - Whether to log hints against the firewall rule.
                 - Only applicable if a syslog server is specified against the network.
+                type: bool
 
     syslog_default_rule:
         description:
@@ -176,10 +188,7 @@ data:
             sample: true
 '''
 
-import os
-from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils.urls import fetch_url
-from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule, json
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
 
@@ -232,14 +241,6 @@ def main():
                          syslog_default_rule=dict(type='bool'),
                          )
 
-    # seed the result dict in the object
-    # we primarily care about changed and state
-    # change is if this module effectively modified the target
-    # state will include any data that you want your module to pass back
-    # for consumption, for example, in a subsequent task
-    result = dict(
-        changed=False,
-    )
     # the AnsibleModule object will be our abstraction working with Ansible
     # this includes instantiation, a couple of common attr would be the
     # args/params passed to the execution, as well as if the module

@@ -27,13 +27,16 @@ options:
         - Create or modify an organization.
         choices: [ absent, present, query ]
         default: present
+        type: str
     net_name:
         description:
         - Name of a network.
         aliases: [ name, network ]
+        type: str
     net_id:
         description:
         - ID number of a network.
+        type: str
     type:
         description:
         - Type of network device network manages.
@@ -53,6 +56,7 @@ options:
         description:
         - Timezone associated to network.
         - See U(https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of valid timezones.
+        type: str
     enable_vlans:
         description:
         - Boolean value specifying whether VLANs should be supported on a network.
@@ -177,10 +181,7 @@ data:
         sample: true
 '''
 
-import os
-from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils.urls import fetch_url
-from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule, json
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
 

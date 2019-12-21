@@ -43,6 +43,7 @@ options:
         - Tags the administrator has privileges on.
         - When creating a new administrator, C(org_name), C(network), or C(tags) must be specified.
         - If C(none) is specified, C(network) or C(tags) must be specified.
+        type: json
         suboptions:
             tag:
                 description:
@@ -56,6 +57,7 @@ options:
         description:
         - List of networks the administrator has privileges on.
         - When creating a new administrator, C(org_name), C(network), or C(tags) must be specified.
+        type: json
         suboptions:
             id:
                 description:
@@ -212,7 +214,7 @@ data:
         networks:
             description: List of networks administrator has access on.
             returned: success
-            type: complex
+            type: json
             contains:
                 id:
                      description: The network ID.
@@ -227,7 +229,7 @@ data:
         tags:
             description: Tags the administrator has access on.
             returned: success
-            type: complex
+            type: json
             contains:
                 tag:
                     description: Tag name.
@@ -248,9 +250,7 @@ data:
 '''
 
 import os
-from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils.urls import fetch_url
-from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule, json
 from ansible.module_utils.common.dict_transformations import recursive_diff
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
@@ -393,15 +393,6 @@ def main():
                          org_id=dict(type='str'),
                          )
 
-    # seed the result dict in the object
-    # we primarily care about changed and state
-    # change is if this module effectively modified the target
-    # state will include any data that you want your module to pass back
-    # for consumption, for example, in a subsequent task
-    result = dict(
-        changed=False,
-    )
-
     # the AnsibleModule object will be our abstraction working with Ansible
     # this includes instantiation, a couple of common attr would be the
     # args/params passed to the execution, as well as if the module
@@ -433,7 +424,7 @@ def main():
     except KeyError:
         pass
 
-    payload = None
+    # payload = None
 
     # if the user is working with this module in only check mode we do not
     # want to make any changes to the environment, just return the current

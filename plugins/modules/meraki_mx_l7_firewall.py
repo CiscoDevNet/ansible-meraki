@@ -63,6 +63,7 @@ options:
             application:
                 description:
                 - Application to filter.
+                type: dict
                 suboptions:
                     name:
                         description:
@@ -71,18 +72,6 @@ options:
                     id:
                         description:
                         - URI of application as defined by Meraki.
-                        type: str
-            application_category:
-                description:
-                - Category of applications to filter.
-                suboptions:
-                    name:
-                        description:
-                        - Name of application category to filter as defined by Meraki.
-                        type: str
-                    id:
-                        description:
-                        - URI of application category as defined by Meraki.
                         type: str
             host:
                 description:
@@ -260,7 +249,6 @@ data:
 '''
 
 import copy
-import os
 from ansible.module_utils.basic import AnsibleModule, json, env_fallback
 from ansible.module_utils.common.dict_transformations import recursive_diff
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
@@ -341,7 +329,6 @@ def get_rules(meraki, net_id):
 
 def rename_id_to_appid(rules):
     for rule in rules['rules']:
-        print(rule['type'])
         if rule['type'] == 'application' or rule['type'] == 'applicationCategory':
             rule['value']['appId'] = rule['value'].pop('id')
     return rules
@@ -385,14 +372,6 @@ def main():
                          categories=dict(type='bool'),
                          )
 
-    # seed the result dict in the object
-    # we primarily care about changed and state
-    # change is if this module effectively modified the target
-    # state will include any data that you want your module to pass back
-    # for consumption, for example, in a subsequent task
-    result = dict(
-        changed=False,
-    )
     # the AnsibleModule object will be our abstraction working with Ansible
     # this includes instantiation, a couple of common attr would be the
     # args/params passed to the execution, as well as if the module

@@ -68,6 +68,19 @@ options:
       description:
       - IP address ranges which should be reserve and not distributed via DHCP.
       type: list
+      suboptions:
+        start:
+          description:
+          - First IP in reserved range, inclusive.
+          type: str
+        end:
+          description:
+          - Last IP In reserved range, inclusive.
+          type: str
+        comment:
+          description:
+          - Description for reserved IP range.
+          type: str
     vpn_nat_subnet:
       description:
       - The translated VPN subnet if VPN and VPN subnet translation are enabled on the VLAN.
@@ -76,6 +89,19 @@ options:
       description:
       - Static IP address assignments to be distributed via DHCP by MAC address.
       type: list
+      suboptions:
+        mac:
+          description:
+          - MAC address for DHCP binding.
+          type: str
+        ip:
+          description:
+          - IP address to bind to MAC address.
+          type: str
+        name:
+          description:
+          - Descriptive name for DHCP binding.
+          type: str
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: meraki
@@ -270,8 +296,7 @@ response:
           sample: 192.0.1.2
 '''
 
-from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule, json
 from ansible.module_utils.common.dict_transformations import recursive_diff
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
@@ -329,14 +354,6 @@ def main():
                          dns_nameservers=dict(type='str'),
                          )
 
-    # seed the result dict in the object
-    # we primarily care about changed and state
-    # change is if this module effectively modified the target
-    # state will include any data that you want your module to pass back
-    # for consumption, for example, in a subsequent task
-    result = dict(
-        changed=False,
-    )
     # the AnsibleModule object will be our abstraction working with Ansible
     # this includes instantiation, a couple of common attr would be the
     # args/params passed to the execution, as well as if the module

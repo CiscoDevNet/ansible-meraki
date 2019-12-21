@@ -31,10 +31,12 @@ options:
         description:
         - Number of the access policy to apply.
         - Only applicable to access port types.
+        type: str
     allowed_vlans:
         description:
         - List of VLAN numbers to be allowed on switchport.
         default: all
+        type: list
     enabled:
         description:
         - Whether a switchport should be enabled or disabled.
@@ -50,13 +52,16 @@ options:
         - Link speed for the switchport.
         default: Auto negotiate
         choices: [Auto negotiate, 100Megabit (auto), 100 Megabit full duplex (forced)]
+        type: str
     name:
         description:
         - Switchport description.
         aliases: [description]
+        type: str
     number:
         description:
         - Port number.
+        type: str
     poe_enabled:
         description:
         - Enable or disable Power Over Ethernet on a port.
@@ -69,28 +74,35 @@ options:
         default: true
     serial:
         description:
-        - Serial nubmer of the switch.
+        - Serial number of the switch.
+        type: str
+        required: yes
     stp_guard:
         description:
         - Set state of STP guard.
         choices: [disabled, root guard, bpdu guard, loop guard]
         default: disabled
+        type: str
     tags:
         description:
         - Space delimited list of tags to assign to a port.
+        type: str
     type:
         description:
         - Set port type.
         choices: [access, trunk]
         default: access
+        type: str
     vlan:
         description:
         - VLAN number assigned to port.
         - If a port is of type trunk, the specified VLAN is the native VLAN.
+        type: int
     voice_vlan:
         description:
         - VLAN number assigned to a port for voice traffic.
         - Only applicable to access port type.
+        type: int
 
 author:
 - Kevin Breit (@kbreit)
@@ -240,10 +252,7 @@ data:
             sample: "Auto negotiate"
 '''
 
-import os
-from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils.urls import fetch_url
-from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule, json
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
 param_map = {'access_policy_number': 'accessPolicyNumber',
@@ -325,7 +334,6 @@ def main():
     # if the user is working with this module in only check mode we do not
     # want to make any changes to the environment, just return the current
     # state with no modifications
-    # FIXME: Work with Meraki so they can implement a check mode
     if module.check_mode:
         meraki.exit_json(**meraki.result)
 

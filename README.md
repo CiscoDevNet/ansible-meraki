@@ -4,6 +4,8 @@
 
 Ansible collection for managing and automating Cisco Meraki network environments.
 
+See the CHANGELOG.md file for details of updates in each release.
+
 ## Requirements
 
 * Ansible v2.9 or newer is required for collection support

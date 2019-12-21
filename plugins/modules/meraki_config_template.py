@@ -30,6 +30,7 @@ options:
         - Specifies whether configuration template information should be queried, modified, or deleted.
         choices: ['absent', 'query', 'present']
         default: query
+        type: str
     org_name:
         description:
         - Name of organization containing the configuration template.
@@ -42,6 +43,7 @@ options:
         description:
         - Name of the configuration template within an organization to manipulate.
         aliases: ['name']
+        type: str
     net_name:
         description:
         - Name of the network to bind or unbind configuration template to.
@@ -115,10 +117,7 @@ data:
           sample: YourTemplate
 '''
 
-import os
 from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils.urls import fetch_url
-from ansible.module_utils._text import to_native
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
 
