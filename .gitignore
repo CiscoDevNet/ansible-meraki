@@ -1,0 +1,4 @@
+*tar.gz
+inventory.networking
+*.pyc
+.DS_Store
