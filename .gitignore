@@ -2,3 +2,4 @@
 inventory.networking
 *.pyc
 .DS_Store
+tests/output/*
