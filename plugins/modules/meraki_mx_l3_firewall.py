@@ -29,44 +29,55 @@ options:
         - Create or modify an organization.
         choices: ['present', 'query']
         default: present
+        type: str
     net_name:
         description:
         - Name of network which MX firewall is in.
+        type: str
     net_id:
         description:
         - ID of network which MX firewall is in.
+        type: str
     rules:
         description:
         - List of firewall rules.
+        type: list
         suboptions:
             policy:
                 description:
                 - Policy to apply if rule is hit.
                 choices: [allow, deny]
+                type: str
             protocol:
                 description:
                 - Protocol to match against.
                 choices: [any, icmp, tcp, udp]
+                type: str
             dest_port:
                 description:
                 - Comma separated list of destination port numbers to match against.
+                type: str
             dest_cidr:
                 description:
                 - Comma separated list of CIDR notation destination networks.
+                type: str
             src_port:
                 description:
                 - Comma separated list of source port numbers to match against.
+                type: str
             src_cidr:
                 description:
                 - Comma separated list of CIDR notation source networks.
+                type: str
             comment:
                 description:
                 - Optional comment to describe the firewall rule.
+                type: str
             syslog_enabled:
                 description:
                 - Whether to log hints against the firewall rule.
                 - Only applicable if a syslog server is specified against the network.
-
+                type: bool
     syslog_default_rule:
         description:
         - Whether to log hits against the default firewall rule.

@@ -26,6 +26,7 @@ options:
         - Specifies whether SNMP information should be queried or modified.
         choices: ['query', 'present']
         default: present
+        type: str
     v2c_enabled:
         description:
         - Specifies whether SNMPv2c is enabled.
@@ -38,21 +39,26 @@ options:
         description:
         - Sets authentication mode for SNMPv3.
         choices: ['MD5', 'SHA']
+        type: str
     v3_auth_pass:
         description:
         - Authentication password for SNMPv3.
         - Must be at least 8 characters long.
+        type: str
     v3_priv_mode:
         description:
         - Specifies privacy mode for SNMPv3.
         choices: ['DES', 'AES128']
+        type: str
     v3_priv_pass:
         description:
         - Privacy password for SNMPv3.
         - Must be at least 8 characters long.
+        type: str
     peer_ips:
         description:
         - Semi-colon delimited IP addresses which can perform SNMP queries.
+        type: str
     net_name:
         description:
         - Name of network.
