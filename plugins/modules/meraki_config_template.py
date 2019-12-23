@@ -30,6 +30,7 @@ options:
         - Specifies whether configuration template information should be queried, modified, or deleted.
         choices: ['absent', 'query', 'present']
         default: query
+        type: str
     org_name:
         description:
         - Name of organization containing the configuration template.
@@ -42,6 +43,7 @@ options:
         description:
         - Name of the configuration template within an organization to manipulate.
         aliases: ['name']
+        type: str
     net_name:
         description:
         - Name of the network to bind or unbind configuration template to.

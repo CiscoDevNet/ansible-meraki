@@ -68,6 +68,16 @@ options:
       description:
       - IP address ranges which should be reserve and not distributed via DHCP.
       type: list
+      suboptions:
+        start:
+          description: First IP address of reserved IP address range, inclusive.
+          type: str
+        end:
+          description: Last IP address of reserved IP address range, inclusive.
+          type: str
+        comment:
+          description: Description of IP addresses reservation
+          type: str
     vpn_nat_subnet:
       description:
       - The translated VPN subnet if VPN and VPN subnet translation are enabled on the VLAN.
@@ -76,6 +86,17 @@ options:
       description:
       - Static IP address assignments to be distributed via DHCP by MAC address.
       type: list
+      suboptions:
+        mac:
+          description: MAC address for fixed IP assignment binding.
+          type: str
+        ip:
+          description: IP address for fixed IP assignment binding.
+          type: str
+        name:
+          description: Descriptive name of IP assignment binding.
+          type: str
+
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: meraki

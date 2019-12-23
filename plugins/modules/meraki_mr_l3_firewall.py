@@ -39,7 +39,7 @@ options:
     number:
         description:
         - Number of SSID to apply firewall rule to.
-        type: int
+        type: str
         aliases: [ ssid_number ]
     ssid_name:
         description:

@@ -31,10 +31,12 @@ options:
         description:
         - Number of the access policy to apply.
         - Only applicable to access port types.
+        type: str
     allowed_vlans:
         description:
         - List of VLAN numbers to be allowed on switchport.
         default: all
+        type: list
     enabled:
         description:
         - Whether a switchport should be enabled or disabled.
@@ -50,13 +52,16 @@ options:
         - Link speed for the switchport.
         default: Auto negotiate
         choices: [Auto negotiate, 100Megabit (auto), 100 Megabit full duplex (forced)]
+        type: str
     name:
         description:
         - Switchport description.
         aliases: [description]
+        type: str
     number:
         description:
         - Port number.
+        type: str
     poe_enabled:
         description:
         - Enable or disable Power Over Ethernet on a port.
@@ -70,27 +75,33 @@ options:
     serial:
         description:
         - Serial nubmer of the switch.
+        type: str
     stp_guard:
         description:
         - Set state of STP guard.
         choices: [disabled, root guard, bpdu guard, loop guard]
         default: disabled
+        type: str
     tags:
         description:
         - Space delimited list of tags to assign to a port.
+        type: str
     type:
         description:
         - Set port type.
         choices: [access, trunk]
         default: access
+        type: str
     vlan:
         description:
         - VLAN number assigned to port.
         - If a port is of type trunk, the specified VLAN is the native VLAN.
+        type: int
     voice_vlan:
         description:
         - VLAN number assigned to a port for voice traffic.
         - Only applicable to access port type.
+        type: int
 
 author:
 - Kevin Breit (@kbreit)

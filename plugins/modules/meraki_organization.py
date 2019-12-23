@@ -28,14 +28,17 @@ options:
         - C(absent) WILL DELETE YOUR ENTIRE ORGANIZATION, AND ALL ASSOCIATED OBJECTS, WITHOUT CONFIRMATION. USE WITH CAUTION.
         choices: ['absent', 'present', 'query']
         default: present
+        type: str
     clone:
         description:
         - Organization to clone to a new organization.
+        type: str
     org_name:
         description:
         - Name of organization.
         - If C(clone) is specified, C(org_name) is the name of the new organization.
         aliases: [ name, organization ]
+        type: str
     org_id:
         description:
         - ID of organization.

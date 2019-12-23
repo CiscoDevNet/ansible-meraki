@@ -68,6 +68,7 @@ options:
                 description:
                 - The physical WAN interface on which the traffic will arrive.
                 choices: [both, internet1, internet2]
+                type: str
             allowed_inbound:
                 description:
                 - The ports this mapping will provide access on, and the remote IPs that will be allowed access to the resource.
@@ -153,14 +154,15 @@ options:
             public_port:
                 description:
                 - A port or port ranges that will be forwarded to the host on the LAN.
-                type: str
+                type: int
             local_port:
                 description:
                 - A port or port ranges that will receive the forwarded traffic from the WAN.
-                type: str
+                type: int
             allowed_ips:
                 description:
                 - List of ranges of WAN IP addresses that are allowed to make inbound connections on the specified ports or port ranges (or any).
+                type: list
             protocol:
                 description:
                 - Protocol to forward traffic for.

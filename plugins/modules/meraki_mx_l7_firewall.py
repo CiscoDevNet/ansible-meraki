@@ -63,6 +63,7 @@ options:
             application:
                 description:
                 - Application to filter.
+                type: dict
                 suboptions:
                     name:
                         description:
@@ -71,18 +72,6 @@ options:
                     id:
                         description:
                         - URI of application as defined by Meraki.
-                        type: str
-            application_category:
-                description:
-                - Category of applications to filter.
-                suboptions:
-                    name:
-                        description:
-                        - Name of application category to filter as defined by Meraki.
-                        type: str
-                    id:
-                        description:
-                        - URI of application category as defined by Meraki.
                         type: str
             host:
                 description:

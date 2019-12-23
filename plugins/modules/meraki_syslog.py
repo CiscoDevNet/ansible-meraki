@@ -47,18 +47,21 @@ options:
     servers:
         description:
         - List of syslog server settings
+        type: list
         suboptions:
             host:
                 description:
                 - IP address or hostname of Syslog server.
+                type: str
             port:
                 description:
                 - Port number Syslog server is listening on.
                 default: "514"
+                type: int
             roles:
                 description:
                 - List of applicable Syslog server roles.
-                choices: ['Wireless event log',
+                choices: ['Wireless Event log',
                           'Appliance event log',
                           'Switch event log',
                           'Air Marshal events',
@@ -66,6 +69,7 @@ options:
                           'URLs',
                           'IDS alerts',
                           'Security events']
+                type: list
 
 author:
     - Kevin Breit (@kbreit)

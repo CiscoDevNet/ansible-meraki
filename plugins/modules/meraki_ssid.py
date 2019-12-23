@@ -158,7 +158,7 @@ options:
         description:
         - Default VLAN ID.
         - Requires C(ip_assignment_mode) to be C(Bridge mode) or C(Layer 3 roaming).
-        type: str
+        type: int
     vlan_id:
         description:
         - ID number of VLAN on SSID.
@@ -424,7 +424,7 @@ def main():
                          number=dict(type='int', aliases=['ssid_number']),
                          name=dict(type='str'),
                          org_name=dict(type='str', aliases=['organization']),
-                         org_id=dict(type='int'),
+                         org_id=dict(type='str'),
                          net_name=dict(type='str'),
                          net_id=dict(type='str'),
                          enabled=dict(type='bool'),
