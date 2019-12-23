@@ -131,8 +131,8 @@
 
   - assert:
       that:
-        - fixed_ip.data.fixedIpAssignments | length == 1
-        - fixed_ip.data.reservedIpRanges | length == 1
+        - fixed_ip.data.fixed_ip_assignments | length == 1
+        - fixed_ip.data.reserved_ip_ranges | length == 1
 
 
   - name: Query single static route
