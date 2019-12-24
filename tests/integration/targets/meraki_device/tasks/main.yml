@@ -14,6 +14,18 @@
   #     that:
   #       - claim_device_org.changed == true
 
+  - name: Create network
+    meraki_network:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      type: appliance
+      state: present
+    register: net_info
+
+  - set_fact:
+      net_id: '{{net_info.data.id}}'
+
   - name: Query status of all devices in an organization
     meraki_device:
       auth_key: '{{auth_key}}'
@@ -46,7 +58,7 @@
     meraki_device:
       auth_key: '{{auth_key}}'
       org_name: '{{test_org_name}}'
-      net_id: '{{test_net_id}}'
+      net_id: '{{net_id}}'
       state: query
     delegate_to: localhost
     register: query_one_net_id
