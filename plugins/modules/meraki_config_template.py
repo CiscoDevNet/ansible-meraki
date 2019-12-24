@@ -293,6 +293,8 @@ def main():
             else:
                 meraki.fail_json(msg="No template named {0} found.".format(meraki.params['config_template']))
         else:  # Unbind template
+            if nets is None:
+                nets = meraki.get_nets(org_id=org_id)
             if meraki.check_mode is True:
                 meraki.result['data'] = {}
                 if is_template_valid(meraki, nets, template_id) is True:
@@ -303,8 +305,6 @@ def main():
             template_id = get_template_id(meraki,
                                           meraki.params['config_template'],
                                           get_config_templates(meraki, org_id))
-            if nets is None:
-                nets = meraki.get_nets(org_id=org_id)
             if is_network_bound(meraki, nets, net_id, template_id) is True:
                 if meraki.check_mode is True:
                     meraki.result['data'] = {}
