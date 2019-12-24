@@ -4,6 +4,7 @@
 * Restructure tests directory
 * Enable integration tests within collection
 * Fix linting errors
+* Fix crash when unbinding a template in check mode with net_id (issue #19)
 * Improve type documentation for module parameters
 
 ## v0.0.0
