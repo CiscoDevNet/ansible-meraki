@@ -90,7 +90,7 @@ These are the common parameters which are used for most every module.
 
 All API access with the Meraki Dashboard requires an API key. An API key can be generated from the organization's settings page. Each play in a playbook requires the `api_key` parameter to be specified.
 
-The "Vault" feature of Ansible allows you to keep sensitive data such as passwords or keys in encrypted files, rather than as plain text in your playbooks or roles. These vault files can then be distributed or placed in source control. See [https://docs.ansible.com/ansible/latest/user_guide/playbooks_vault.html](Using Vaults in playbooks) for more information.
+The "Vault" feature of Ansible allows you to keep sensitive data such as passwords or keys in encrypted files, rather than as plain text in your playbooks or roles. These vault files can then be distributed or placed in source control. See [Using Vaults in playbooks](https://docs.ansible.com/ansible/latest/user_guide/playbooks_vault.html) for more information.
 
 Meraki's API returns a 404 error if the API key is not correct. It does not provide any specific error saying the key is incorrect. If you receive a 404 error, check the API key first.
 
