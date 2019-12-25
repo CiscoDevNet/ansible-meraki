@@ -128,8 +128,8 @@
     register: invalid_role
     ignore_errors: yes
 
-  # - debug:
-  #     msg: '{{invalid_role.body.errors.0}}'
+  - debug:
+      msg: '{{invalid_role.msg}}'
 
   - assert:
       that:
