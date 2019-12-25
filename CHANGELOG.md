@@ -9,6 +9,7 @@
 * Improve type documentation for module parameters
 * Improve HTTP error reporting for 400 errors
 * meraki_firewalled_services recognizes net_id
+* Content filtering integration test deletes network after completion
 
 ## v0.0.0
 * Initial commit of collection into Ansible Galaxy
