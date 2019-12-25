@@ -153,6 +153,22 @@
       that:
         - 'access_error.msg == "allowed_ips is only allowed when access is restricted."'
 
+  - name: Query appliance servicesn with net_id
+    meraki_firewalled_services:
+      auth_key: '{{ auth_key }}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+    register: query_appliance_id
+
+  - debug:
+      var: query_appliance_id
+
+  - assert:
+      that:
+        - <query_appliance_id></query_appliance_id>.data is defined
+
+
   - name: Query appliance services
     meraki_firewalled_services:
       auth_key: '{{ auth_key }}'
