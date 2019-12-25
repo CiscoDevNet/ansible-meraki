@@ -6,6 +6,7 @@
 * Fix linting errors
 * Fix crash when unbinding a template in check mode with net_id (issue #19)
 * Improve type documentation for module parameters
+* Improve HTTP error reporting for 400 errors
 
 ## v0.0.0
 * Initial commit of collection into Ansible Galaxy
