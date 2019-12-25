@@ -14,7 +14,7 @@
     register: create
 
   - set_fact:
-      net_id: create.data.id
+      net_id: '{{create.data.id}}'
 
   - name: Set icmp service to blocked with check mode
     meraki_firewalled_services:
@@ -153,7 +153,7 @@
       that:
         - 'access_error.msg == "allowed_ips is only allowed when access is restricted."'
 
-  - name: Query appliance servicesn with net_id
+  - name: Query appliance services with net_id
     meraki_firewalled_services:
       auth_key: '{{ auth_key }}'
       state: query
@@ -166,7 +166,7 @@
 
   - assert:
       that:
-        - <query_appliance_id></query_appliance_id>.data is defined
+        - query_appliance_id.data is defined
 
 
   - name: Query appliance services
