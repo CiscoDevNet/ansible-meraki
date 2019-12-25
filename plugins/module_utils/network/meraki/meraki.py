@@ -88,6 +88,8 @@ def _error_report(function):
                 elif self.status == 502:
                     raise InternalErrorException(
                         "Internal server error 502, retry {0}".format(self.retry))
+                elif self.status == 400:
+                    raise HTTPError("")
                 elif self.status >= 400:
                     raise HTTPError("")
                 self.retry = 0  # Needs to reset in case of future retries
@@ -113,7 +115,11 @@ def _error_report(function):
                 if self.retry_time > self.params['internal_error_retry_time']:
                     raise InternalErrorException(e)
             except HTTPError as e:
-                self.fail_json(msg="HTTP error {0} - {1}".format(self.status, self.url))
+                try:
+                    self.fail_json(msg="HTTP error {0} - {1} - {2}".format(self.status, self.url, json.loads(self.body)['errors']),
+                                   body=json.loads(self.body))
+                except json.decoder.JSONDecodeError:
+                    self.fail_json(msg="HTTP error {0} - {1}".format(self.status, self.url))
     try:
         return inner
     except HTTPError:
@@ -153,6 +159,7 @@ class MerakiModule(object):
         self.response = None
         self.status = None
         self.url = None
+        self.body = None
 
         # rate limiting statistics
         self.retry = 0
@@ -421,6 +428,8 @@ class MerakiModule(object):
                                timeout=self.params['timeout'],
                                use_proxy=self.params['use_proxy'],
                                )
+        if 'body' in info:
+            self.body = info['body']
         self.response = info['msg']
         self.status = info['status']
 
