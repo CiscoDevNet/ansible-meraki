@@ -1,6 +1,7 @@
 # Changelog
 
 ## v0.0.1
+* Fix most linting errors (issue #13)
 * Restructure tests directory
 * Fix comparison check to not crash when comparing a dict to a non-dict (issue #6)
 * Enable integration tests within collection
