@@ -249,14 +249,17 @@ class MerakiModule(object):
                     # self.fail_json(msg="List doesn't match", a=a, b=b)
                     return True
         elif isinstance(original, dict):
-            for k, v in proposed.items():
-                if k not in self.ignored_keys:
-                    if k in original:
-                        if self.is_update_required(original[k], proposed[k]):
+            try:
+                for k, v in proposed.items():
+                    if k not in self.ignored_keys:
+                        if k in original:
+                            if self.is_update_required(original[k], proposed[k]):
+                                return True
+                        else:
+                            # self.fail_json(msg="Key not in original", k=k)
                             return True
-                    else:
-                        # self.fail_json(msg="Key not in original", k=k)
-                        return True
+            except AttributeError:
+                return True
         else:
             if original != proposed:
                 # self.fail_json(msg="Fallback", original=original, proposed=proposed)
