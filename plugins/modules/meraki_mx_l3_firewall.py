@@ -289,7 +289,7 @@ def main():
     elif meraki.params['state'] == 'present':
         rules = get_rules(meraki, net_id)
         path = meraki.construct_path('get_all', net_id=net_id)
-        if meraki.params['rules']:
+        if meraki.params['rules'] is not None:
             payload = assemble_payload(meraki)
         else:
             payload = dict()
