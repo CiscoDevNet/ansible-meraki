@@ -43,6 +43,7 @@ options:
         - Tags the administrator has privileges on.
         - When creating a new administrator, C(org_name), C(network), or C(tags) must be specified.
         - If C(none) is specified, C(network) or C(tags) must be specified.
+        type: list
         suboptions:
             tag:
                 description:
@@ -56,6 +57,7 @@ options:
         description:
         - List of networks the administrator has privileges on.
         - When creating a new administrator, C(org_name), C(network), or C(tags) must be specified.
+        type: list
         suboptions:
             id:
                 description:
@@ -307,7 +309,6 @@ def delete_admin(meraki, org_id, admin_id):
 
 
 def network_factory(meraki, networks, nets):
-    networks = json.loads(networks)
     networks_new = []
     for n in networks:
         networks_new.append({'id': meraki.get_net_id(org_name=meraki.params['org_name'],
@@ -328,7 +329,7 @@ def create_admin(meraki, org_id, name, email):
     if meraki.params['org_access'] is not None:
         payload['orgAccess'] = meraki.params['org_access']
     if meraki.params['tags'] is not None:
-        payload['tags'] = json.loads(meraki.params['tags'])
+        payload['tags'] = meraki.params['tags']
     if meraki.params['networks'] is not None:
         nets = meraki.get_nets(org_id=org_id)
         networks = network_factory(meraki, meraki.params['networks'], nets)
@@ -380,13 +381,22 @@ def create_admin(meraki, org_id, name, email):
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
+
+    network_arg_spec = dict(id=dict(type='str'),
+                            access=dict(type='str'),
+                            )
+
+    tag_arg_spec = dict(tag=dict(type='str'),
+                        access=dict(type='str'),
+                        )
+
     argument_spec = meraki_argument_spec()
     argument_spec.update(state=dict(type='str', choices=['present', 'query', 'absent'], required=True),
                          name=dict(type='str'),
                          email=dict(type='str'),
                          org_access=dict(type='str', aliases=['orgAccess'], choices=['full', 'read-only', 'none']),
-                         tags=dict(type='json'),
-                         networks=dict(type='json'),
+                         tags=dict(type='list', element='dict', options=tag_arg_spec),
+                         networks=dict(type='list', element='dict', options=network_arg_spec),
                          org_name=dict(type='str', aliases=['organization']),
                          org_id=dict(type='str'),
                          )
