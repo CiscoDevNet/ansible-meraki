@@ -88,7 +88,8 @@
       email: '{{email_prefix}}+johndoe@{{email_domain}}'
       orgAccess: none
       tags:
-        - { "tag": "production", "access": "read-only" }
+        - tag: production
+          access: read-only
         - tag: beta
           access: full
     delegate_to: localhost
@@ -113,7 +114,8 @@
       email: '{{email_prefix}}+johndoe@{{email_domain}}'
       orgAccess: none
       tags:
-        - { "tag": "production", "access": "read-only" }
+        - tag: production
+          access: read-only
         - tag: beta
           access: full
     delegate_to: localhost
@@ -134,8 +136,10 @@
       email: '{{email_prefix}}+jakedoe@{{email_domain}}'
       orgAccess: none
       tags:
-        - { "tag": "production", "access": "read-only" }
-        - { "tag": "alpha", "access": "invalid" }
+        - tag: production
+          access: read-only
+        - tag: alpha
+          access: invalid
     delegate_to: localhost
     register: create_tags_invalid
     ignore_errors: yes
@@ -154,8 +158,10 @@
       email: '{{email_prefix}}+jakedoe@{{email_domain}}'
       orgAccess: none
       tags:
-        - { "tag": "production", "access": "read-only" }
-        - { "tag": "beta", "access": "invalid" }
+        - tag: production
+          access: read-only
+        - tag: beta
+          access: invalid
     delegate_to: localhost
     register: create_tags_invalid_permission
     ignore_errors: yes
@@ -185,8 +191,10 @@
       email: '{{email_prefix}}+jimdoe@{{email_domain}}'
       orgAccess: none
       networks:
-        - { "network": "TestNet", "access": "read-only" }
-        - { "network": "TestNet2", "access": "full" }
+        - network: TestNet
+          access: read-only
+        - network: TestNet2
+          access: full
     delegate_to: localhost
     register: create_network_check
     check_mode: yes
@@ -206,8 +214,10 @@
       email: '{{email_prefix}}+jimdoe@{{email_domain}}'
       orgAccess: none
       networks:
-        - { "network": "TestNet", "access": "read-only" }
-        - { "network": "TestNet2", "access": "full" }
+        - network: TestNet
+          access: read-only
+        - network: TestNet2
+          access: full
     delegate_to: localhost
     register: create_network
 
@@ -226,7 +236,8 @@
       email: '{{email_prefix}}+jimdoe@{{email_domain}}'
       orgAccess: none
       networks:
-        - { "network": "TestNet", "access": "full" }
+        - network: TestNet
+          access: full
     delegate_to: localhost
     register: update_network_check
     check_mode: yes
@@ -249,7 +260,8 @@
       email: '{{email_prefix}}+jimdoe@{{email_domain}}'
       orgAccess: none
       networks:
-        - { "network": "TestNet", "access": "full" }
+        - network: TestNet
+          access: full
     delegate_to: localhost
     register: update_network
 
@@ -268,7 +280,8 @@
       email: '{{email_prefix}}+jimdoe@{{email_domain}}'
       orgAccess: none
       networks:
-        - { "network": "TestNet", "access": "full" }
+        - network: TestNet
+          access: full
     delegate_to: localhost
     register: update_network_idempotent_check
     check_mode: yes
@@ -289,7 +302,8 @@
       email: '{{email_prefix}}+jimdoe@{{email_domain}}'
       orgAccess: none
       networks:
-        - { "network": "TestNet", "access": "full" }
+        - network: TestNet
+          access: full
     delegate_to: localhost
     register: update_network_idempotent
 
@@ -307,7 +321,8 @@
       email: '{{email_prefix}}+John@{{email_domain}}'
       orgAccess: none
       networks:
-        - { "network": "readnet", "access": "read-only" }
+        - network: TestNetFake
+          access: read-only
     delegate_to: localhost
     register: create_network_invalid
     ignore_errors: yes
@@ -324,6 +339,9 @@
       org_name: '{{test_org_name}}'
     delegate_to: localhost
     register: query_all
+
+  - debug:
+      var: query_all
 
   - assert:
       that:
