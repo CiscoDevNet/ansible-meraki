@@ -15,92 +15,40 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r'''
 ---
-module: meraki_switchport
-short_description: Manage switchports on a switch in the Meraki cloud
-version_added: "2.7"
+module: meraki_switch_storm_control
+short_description: Manage storm control configuration on a switch in the Meraki cloud
+version_added: "0.1.0"
 description:
-- Allows for management of switchports settings for Meraki MS switches.
+- Allows for management of storm control settings for Meraki MS switches.
 options:
     state:
         description:
-        - Specifies whether a switchport should be queried or modified.
+        - Specifies whether storm control configuration should be queried or modified.
         choices: [query, present]
         default: query
         type: str
-    access_policy_number:
+    net_name:
         description:
-        - Number of the access policy to apply.
-        - Only applicable to access port types.
+        - Name of network.
         type: str
-    allowed_vlans:
+    net_id:
         description:
-        - List of VLAN numbers to be allowed on switchport.
-        default: all
-        type: list
-    enabled:
-        description:
-        - Whether a switchport should be enabled or disabled.
-        type: bool
-        default: yes
-    isolation_enabled:
-        description:
-        - Isolation status of switchport.
-        default: no
-        type: bool
-    link_negotiation:
-        description:
-        - Link speed for the switchport.
-        default: Auto negotiate
-        choices: [Auto negotiate, 100Megabit (auto), 100 Megabit full duplex (forced)]
+        - ID of network.
         type: str
-    name:
+    broadcast_threshold:
         description:
-        - Switchport description.
-        aliases: [description]
-        type: str
-    number:
-        description:
-        - Port number.
-        type: str
-    poe_enabled:
-        description:
-        - Enable or disable Power Over Ethernet on a port.
-        type: bool
-        default: true
-    rstp_enabled:
-        description:
-        - Enable or disable Rapid Spanning Tree Protocol on a port.
-        type: bool
-        default: true
-    serial:
-        description:
-        - Serial nubmer of the switch.
-        type: str
-    stp_guard:
-        description:
-        - Set state of STP guard.
-        choices: [disabled, root guard, bpdu guard, loop guard]
-        default: disabled
-        type: str
-    tags:
-        description:
-        - Space delimited list of tags to assign to a port.
-        type: str
-    type:
-        description:
-        - Set port type.
-        choices: [access, trunk]
-        default: access
-        type: str
-    vlan:
-        description:
-        - VLAN number assigned to port.
-        - If a port is of type trunk, the specified VLAN is the native VLAN.
+            - Percentage (1 to 99) of total available port bandwidth for broadcast traffic type.
+            - Default value 100 percent rate is to clear the configuration.
         type: int
-    voice_vlan:
+    multicast_threshold:
         description:
-        - VLAN number assigned to a port for voice traffic.
-        - Only applicable to access port type.
+            - Percentage (1 to 99) of total available port bandwidth for multicast traffic type.
+            - Default value 100 percent rate is to clear the configuration.
+        type: int
+    unknown_unicast_threshold:
+        description:
+            - Percentage (1 to 99) of total available port bandwidth for unknown unicast traffic type.
+            - Default value 100 percent rate is to clear the configuration.
         type: int
 
 author:
@@ -109,150 +57,69 @@ extends_documentation_fragment: meraki
 '''
 
 EXAMPLES = r'''
-- name: Query information about all switchports on a switch
-  meraki_switchport:
-    auth_key: abc12345
+- name: Set broadcast settings
+  meraki_switch_storm_control:
+    auth_key: abc123
+    state: present
+    org_name: YourOrg
+    net_name: YourNet
+    broadcast_threshold: 75
+    multicast_threshold: 70
+    unknown_unicast_threshold: 65
+  delegate_to: localhost
+
+- name: Query storm control settings
+  meraki_switch_storm_control:
+    auth_key: abc123
     state: query
-    serial: ABC-123
-  delegate_to: localhost
-
-- name: Query information about all switchports on a switch
-  meraki_switchport:
-    auth_key: abc12345
-    state: query
-    serial: ABC-123
-    number: 2
-  delegate_to: localhost
-
-- name: Name switchport
-  meraki_switchport:
-    auth_key: abc12345
-    state: present
-    serial: ABC-123
-    number: 7
-    name: Test Port
-  delegate_to: localhost
-
-- name: Configure access port with voice VLAN
-  meraki_switchport:
-    auth_key: abc12345
-    state: present
-    serial: ABC-123
-    number: 7
-    enabled: true
-    name: Test Port
-    tags: desktop
-    type: access
-    vlan: 10
-    voice_vlan: 11
-  delegate_to: localhost
-
-- name: Check access port for idempotency
-  meraki_switchport:
-    auth_key: abc12345
-    state: present
-    serial: ABC-123
-    number: 7
-    enabled: true
-    name: Test Port
-    tags: desktop
-    type: access
-    vlan: 10
-    voice_vlan: 11
-  delegate_to: localhost
-
-- name: Configure trunk port with specific VLANs
-  meraki_switchport:
-    auth_key: abc12345
-    state: present
-    serial: ABC-123
-    number: 7
-    enabled: true
-    name: Server port
-    tags: server
-    type: trunk
-    allowed_vlans:
-      - 10
-      - 15
-      - 20
+    org_name: YourOrg
+    net_name: YourNet
   delegate_to: localhost
 '''
 
 RETURN = r'''
 data:
-    description: Information queried or updated switchports.
+    description: Information queried or updated storm control configuration.
     returned: success
     type: complex
     contains:
-        number:
-            description: Number of port.
+        broadcast_threshold:
+            description:
+                - Percentage (1 to 99) of total available port bandwidth for broadcast traffic type.
+                - Default value 100 percent rate is to clear the configuration.
             returned: success
             type: int
-            sample: 1
-        name:
-            description: Human friendly description of port.
-            returned: success
-            type: str
-            sample: "Jim Phone Port"
-        tags:
-            description: Space delimited list of tags assigned to port.
-            returned: success
-            type: str
-            sample: phone marketing
-        enabled:
-            description: Enabled state of port.
-            returned: success
-            type: bool
-            sample: true
-        poe_enabled:
-            description: Power Over Ethernet enabled state of port.
-            returned: success
-            type: bool
-            sample: true
-        type:
-            description: Type of switchport.
-            returned: success
-            type: str
-            sample: trunk
-        vlan:
-            description: VLAN assigned to port.
+            sample: 42
+        multicast_threshold:
+            description:
+                - Percentage (1 to 99) of total available port bandwidth for multicast traffic type.
+                - Default value 100 percent rate is to clear the configuration.
             returned: success
             type: int
-            sample: 10
-        voice_vlan:
-            description: VLAN assigned to port with voice VLAN enabled devices.
+            sample: 42
+        unknown_unicast_threshold:
+            description:
+                - Percentage (1 to 99) of total available port bandwidth for unknown unicast traffic type.
+                - Default value 100 percent rate is to clear the configuration.
             returned: success
             type: int
-            sample: 20
-        isolation_enabled:
-            description: Port isolation status of port.
-            returned: success
-            type: bool
-            sample: true
-        rstp_enabled:
-            description: Enabled or disabled state of Rapid Spanning Tree Protocol (RSTP)
-            returned: success
-            type: bool
-            sample: true
-        stp_guard:
-            description: State of STP guard
-            returned: success
-            type: str
-            sample: "Root Guard"
-        access_policy_number:
-            description: Number of assigned access policy. Only applicable to access ports.
-            returned: success
-            type: int
-            sample: 1234
-        link_negotiation:
-            description: Link speed for the port.
-            returned: success
-            type: str
-            sample: "Auto negotiate"
+            sample: 42
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
+from ansible.module_utils.common.dict_transformations import recursive_diff
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
+
+
+def construct_payload(params):
+    payload = dict()
+    if 'broadcast_threshold' in params:
+        payload['broadcastThreshold'] = params['broadcast_threshold']
+    if 'multicast_threshold' in params:
+        payload['multicastThreshold'] = params['multicast_threshold']
+    if 'unknown_unicast_threshold' in params:
+        payload['unknownUnicastThreshold'] = params['unknown_unicast_threshold']
+    return payload
 
 
 def main():
@@ -262,6 +129,9 @@ def main():
     argument_spec.update(state=dict(type='str', choices=['present', 'query'], default='query'),
                          net_name=dict(type='str'),
                          net_id=dict(type='str'),
+                         broadcast_threshold=dict(type='int'),
+                         multicast_threshold=dict(type='int'),
+                         unknown_unicast_threshold=dict(type='int'),
                          )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -275,7 +145,7 @@ def main():
     meraki.params['follow_redirects'] = 'all'
 
     query_urls = {'switch_storm_control': '/networks/{net_id}/switch/settings/stormControl'}
-    update_url = {'switch_storm_control': '/networks/{net_id}/switchPorts/{number}'}
+    update_url = {'switch_storm_control': '/networks/{net_id}/switch/settings/stormControl'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['update'] = update_url
@@ -290,13 +160,6 @@ def main():
         nets = meraki.get_nets(org_id=org_id)
         net_id = meraki.get_net_id(net_name=meraki.params['net_name'], data=nets)
 
-    # if the user is working with this module in only check mode we do not
-    # want to make any changes to the environment, just return the current
-    # state with no modifications
-    # FIXME: Work with Meraki so they can implement a check mode
-    if module.check_mode:
-        meraki.exit_json(**meraki.result)
-
     # execute checks for argument completeness
 
     # manipulate or modify the state as needed (this is going to be the
@@ -306,6 +169,28 @@ def main():
         response = meraki.request(path, method='GET')
         if meraki.status == 200:
             meraki.result['data'] = response
+    elif meraki.params['state'] == 'present':
+        path = meraki.construct_path('get_all', net_id=net_id)
+        original = meraki.request(path, method='GET')
+        payload = construct_payload(meraki.params)
+        if meraki.is_update_required(original, payload) is True:
+            diff = recursive_diff(original, payload)
+            if meraki.check_mode is True:
+                original.update(payload)
+                meraki.result['data'] = original
+                meraki.result['changed'] = True
+                meraki.result['diff'] = {'before': diff[0],
+                                         'after': diff[1]}
+                meraki.exit_json(**meraki.result)
+            path = meraki.construct_path('update', net_id=net_id)
+            response = meraki.request(path, method='PUT', payload=json.dumps(payload))
+            if meraki.status == 200:
+                meraki.result['diff'] = {'before': diff[0],
+                                         'after': diff[1]}
+                meraki.result['data'] = response
+                meraki.result['changed'] = True
+        else:
+            meraki.result['data'] = original
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results
