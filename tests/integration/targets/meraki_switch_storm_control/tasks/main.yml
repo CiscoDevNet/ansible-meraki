@@ -1,0 +1,40 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2019, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Create switch network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: Home - Switch
+      timezone: America/Chicago
+      type: switch
+    delegate_to: localhost
+    register: net
+
+  - set_fact:
+      net_id: '{{net.data.id}}'
+
+  - name: Query storm control settings
+    meraki_switch_storm_control:
+      auth_key: '{{auth_key}}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: Home - Switch
+    delegate_to: localhost
+    register: query_all
+
+  - debug:
+      var: query_all
+
+  always:
+    - name: Delete switch network
+      meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{test_org_name}}'
+        net_name: Home - Switch
+      delegate_to: localhost
