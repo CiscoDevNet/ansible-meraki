@@ -260,10 +260,10 @@ def set_snmp(meraki, org_id):
     if meraki.params['v3_enabled'] is True:
         if len(meraki.params['v3_auth_pass']) < 8 or len(meraki.params['v3_priv_pass']) < 8:
             meraki.fail_json(msg='v3_auth_pass and v3_priv_pass must both be at least 8 characters long.')
-        if (meraki.params['v3_auth_mode'] is None or
-                meraki.params['v3_auth_pass'] is None or
-                meraki.params['v3_priv_mode'] is None or
-                meraki.params['v3_priv_pass'] is None):
+        if meraki.params['v3_auth_mode'] is None or \
+           meraki.params['v3_auth_pass'] is None or \
+           meraki.params['v3_priv_mode'] is None or \
+           meraki.params['v3_priv_pass'] is None:
             meraki.fail_json(msg='v3_auth_mode, v3_auth_pass, v3_priv_mode, and v3_auth_pass are required')
         payload = {'v3Enabled': meraki.params['v3_enabled'],
                    'v3AuthMode': meraki.params['v3_auth_mode'].upper(),
