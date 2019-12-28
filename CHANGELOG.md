@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.0.2
+
+### Bugfixes
+* meraki_ssid - Properly formats the walled garden payload to Meraki
+
 ## v0.0.1
 
 ### Documenttion

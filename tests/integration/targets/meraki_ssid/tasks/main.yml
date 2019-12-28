@@ -244,6 +244,50 @@
       that:
         - splash_click.data.splash_page == 'Click-through splash page'
 
+  - name: Set walled garden
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      walled_garden_enabled: yes
+      walled_garden_ranges:
+        - 192.168.0.0/24
+        - '*.ansible.com'
+    delegate_to: localhost
+    register: walled_garden
+
+  - debug:
+      msg: '{{ walled_garden }}'
+
+  - assert:
+      that:
+        - 'walled_garden.data.walled_garden_enabled == True'
+        - walled_garden is changed
+
+  - name: Set walled garden with idempotency
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      walled_garden_enabled: yes
+      walled_garden_ranges:
+        - 192.168.0.0/24
+        - '*.ansible.com'
+    delegate_to: localhost
+    register: walled_garden_idempotent
+
+  - debug:
+      msg: '{{ walled_garden_idempotent }}'
+
+  - assert:
+      that:
+        - walled_garden_idempotent.data is defined
+        - walled_garden_idempotent is not changed
+
   - name: Configure RADIUS servers
     meraki_ssid:
       auth_key: '{{auth_key}}'

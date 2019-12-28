@@ -366,6 +366,67 @@ def get_ssids(meraki, net_id):
     return meraki.request(path, method='GET')
 
 
+
+def construct_payload(meraki):
+    param_map = {'name': 'name',
+                 'enabled': 'enabled',
+                 'authMode': 'auth_mode',
+                 'encryptionMode': 'encryption_mode',
+                 'psk': 'psk',
+                 'wpaEncryptionMode': 'wpa_encryption_mode',
+                 'splashPage': 'splash_page',
+                 'radiusServers': 'radius_servers',
+                 'radiusCoaEnabled': 'radius_coa_enabled',
+                 'radiusFailoverPolicy': 'radius_failover_policy',
+                 'radiusLoadBalancingPolicy': 'radius_load_balancing_policy',
+                 'radiusAccountingEnabled': 'radius_accounting_enabled',
+                 'radiusAccountingServers': 'radius_accounting_servers',
+                 'ipAssignmentMode': 'ip_assignment_mode',
+                 'useVlanTagging': 'use_vlan_tagging',
+                 'concentratorNetworkId': 'concentrator_network_id',
+                 'vlanId': 'vlan_id',
+                 'defaultVlanId': 'default_vlan_id',
+                 'apTagsAndVlanIds': 'ap_tags_vlan_ids',
+                 'walledGardenEnabled': 'walled_garden_enabled',
+                 'walledGardenRanges': 'walled_garden_ranges',
+                 'minBitrate': 'min_bitrate',
+                 'bandSelection': 'band_selection',
+                 'perClientBandwidthLimitUp': 'per_client_bandwidth_limit_up',
+                 'perClientBandwidthLimitDown': 'per_client_bandwidth_limit_down',
+                 }
+
+    payload = dict()
+    for k, v in param_map.items():
+        if meraki.params[v] is not None:
+            payload[k] = meraki.params[v]
+
+    if meraki.params['ap_tags_vlan_ids'] is not None:
+        for i in payload['apTagsAndVlanIds']:
+            try:
+                i['vlanId'] = i['vlan_id']
+                del i['vlan_id']
+            except KeyError:
+                pass
+
+    if payload.get('walledGardenRanges', False):
+        payload['walledGardenRanges'] = list_to_str(payload['walledGardenRanges'])
+
+    return payload
+
+
+def list_to_str(data):
+    space_separated_list = ""
+
+    for item in data:
+        space_separated_list = space_separated_list + " " + item
+
+    return space_separated_list.strip()
+
+
+def per_line_to_str(data):
+    return data.replace('\n', ' ')
+
+
 def main():
 
     param_map = {'name': 'name',
@@ -543,24 +604,14 @@ def main():
         else:
             meraki.result['data'] = get_ssids(meraki, net_id)
     elif meraki.params['state'] == 'present':
-        payload = dict()
-        for k, v in param_map.items():
-            if meraki.params[v] is not None:
-                payload[k] = meraki.params[v]
-        # Short term solution for camelCase/snake_case differences
-        # Will be addressed later with a method in module utils
-        if meraki.params['ap_tags_vlan_ids'] is not None:
-            for i in payload['apTagsAndVlanIds']:
-                try:
-                    i['vlanId'] = i['vlan_id']
-                    del i['vlan_id']
-                except KeyError:
-                    pass
+        payload = construct_payload(meraki)
         ssids = get_ssids(meraki, net_id)
         number = meraki.params['number']
         if number is None:
             number = get_ssid_number(meraki.params['name'], ssids)
         original = ssids[number]
+        if original.get('walledGardenRanges', False):  # Update original so it's a string
+            original['walledGardenRanges'] = per_line_to_str(original['walledGardenRanges'])
         if meraki.is_update_required(original, payload, optional_ignore=['secret']):
             ssid_id = meraki.params['number']
             if ssid_id is None:  # Name should be used to lookup number
