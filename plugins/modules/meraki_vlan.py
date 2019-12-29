@@ -421,10 +421,7 @@ def main():
                 payload['vpnNatSubnet'] = meraki.params['vpn_nat_subnet']
             ignored = ['networkId']
             if meraki.is_update_required(original, payload, optional_ignore=ignored):
-                meraki.result['diff'] = dict()
-                diff = recursive_diff(original, payload)
-                meraki.result['diff']['before'] = diff[0]
-                meraki.result['diff']['after'] = diff[1]
+                meraki.generate_diff(original, payload)
                 if meraki.module.check_mode is True:
                     original.update(payload)
                     meraki.result['changed'] = True
