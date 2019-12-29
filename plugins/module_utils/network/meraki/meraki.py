@@ -10,7 +10,7 @@ import time
 import os
 import re
 from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils.common.dict_transformations import camel_dict_to_snake_dict
+from ansible.module_utils.common.dict_transformations import camel_dict_to_snake_dict, recursive_diff
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.module_utils._text import to_native, to_bytes, to_text
@@ -242,6 +242,13 @@ class MerakiModule(object):
                 # self.fail_json(msg="Fallback", original=original, proposed=proposed)
                 return True
         return False
+
+    def generate_diff(self, before, after):
+        """Creates a diff based on two objects. Applies to the object and returns nothing.
+        """
+        diff = recursive_diff(before, after)
+        self.result['diff'] = {'before': diff[0],
+                               'after': diff[1]}
 
     def get_orgs(self):
         """Downloads all organizations for a user."""
