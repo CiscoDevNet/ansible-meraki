@@ -16,6 +16,7 @@
 * Improve HTTP error reporting for 400 errors
 
 ### Bugfixes
+* meraki_ssid - Properly formats the walled garden payload to Meraki
 * Fix most linting errors (issue #13)
 * Restructure tests directory
 * Fix comparison check to not crash when comparing a dict to a non-dict (issue #6)
