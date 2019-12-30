@@ -354,11 +354,8 @@ def create_admin(meraki, org_id, name, email):
             payload['networks'] = []
         if meraki.is_update_required(is_admin_existing, payload) is True:
             if meraki.module.check_mode is True:
-                diff = recursive_diff(is_admin_existing, payload)
+                meraki.generate_diff(is_admin_existing, payload)
                 is_admin_existing.update(payload)
-                meraki.result['diff'] = {'before': diff[0],
-                                         'after': diff[1],
-                                         }
                 meraki.result['changed'] = True
                 meraki.result['data'] = payload
                 meraki.exit_json(**meraki.result)

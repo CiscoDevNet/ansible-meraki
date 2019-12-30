@@ -1,8 +1,17 @@
 # Changelog
 
+## v0.1.0
+
+### Enhancements
+* diff generation now uses a centralized method instead of per module code
+
+### Bugfixes
+* diff now returns as snakecase instead of camelcase
+
+
 ## v0.0.1
 
-### Documenttion
+### Documentation
 * Improve type documentation for module parameters
 * Improve HTTP error reporting for 400 errors
 

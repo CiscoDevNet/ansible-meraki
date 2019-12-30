@@ -10,7 +10,7 @@ import time
 import os
 import re
 from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils.common.dict_transformations import camel_dict_to_snake_dict
+from ansible.module_utils.common.dict_transformations import camel_dict_to_snake_dict, recursive_diff
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.module_utils._text import to_native, to_bytes, to_text
@@ -243,6 +243,19 @@ class MerakiModule(object):
                 return True
         return False
 
+    def generate_diff(self, before, after):
+        """Creates a diff based on two objects. Applies to the object and returns nothing.
+        """
+        try:
+            diff = recursive_diff(before, after)
+            self.result['diff'] = {'before': diff[0],
+                                   'after': diff[1]}
+        except AttributeError:  # Normally for passing a list instead of a dict
+            diff = recursive_diff({'data': before},
+                                  {'data': after})
+            self.result['diff'] = {'before': diff[0]['data'],
+                                   'after': diff[1]['data']}
+
     def get_orgs(self):
         """Downloads all organizations for a user."""
         response = self.request('/organizations', method='GET')
@@ -435,6 +448,7 @@ class MerakiModule(object):
             if 'data' in self.result:
                 try:
                     self.result['data'] = self.convert_camel_to_snake(self.result['data'])
+                    self.result['diff'] = self.convert_camel_to_snake(self.result['diff'])
                 except (KeyError, AttributeError):
                     pass
         self.module.exit_json(**self.result)
