@@ -431,6 +431,7 @@ def main():
                 response = meraki.request(path, method='PUT', payload=json.dumps(payload))
                 meraki.result['changed'] = True
                 meraki.result['data'] = response
+                meraki.generate_diff(original, response)
             else:
                 if meraki.module.check_mode is True:
                     meraki.result['data'] = original

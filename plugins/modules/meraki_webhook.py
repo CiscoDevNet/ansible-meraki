@@ -291,16 +291,15 @@ def main():
             original = meraki.request(path, method='GET')
             if meraki.is_update_required(original, payload):
                 if meraki.check_mode is True:
-                    diff = recursive_diff(original, payload)
+                    meraki.generate_diff(original, payload)
                     original.update(payload)
-                    meraki.result['diff'] = {'before': diff[0],
-                                             'after': diff[1]}
                     meraki.result['data'] = original
                     meraki.result['changed'] = True
                     meraki.exit_json(**meraki.result)
                 path = meraki.construct_path('update', net_id=net_id, custom={'hookid': webhook_id})
                 response = meraki.request(path, method='PUT', payload=json.dumps(payload))
                 if meraki.status == 200:
+                    meraki.generate_diff(original, response)
                     meraki.result['data'] = response
                     meraki.result['changed'] = True
             else:

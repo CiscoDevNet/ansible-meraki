@@ -216,11 +216,8 @@ def main():
         proposed = current.copy()
         proposed.update(payload)
         if meraki.is_update_required(current, payload) is True:
-            meraki.result['diff'] = dict()
-            diff = recursive_diff(current, payload)
-            meraki.result['diff']['before'] = diff[0]
-            meraki.result['diff']['after'] = diff[1]
             if module.check_mode:
+                meraki.generate_diff(current, payload)
                 current.update(payload)
                 meraki.result['changed'] = True
                 meraki.result['data'] = current
@@ -228,6 +225,7 @@ def main():
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             meraki.result['data'] = response
             meraki.result['changed'] = True
+            meraki.generate_diff(current, response)
         else:
             meraki.result['data'] = current
             if module.check_mode:

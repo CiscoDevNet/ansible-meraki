@@ -246,9 +246,15 @@ class MerakiModule(object):
     def generate_diff(self, before, after):
         """Creates a diff based on two objects. Applies to the object and returns nothing.
         """
-        diff = recursive_diff(before, after)
-        self.result['diff'] = {'before': diff[0],
-                               'after': diff[1]}
+        try:
+            diff = recursive_diff(before, after)
+            self.result['diff'] = {'before': diff[0],
+                                   'after': diff[1]}
+        except AttributeError:  # Normally for passing a list instead of a dict
+            diff = recursive_diff({'data': before},
+                                  {'data': after})
+            self.result['diff'] = {'before': diff[0]['data'],
+                                   'after': diff[1]['data']}
 
     def get_orgs(self):
         """Downloads all organizations for a user."""
@@ -442,6 +448,7 @@ class MerakiModule(object):
             if 'data' in self.result:
                 try:
                     self.result['data'] = self.convert_camel_to_snake(self.result['data'])
+                    self.result['diff'] = self.convert_camel_to_snake(self.result['diff'])
                 except (KeyError, AttributeError):
                     pass
         self.module.exit_json(**self.result)
