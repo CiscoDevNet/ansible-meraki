@@ -7,6 +7,7 @@
 
 ### Bugfixes
 * diff now returns as snakecase instead of camelcase
+* Modules which don't support check mode will now error if check mode is requested
 
 
 ## v0.0.1

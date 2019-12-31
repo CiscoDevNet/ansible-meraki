@@ -311,7 +311,7 @@ def main():
     # args/params passed to the execution, as well as if the module
     # supports check mode
     module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=True,
+                           supports_check_mode=False,
                            )
     meraki = MerakiModule(module, function='switchport')
     meraki.params['follow_redirects'] = 'all'
