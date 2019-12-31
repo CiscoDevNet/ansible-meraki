@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.1
+
+### Bugfixes
+** Fix some sanity errors
+
 ## v0.1.0
 
 ### Enhancements
