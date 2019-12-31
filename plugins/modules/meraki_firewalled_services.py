@@ -211,19 +211,15 @@ def main():
             if meraki.check_mode is True:
                 diff_payload = {'service': meraki.params['service']}  # Need to add service as it's not in payload
                 diff_payload.update(payload)
-                diff = recursive_diff(original, diff_payload)
+                meraki.generate_diff(original, diff_payload)
                 original.update(payload)
-                meraki.result['diff'] = {'before': diff[0],
-                                         'after': diff[1]}
                 meraki.result['data'] = original
                 meraki.result['changed'] = True
                 meraki.exit_json(**meraki.result)
             path = meraki.construct_path('service', net_id=net_id, custom={'service': meraki.params['service']})
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             if meraki.status == 200:
-                diff = recursive_diff(original, response)
-                meraki.result['diff'] = {'before': diff[0],
-                                         'after': diff[1]}
+                meraki.generate_diff(original, response)
                 meraki.result['data'] = response
                 meraki.result['changed'] = True
         else:

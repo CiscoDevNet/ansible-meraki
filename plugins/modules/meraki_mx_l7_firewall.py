@@ -452,20 +452,14 @@ def main():
             payload = rename_appid_to_id(payload)
             if meraki.module.check_mode is True:
                 response = restructure_response(payload)
-                diff = recursive_diff(restructure_response(rules), response)
-                meraki.result['diff'] = {'before': diff[0],
-                                         'after': diff[1],
-                                         }
+                meraki.generate_diff(restructure_response(rules), response)
                 meraki.result['data'] = response
                 meraki.result['changed'] = True
                 meraki.exit_json(**meraki.result)
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             response = restructure_response(response)
             if meraki.status == 200:
-                diff = recursive_diff(restructure_response(rules), response)
-                meraki.result['diff'] = {'before': diff[0],
-                                         'after': diff[1],
-                                         }
+                meraki.generate_diff(restructure_response(rules), response)
                 meraki.result['data'] = response
                 meraki.result['changed'] = True
         else:

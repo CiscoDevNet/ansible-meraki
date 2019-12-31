@@ -281,20 +281,16 @@ def set_snmp(meraki, org_id):
     ignored_parameters = ['v3AuthPass', 'v3PrivPass', 'hostname', 'port', 'v2CommunityString', 'v3User']
     if meraki.is_update_required(snmp, full_compare, optional_ignore=ignored_parameters):
         if meraki.module.check_mode is True:
-            diff = recursive_diff(snmp, full_compare)
+            meraki.generate_diff(snmp, full_compare)
             snmp.update(payload)
             meraki.result['data'] = snmp
             meraki.result['changed'] = True
-            meraki.result['diff'] = {'before': diff[0],
-                                     'after': diff[1]}
             meraki.exit_json(**meraki.result)
         r = meraki.request(path,
                            method='PUT',
                            payload=json.dumps(payload))
         if meraki.status == 200:
-            diff = recursive_diff(snmp, r)
-            meraki.result['diff'] = {'before': diff[0],
-                                     'after': diff[1]}
+            meraki.generate_diff(snmp, r)
             meraki.result['changed'] = True
             return r
     else:

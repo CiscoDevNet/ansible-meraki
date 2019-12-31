@@ -230,16 +230,15 @@ def main():
 
         if meraki.is_update_required(original, payload):
             if meraki.module.check_mode is True:
-                diff = recursive_diff(original, payload)
+                meraki.generate_diff(original, payload)
                 original.update(payload)
-                meraki.result['diff'] = {'before': diff[0],
-                                         'after': diff[1]}
                 meraki.result['data'] = original
                 meraki.result['changed'] = True
                 meraki.exit_json(**meraki.result)
             path = meraki.construct_path('query_update', net_id=net_id)
             r = meraki.request(path, method='PUT', payload=json.dumps(payload))
             if meraki.status == 200:
+                meraki.generate_diff(original, r)
                 meraki.result['data'] = r
                 meraki.result['changed'] = True
         else:

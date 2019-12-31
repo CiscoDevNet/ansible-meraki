@@ -1,15 +1,26 @@
 # Changelog
 
+## v0.1.0
+
+### Enhancements
+* diff generation now uses a centralized method instead of per module code
+
+### Bugfixes
+* diff now returns as snakecase instead of camelcase
+* Modules which don't support check mode will now error if check mode is requested
+
+
 ## v0.0.1
 
 ### New Modules
 * meraki_switch_storm_control
 
-### Documenttion
+### Documentation
 * Improve type documentation for module parameters
 * Improve HTTP error reporting for 400 errors
 
 ### Bugfixes
+* meraki_ssid - Properly formats the walled garden payload to Meraki
 * Fix most linting errors (issue #13)
 * Restructure tests directory
 * Fix comparison check to not crash when comparing a dict to a non-dict (issue #6)
