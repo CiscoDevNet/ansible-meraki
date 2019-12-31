@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.1.2
+
+## Enhancements
+* Add template for inventory.networking file
+
 ## v0.1.1
 
 ### Bugfixes
