@@ -12,6 +12,9 @@
 
 ## v0.0.1
 
+### New Modules
+* meraki_switch_storm_control
+
 ### Documentation
 * Improve type documentation for module parameters
 * Improve HTTP error reporting for 400 errors
