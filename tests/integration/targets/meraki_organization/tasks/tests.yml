@@ -31,6 +31,9 @@
   - debug:
       msg: '{{cloned_org}}'
 
+  - set_fact:
+      cloned_net_id: '{{cloned_org.data.id}}'
+
   - name: Rename IntTestOrg
     meraki_organization:
       auth_key: '{{ auth_key }}'
@@ -95,12 +98,29 @@
         - 'query_org.data.name == "IntTestOrgRenamed"'
         - 'query_org_id.data.id == query_org.data.id'
 
+  - name: Delete without confirmation code
+    meraki_organization:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_name: IntTestOrgCloned
+    register: delete_no_confirm
+    ignore_errors: yes
+
+  - assert:
+      that:
+        'delete_no_confirm.msg == "delete_confirm must match the network ID of the network to be deleted."'
+
   always:
+  # - name: Pause playbook for more reliable deletion
+  #   pause:
+  #     minutes: 1
+
   - name: Delete cloned organizations with check mode
     meraki_organization:
       auth_key: '{{ auth_key }}'
       state: absent
       org_name: IntTestOrgCloned
+      delete_confirm: '{{cloned_net_id}}'
     register: deleted_org_check
     check_mode: yes
 
@@ -113,6 +133,7 @@
       auth_key: '{{ auth_key }}'
       state: absent
       org_name: IntTestOrgCloned
+      delete_confirm: '{{cloned_net_id}}'
     register: deleted_org
 
   - name: Delete renamed organization by id
@@ -120,6 +141,7 @@
       auth_key: '{{ auth_key }}'
       state: absent
       org_id: '{{renamed_org_id}}'
+      delete_confirm: '{{renamed_org_id}}'
     register: deleted_org_id
 
   - assert:
