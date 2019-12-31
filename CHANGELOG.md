@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.0
+
+### Enhancements
+* meraki_organzation - A confirmation is needed to delete an organization since it can be a catastrophic change
+
 ## v0.1.0
 
 ### Enhancements
