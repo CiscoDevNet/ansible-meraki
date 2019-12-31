@@ -2,6 +2,9 @@
 
 ## v0.1.0
 
+### New Modules
+* meraki_management_interface - Configure management interfaces on MX appliances
+
 ### Enhancements
 * diff generation now uses a centralized method instead of per module code
 
