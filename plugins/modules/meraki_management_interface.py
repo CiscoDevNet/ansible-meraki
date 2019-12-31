@@ -70,7 +70,7 @@ options:
                 - IP address assigned to Management interface.
                 - Valid only if C(using_static_ip) is C(True).
                 type: str
-            static_ip_gateway:
+            static_gateway_ip:
                 description:
                 - IP address for default gateway.
                 - Valid only if C(using_static_ip) is C(True).
@@ -109,7 +109,7 @@ options:
                 - IP address assigned to Management interface.
                 - Valid only if C(using_static_ip) is C(True).
                 type: str
-            static_ip_gateway:
+            static_gateway_ip:
                 description:
                 - IP address for default gateway.
                 - Valid only if C(using_static_ip) is C(True).
