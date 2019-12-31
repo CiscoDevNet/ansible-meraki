@@ -366,7 +366,6 @@ def get_ssids(meraki, net_id):
     return meraki.request(path, method='GET')
 
 
-
 def construct_payload(meraki):
     param_map = {'name': 'name',
                  'enabled': 'enabled',
@@ -428,34 +427,6 @@ def per_line_to_str(data):
 
 
 def main():
-
-    param_map = {'name': 'name',
-                 'enabled': 'enabled',
-                 'authMode': 'auth_mode',
-                 'encryptionMode': 'encryption_mode',
-                 'psk': 'psk',
-                 'wpaEncryptionMode': 'wpa_encryption_mode',
-                 'splashPage': 'splash_page',
-                 'radiusServers': 'radius_servers',
-                 'radiusCoaEnabled': 'radius_coa_enabled',
-                 'radiusFailoverPolicy': 'radius_failover_policy',
-                 'radiusLoadBalancingPolicy': 'radius_load_balancing_policy',
-                 'radiusAccountingEnabled': 'radius_accounting_enabled',
-                 'radiusAccountingServers': 'radius_accounting_servers',
-                 'ipAssignmentMode': 'ip_assignment_mode',
-                 'useVlanTagging': 'use_vlan_tagging',
-                 'concentratorNetworkId': 'concentrator_network_id',
-                 'vlanId': 'vlan_id',
-                 'defaultVlanId': 'default_vlan_id',
-                 'apTagsAndVlanIds': 'ap_tags_vlan_ids',
-                 'walledGardenEnabled': 'walled_garden_enabled',
-                 'walledGardenRanges': 'walled_garden_ranges',
-                 'minBitrate': 'min_bitrate',
-                 'bandSelection': 'band_selection',
-                 'perClientBandwidthLimitUp': 'per_client_bandwidth_limit_up',
-                 'perClientBandwidthLimitDown': 'per_client_bandwidth_limit_down',
-                 }
-
     default_payload = {'name': 'Unconfigured SSID',
                        'auth_mode': 'open',
                        'splashPage': 'None',
