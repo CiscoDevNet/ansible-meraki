@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.2.0
+
+## New Modules
+* meraki_intrusion_prevention
+
 ### v0.1.2
 
 ## Enhancements
