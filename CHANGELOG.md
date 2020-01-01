@@ -4,6 +4,7 @@
 
 ## Enhancements
 * Add template for inventory.networking file
+* Add check mode for meraki_mr_l3_firewall module
 
 ## v0.1.1
 

@@ -17,6 +17,34 @@
   - set_fact:
       net: '{{new_net.data.id}}'
 
+  - name: Create single firewall rule with check mode
+    meraki_mr_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_id: '{{net}}'
+      number: 1
+      rules:
+        - comment: Integration test rule
+          policy: allow
+          protocol: tcp
+          dest_port: 80
+          dest_cidr: 192.0.2.0/24
+      allow_lan_access: no
+    delegate_to: localhost
+    check_mode: yes
+    register: create_one_check
+
+  - debug:
+      msg: '{{create_one_check}}'
+
+  - assert:
+      that:
+        - create_one_check.data.0.comment == 'Integration test rule'
+        - create_one_check.data.1.policy == 'deny'
+        - create_one_check.data is defined
+        - create_one_check is changed
+
   - name: Create single firewall rule
     meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
@@ -43,6 +71,26 @@
         - create_one.data.1.policy == 'deny'
         - create_one.data is defined
 
+  - name: Enable local LAN access with check mode
+    meraki_mr_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_id: '{{net}}'
+      number: 1
+      allow_lan_access: yes
+    delegate_to: localhost
+    check_mode: yes
+    register: enable_lan_check
+
+  - debug:
+      var: enable_lan_check
+
+  - assert:
+      that:
+        - enable_lan_check.data.1.policy == 'allow'
+        - enable_lan_check is changed
+
   - name: Enable local LAN access
     meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
@@ -50,7 +98,6 @@
       org_name: '{{test_org_name}}'
       net_id: '{{net}}'
       number: 1
-      rules:
       allow_lan_access: yes
     delegate_to: localhost
     register: enable_lan
@@ -58,6 +105,30 @@
   - assert:
       that:
         - enable_lan.data.1.policy == 'allow'
+
+  - name: Update rules without specifying LAN access with check mode
+    meraki_mr_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_id: '{{net}}'
+      number: 1
+      rules:
+        - comment: Integration test rule
+          policy: allow
+          protocol: tcp
+          dest_port: 8080
+          dest_cidr: 192.0.2.0/24
+    delegate_to: localhost
+    register: update_one_check
+
+  - debug:
+      msg: '{{update_one_check}}'
+
+  - assert:
+      that:
+        - update_one_check.data.0.comment == 'Integration test rule'
+        - update_one_check.data is defined
 
   - name: Query firewall rules
     meraki_mr_l3_firewall:
