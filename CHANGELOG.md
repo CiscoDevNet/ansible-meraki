@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.2.0
+
+## Enhancements
+* meraki_mx_l3_firewall - Add check mode
+
 ### v0.1.2
 
 ## Enhancements
