@@ -1,6 +1,11 @@
 # Changelog
 
-### v0.1.2
+## v1.0.0
+
+### Enhancements
+* meraki_ssid - Add support for check mode
+
+## v0.1.2
 
 ## Enhancements
 * Add template for inventory.networking file
