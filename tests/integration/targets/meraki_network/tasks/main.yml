@@ -419,6 +419,21 @@
     register: delete_all_no_org
     ignore_errors: yes
       
+  - name: Delete network by org ID and check mode
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_id: '{{test_org_id}}'
+      net_name: IntTestNetworkSwitchOrgID
+    delegate_to: localhost
+    check_mode: yes
+    register: delete_net_org_id_check
+
+  - assert:
+      that:
+        - delete_net_org_id_check is changed
+        - delete_net_org_id_check.data is defined
+      
   - name: Delete network by org ID
     meraki_network:
       auth_key: '{{ auth_key }}'

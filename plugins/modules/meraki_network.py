@@ -388,6 +388,10 @@ def main():
                 meraki.result['data'] = net
     elif meraki.params['state'] == 'absent':
         if is_net_valid(nets, net_id=net_id) is True:
+            if meraki.check_mode is True:
+                meraki.result['data'] = {}
+                meraki.result['changed'] = True
+                meraki.exit_json(**meraki.result)
             path = meraki.construct_path('delete', net_id=net_id)
             r = meraki.request(path, method='DELETE')
             if meraki.status == 204:
