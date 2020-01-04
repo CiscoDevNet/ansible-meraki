@@ -31,6 +31,25 @@
 - debug:
     msg: '{{query_one}}'
 
+- name: Enable switchport with check mode
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: Q2HP-2C6E-GTLD
+    number: 7
+    enabled: true
+  delegate_to: localhost
+  check_mode: yes
+  register: update_port_true_check
+
+- debug:
+    msg: '{{update_port_true_check}}'
+
+- assert:
+    that:
+      - update_port_true_check is changed
+      - update_port_true_check.data is defined
+
 - name: Enable switchport
   meraki_switchport:
     auth_key: '{{auth_key}}'
@@ -82,6 +101,29 @@
 - assert:
     that:
       - update_port_name.data.name == 'Test Port'
+
+- name: Configure access port with check mode
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: Q2HP-2C6E-GTLD
+    number: 7
+    enabled: true
+    name: Test Port
+    tags: desktop
+    type: access
+    vlan: 10
+  delegate_to: localhost
+  check_mode: yes
+  register: update_access_port_changed
+
+- debug:
+    msg: '{{update_access_port_changed}}'
+
+- assert:
+    that:
+      - update_access_port_changed is changed
+      - update_access_port_changed.data is defined
 
 - name: Configure access port
   meraki_switchport:

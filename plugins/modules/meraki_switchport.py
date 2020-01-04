@@ -311,7 +311,7 @@ def main():
     # args/params passed to the execution, as well as if the module
     # supports check mode
     module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=False,
+                           supports_check_mode=True,
                            )
     meraki = MerakiModule(module, function='switchport')
     meraki.params['follow_redirects'] = 'all'
@@ -329,13 +329,6 @@ def main():
     meraki.url_catalog['update'] = update_url
 
     payload = None
-
-    # if the user is working with this module in only check mode we do not
-    # want to make any changes to the environment, just return the current
-    # state with no modifications
-    # FIXME: Work with Meraki so they can implement a check mode
-    if module.check_mode:
-        meraki.exit_json(**meraki.result)
 
     # execute checks for argument completeness
 
@@ -387,6 +380,11 @@ def main():
         if meraki.params['type'] == 'trunk':
             proposed['voiceVlan'] = original['voiceVlan']  # API shouldn't include voice VLAN on a trunk port
         if meraki.is_update_required(original, proposed, optional_ignore=['number']):
+            if meraki.check_mode is True:
+                original.update(proposed)
+                meraki.result['data'] = original
+                meraki.result['changed'] = True
+                meraki.exit_json(**meraki.result)
             path = meraki.construct_path('update', custom={'serial': meraki.params['serial'],
                                                            'number': meraki.params['number'],
                                                            })

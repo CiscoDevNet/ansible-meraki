@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.0
+
+## Enhancements
+- meraki_switchport - Add support for check mode
+
 ### v0.1.2
 
 ## Enhancements
