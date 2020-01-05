@@ -30,6 +30,23 @@
     delegate_to: localhost
     register: query_all
 
+  - name: Enable and name SSID with check mode
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      enabled: true
+    delegate_to: localhost
+    register: enable_name_ssid_check
+    check_mode: yes
+
+  - assert:
+      that:
+        - enable_name_ssid_check is changed
+        - enable_name_ssid_check.data is defined
+
   - name: Enable and name SSID
     meraki_ssid:
       auth_key: '{{auth_key}}'
@@ -423,6 +440,22 @@
         - 'set_vlan_arg_err.msg == "default_vlan_id is required when use_vlan_tagging is True"'
 
   always:
+  - name: Delete SSID with check mode
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+    delegate_to: localhost
+    register: delete_ssid_check
+    check_mode: yes
+
+  - assert:
+      that:
+        - delete_ssid_check is changed
+        - delete_ssid_check.data is defined
+
   - name: Delete SSID
     meraki_ssid:
       auth_key: '{{auth_key}}'
