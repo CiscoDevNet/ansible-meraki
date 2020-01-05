@@ -499,20 +499,12 @@ def main():
                          per_client_bandwidth_limit_down=dict(type='int'),
                          )
 
-    # seed the result dict in the object
-    # we primarily care about changed and state
-    # change is if this module effectively modified the target
-    # state will include any data that you want your module to pass back
-    # for consumption, for example, in a subsequent task
-    result = dict(
-        changed=False,
-    )
     # the AnsibleModule object will be our abstraction working with Ansible
     # this includes instantiation, a couple of common attr would be the
     # args/params passed to the execution, as well as if the module
     # supports check mode
     module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=False,
+                           supports_check_mode=True,
                            )
     meraki = MerakiModule(module, function='ssid')
     meraki.params['follow_redirects'] = 'all'
@@ -526,13 +518,6 @@ def main():
     meraki.url_catalog['update'] = update_url
 
     payload = None
-
-    # if the user is working with this module in only check mode we do not
-    # want to make any changes to the environment, just return the current
-    # state with no modifications
-    # FIXME: Work with Meraki so they can implement a check mode
-    if module.check_mode:
-        meraki.exit_json(**meraki.result)
 
     # execute checks for argument completeness
     if meraki.params['psk']:
@@ -591,6 +576,11 @@ def main():
                     ssid_id = get_available_number(ssids)
                     if ssid_id is False:
                         meraki.fail_json(msg='No unconfigured SSIDs are available. Specify a number.')
+            if meraki.check_mode is True:
+                original.update(payload)
+                meraki.result['data'] = original
+                meraki.result['changed'] = True
+                meraki.exit_json(**meraki.result)
             path = meraki.construct_path('update', net_id=net_id) + str(ssid_id)
             result = meraki.request(path, 'PUT', payload=json.dumps(payload))
             meraki.result['data'] = result
@@ -606,6 +596,10 @@ def main():
                 ssid_id = get_available_number(ssids)
                 if ssid_id is False:
                     meraki.fail_json(msg='No SSID found by specified name and no number was referenced.')
+        if meraki.check_mode is True:
+            meraki.result['data'] = {}
+            meraki.result['changed'] = True
+            meraki.exit_json(**meraki.result)
         path = meraki.construct_path('update', net_id=net_id) + str(ssid_id)
         payload = default_payload
         payload['name'] = payload['name'] + ' ' + str(ssid_id + 1)
