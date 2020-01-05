@@ -3,12 +3,11 @@
 ## v1.0.0
 
 ### Enhancements
+* Add template for inventory.networking file
 * meraki_ssid - Add support for check mode
 
-## v0.1.2
-
-## Enhancements
-* Add template for inventory.networking file
+### New Modules
+* meraki_intrusion_prevention
 
 ## v0.1.1
 
