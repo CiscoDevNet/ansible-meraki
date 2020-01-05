@@ -135,6 +135,7 @@ def main():
                          state=dict(type='str', choices=['absent', 'present', 'query'], default='present'),
                          org_name=dict(type='str', aliases=['name', 'organization']),
                          org_id=dict(type='str', aliases=['id']),
+                         delete_confirm=dict(type='str'),
                          )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -217,6 +218,8 @@ def main():
             org_id = meraki.get_org_id(meraki.params['org_name'])
         elif meraki.params['org_id'] is not None:
             org_id = meraki.params['org_id']
+        if meraki.params['delete_confirm'] != org_id:
+            meraki.fail_json(msg="delete_confirm must match the network ID of the network to be deleted.")
         if meraki.check_mode is True:
             meraki.result['data'] = {}
             meraki.result['changed'] = True

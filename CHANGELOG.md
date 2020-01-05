@@ -3,6 +3,7 @@
 ## v1.0.0
 
 ### Enhancements
+* meraki_organzation - A confirmation is needed to delete an organization since it can be a catastrophic change
 * meraki_network - Add support for check mode
 * meraki_mr_l3_firewall - Add check mode
 * meraki_mx_l3_firewall - Add check mode
