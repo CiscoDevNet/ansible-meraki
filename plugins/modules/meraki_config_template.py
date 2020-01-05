@@ -212,8 +212,6 @@ def main():
     meraki.url_catalog['bind'] = bind_urls
     meraki.url_catalog['unbind'] = unbind_urls
 
-    payload = None
-
     # if the user is working with this module in only check mode we do not
     # want to make any changes to the environment, just return the current
     # state with no modifications

@@ -31,6 +31,36 @@
       that:
         - query.data|length == 1
 
+  - name: Set one firewall rule with check mode
+    meraki_mx_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: TestNetAppliance
+      state: present
+      rules:
+        - comment: Deny to documentation address
+          src_port: any
+          src_cidr: any
+          dest_port: 80,443
+          dest_cidr: 192.0.1.1/32
+          protocol: tcp
+          policy: deny
+    delegate_to: localhost
+    check_mode: yes
+    register: create_one_check
+
+  - debug:
+      var: create_one_check
+
+  - assert:
+      that:
+        - create_one_check.data|length == 2
+        - create_one_check.data.0.dest_cidr == '192.0.1.1/32'
+        - create_one_check.data.0.protocol == 'tcp'
+        - create_one_check.data.0.policy == 'deny'
+        - create_one_check is changed
+        - create_one_check.data is defined
+
   - name: Set one firewall rule
     meraki_mx_l3_firewall:
       auth_key: '{{ auth_key }}'
@@ -99,6 +129,34 @@
             - Flows
     delegate_to: localhost
 
+  - name: Enable syslog for default rule with check mode
+    meraki_mx_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: TestNetAppliance
+      state: present
+      rules:
+        - comment: Deny to documentation address
+          src_port: any
+          src_cidr: any
+          dest_port: 80,443
+          dest_cidr: 192.0.1.1/32
+          protocol: tcp
+          policy: deny        
+      syslog_default_rule: yes
+    delegate_to: localhost
+    check_mode: yes
+    register: default_syslog_check
+
+  - debug:
+      msg: '{{default_syslog_check}}'
+
+  - assert:
+      that:
+        - default_syslog_check.data is defined
+        - default_syslog_check.data.1.syslog_enabled == True
+
+
   - name: Enable syslog for default rule
     meraki_mx_l3_firewall:
       auth_key: '{{ auth_key }}'
@@ -165,6 +223,37 @@
   - assert:
       that:
         - disable_syslog.data is defined
+
+  - name: Query firewall rules
+    meraki_mx_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: TestNetAppliance
+      state: query
+    delegate_to: localhost
+    register: query
+
+  - debug:
+      msg: '{{query}}'
+
+  - name: Enable syslog for default rule with no rules and with check mode
+    meraki_mx_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: TestNetAppliance
+      state: present
+      syslog_default_rule: yes
+    delegate_to: localhost
+    check_mode: yes
+    register: enable_syslog_only_check
+
+  - debug:
+      msg: '{{enable_syslog_only_check}}'
+
+  - assert:
+      that:
+        - enable_syslog_only_check.data.1.syslog_enabled == True
+        - enable_syslog_only_check is changed
 
   - name: Query firewall rules
     meraki_mx_l3_firewall:

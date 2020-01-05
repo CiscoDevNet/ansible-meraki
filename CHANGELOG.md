@@ -4,6 +4,19 @@
 
 ### Enhancements
 * meraki_organzation - A confirmation is needed to delete an organization since it can be a catastrophic change
+* meraki_network - Add support for check mode
+* meraki_mr_l3_firewall - Add check mode
+* meraki_mx_l3_firewall - Add check mode
+* meraki_ssid - Add support for check mode
+* meraki_switchport - Add check mode
+
+### New Modules
+* meraki_intrusion_prevention
+
+## v0.1.1
+
+### Bugfixes
+** Fix some sanity errors
 
 ## v0.1.0
 
@@ -12,9 +25,13 @@
 
 ### Bugfixes
 * diff now returns as snakecase instead of camelcase
+* Modules which don't support check mode will now error if check mode is requested
 
 
 ## v0.0.1
+
+### New Modules
+* meraki_switch_storm_control
 
 ### Documentation
 * Improve type documentation for module parameters

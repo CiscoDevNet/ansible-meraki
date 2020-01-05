@@ -259,13 +259,6 @@ def main():
 
     payload = None
 
-    # if the user is working with this module in only check mode we do not
-    # want to make any changes to the environment, just return the current
-    # state with no modifications
-    # FIXME: Work with Meraki so they can implement a check mode
-    if module.check_mode:
-        meraki.exit_json(**meraki.result)
-
     # execute checks for argument completeness
 
     # manipulate or modify the state as needed (this is going to be the
@@ -297,11 +290,12 @@ def main():
         if meraki.params['syslog_default_rule'] is not None:
             payload['syslogDefaultRule'] = meraki.params['syslog_default_rule']
         try:
-            if len(rules) - 1 != len(payload['rules']):  # Quick and simple check to avoid more processing
-                update = True
-            if meraki.params['syslog_default_rule'] is not None:
-                if rules[len(rules) - 1]['syslogEnabled'] != meraki.params['syslog_default_rule']:
+            if meraki.params['rules'] is not None:
+                if len(rules) - 1 != len(payload['rules']):  # Quick and simple check to avoid more processing
                     update = True
+            if meraki.params['syslog_default_rule'] is not None:
+                    if rules[len(rules) - 1]['syslogEnabled'] != meraki.params['syslog_default_rule']:
+                        update = True
             if update is False:
                 default_rule = rules[len(rules) - 1].copy()
                 del rules[len(rules) - 1]  # Remove default rule for comparison
@@ -312,6 +306,19 @@ def main():
         except KeyError:
             pass
         if update is True:
+            if meraki.check_mode is True:
+                if meraki.params['rules'] is not None:
+                    data = payload['rules']
+                    data.append(rules[len(rules) - 1])  # Append the default rule
+                    if meraki.params['syslog_default_rule'] is not None:
+                        data[len(payload) - 1]['syslog_enabled'] = meraki.params['syslog_default_rule']
+                else:
+                    if meraki.params['syslog_default_rule'] is not None:
+                        data = rules
+                        data[len(data) - 1]['syslogEnabled'] = meraki.params['syslog_default_rule']
+                meraki.result['data'] = data
+                meraki.result['changed'] = True
+                meraki.exit_json(**meraki.result)
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             if meraki.status == 200:
                 meraki.result['data'] = response
