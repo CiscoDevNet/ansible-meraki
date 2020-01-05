@@ -1,10 +1,16 @@
 # Changelog
 
-### v0.1.2
+## v1.0.0
 
-## Enhancements
-* Add template for inventory.networking file
-* Add check mode for meraki_mr_l3_firewall module
+### Enhancements
+* meraki_network - Add support for check mode
+* meraki_mr_l3_firewall - Add check mode
+* meraki_mx_l3_firewall - Add check mode
+* meraki_ssid - Add support for check mode
+* meraki_switchport - Add check mode
+
+### New Modules
+* meraki_intrusion_prevention
 
 ## v0.1.1
 
