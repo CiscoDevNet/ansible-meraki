@@ -9,6 +9,7 @@
 * meraki_mx_l3_firewall - Add check mode
 * meraki_ssid - Add support for check mode
 * meraki_switchport - Add check mode
+* Add template for inventory.networking
 
 ### New Modules
 * meraki_intrusion_prevention
