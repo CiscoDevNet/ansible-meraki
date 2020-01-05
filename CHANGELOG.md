@@ -5,6 +5,7 @@
 ### Enhancements
 * Add template for inventory.networking file
 * meraki_ssid - Add support for check mode
+* meraki_switchport - Add support for check mode
 
 ### New Modules
 * meraki_intrusion_prevention
