@@ -5,6 +5,7 @@
 ### Enhancements
 * Add template for inventory.networking file
 * meraki_network - Add support for check mode
+* meraki_mx_l3_firewall - Add check mode
 * meraki_ssid - Add support for check mode
 * meraki_switchport - Add support for check mode
 
