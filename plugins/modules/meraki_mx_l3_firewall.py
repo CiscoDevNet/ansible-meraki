@@ -299,9 +299,14 @@ def main():
             if update is False:
                 default_rule = rules[len(rules) - 1].copy()
                 del rules[len(rules) - 1]  # Remove default rule for comparison
-                for r in range(len(rules) - 1):
-                    if meraki.is_update_required(rules[r], payload['rules'][r]) is True:
+                if len(rules) - 1 == 0:
+                    if meraki.is_update_required(rules[0], payload['rules'][0]) is True:
+                        # meraki.fail_json(msg="Compare", original=rules[0], payload=payload['rules'][0])
                         update = True
+                else:
+                    for r in range(len(rules) - 1):
+                        if meraki.is_update_required(rules[r], payload['rules'][r]) is True:
+                            update = True
                 rules.append(default_rule)
         except KeyError:
             pass
