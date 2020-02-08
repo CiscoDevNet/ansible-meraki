@@ -56,18 +56,22 @@ options:
             dest_port:
                 description:
                 - Comma separated list of destination port numbers to match against.
+                - C(Any) must be capitalized.
                 type: str
             dest_cidr:
                 description:
                 - Comma separated list of CIDR notation destination networks.
+                - C(Any) must be capitalized.
                 type: str
             src_port:
                 description:
                 - Comma separated list of source port numbers to match against.
+                - C(Any) must be capitalized.
                 type: str
             src_cidr:
                 description:
                 - Comma separated list of CIDR notation source networks.
+                - C(Any) must be capitalized.
                 type: str
             comment:
                 description:

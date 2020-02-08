@@ -39,8 +39,8 @@
       state: present
       rules:
         - comment: Deny to documentation address
-          src_port: any
-          src_cidr: any
+          src_port: Any
+          src_cidr: Any
           dest_port: 80,443
           dest_cidr: 192.0.1.1/32
           protocol: tcp
@@ -69,8 +69,8 @@
       state: present
       rules:
         - comment: Deny to documentation address
-          src_port: any
-          src_cidr: any
+          src_port: Any
+          src_cidr: Any
           dest_port: 80,443
           dest_cidr: 192.0.1.1/32
           protocol: tcp
@@ -98,8 +98,8 @@
       state: present
       rules:
         - comment: Deny to documentation address
-          src_port: any
-          src_cidr: any
+          src_port: Any
+          src_cidr: Any
           dest_port: 80,443
           dest_cidr: 192.0.1.1/32
           protocol: tcp
@@ -114,6 +114,31 @@
       that:
         - create_one_idempotent.changed == False
         - create_one_idempotent.data is defined
+
+  - name: Update one existing rule
+    meraki_mx_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: TestNetAppliance
+      state: present
+      rules:
+        - comment: Deny all documentation addresses
+          src_port: Any
+          src_cidr: Any
+          dest_port: 80,443
+          dest_cidr: 192.0.1.1/32,192.0.1.2/32
+          protocol: tcp
+          policy: deny
+    delegate_to: localhost
+    register: update_one
+
+  - debug:
+      msg: '{{update_one}}'
+
+  - assert:
+      that:
+        - update_one.changed == True
+        - update_one.data is defined
 
   - name: Create syslog in network
     meraki_syslog:
@@ -137,8 +162,8 @@
       state: present
       rules:
         - comment: Deny to documentation address
-          src_port: any
-          src_cidr: any
+          src_port: Any
+          src_cidr: Any
           dest_port: 80,443
           dest_cidr: 192.0.1.1/32
           protocol: tcp
@@ -165,8 +190,8 @@
       state: present
       rules:
         - comment: Deny to documentation address
-          src_port: any
-          src_cidr: any
+          src_port: Any
+          src_cidr: Any
           dest_port: 80,443
           dest_cidr: 192.0.1.1/32
           protocol: tcp
@@ -207,8 +232,8 @@
       state: present
       rules:
         - comment: Deny to documentation address
-          src_port: any
-          src_cidr: any
+          src_port: Any
+          src_cidr: Any
           dest_port: 80,443
           dest_cidr: 192.0.1.1/32
           protocol: tcp
