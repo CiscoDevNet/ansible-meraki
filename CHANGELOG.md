@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.1
+
+### Bugfixes
+* meraki_mx_l3_firewall - Fix bug where firewall rule change wouldn't apply
+
 ## v1.0.0
 
 ### Enhancements
