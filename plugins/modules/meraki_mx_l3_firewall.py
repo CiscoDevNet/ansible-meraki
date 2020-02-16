@@ -298,8 +298,8 @@ def main():
                 if len(rules) - 1 != len(payload['rules']):  # Quick and simple check to avoid more processing
                     update = True
             if meraki.params['syslog_default_rule'] is not None:
-                    if rules[len(rules) - 1]['syslogEnabled'] != meraki.params['syslog_default_rule']:
-                        update = True
+                if rules[len(rules) - 1]['syslogEnabled'] != meraki.params['syslog_default_rule']:
+                    update = True
             if update is False:
                 default_rule = rules[len(rules) - 1].copy()
                 del rules[len(rules) - 1]  # Remove default rule for comparison
