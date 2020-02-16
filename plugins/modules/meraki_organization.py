@@ -44,6 +44,10 @@ options:
         - ID of organization.
         aliases: [ id ]
         type: str
+    delete_confirm:
+        description:
+        - ID of organization required for confirmation before deletion.
+        type: str
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: meraki
