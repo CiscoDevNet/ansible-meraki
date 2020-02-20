@@ -240,19 +240,17 @@ def get_static_route(meraki, net_id, route_id):
     r = meraki.request(path, method='GET')
     return r
 
-<<<<<<< HEAD
 def does_route_exist(name, routes):
     for route in routes:
         if name == route['name']:
             return route
     return None
-=======
+
 def update_dict(original, proposed):
     for k, v in proposed.items():
         if v is not None:
             original[k] = v
     return original
->>>>>>> 38fef75... Update idempotency checks to not delete data
 
 
 def main():
@@ -353,9 +351,7 @@ def main():
         if meraki.params['name'] is not None and route_id is None:
             route_status = does_route_exist(meraki.params['name'], get_static_routes(meraki, net_id))
             if route_status is not None:  # Route exists, assign route_id
-                # meraki.fail_json(route_status['id'])
                 route_id = route_status['id']
-                # meraki.fail_json(route_id)
 
         if route_id is not None:
             existing_route = get_static_route(meraki, net_id, route_id)
