@@ -236,9 +236,15 @@ def get_static_routes(meraki, net_id):
 
 
 def get_static_route(meraki, net_id, route_id):
-    path = meraki.construct_path('get_one', net_id=net_id, custom={'route_id': meraki.params['route_id']})
+    path = meraki.construct_path('get_one', net_id=net_id, custom={'route_id': route_id})
     r = meraki.request(path, method='GET')
     return r
+
+def does_route_exist(name, routes):
+    for route in routes:
+        if name == route['name']:
+            return route
+    return None
 
 
 def main():
@@ -335,8 +341,17 @@ def main():
             # meraki.fail_json(msg="payload", payload=payload)
         if meraki.params['enabled'] is not None:
             payload['enabled'] = meraki.params['enabled']
-        if meraki.params['route_id']:
-            existing_route = get_static_route(meraki, net_id, meraki.params['route_id'])
+
+        route_id = meraki.params['route_id']
+        if meraki.params['name'] is not None and route_id is None:
+            route_status = does_route_exist(meraki.params['name'], get_static_routes(meraki, net_id))
+            if route_status is not None:  # Route exists, assign route_id
+                # meraki.fail_json(route_status['id'])
+                route_id = route_status['id']
+                # meraki.fail_json(route_id)
+
+        if route_id is not None:
+            existing_route = get_static_route(meraki, net_id, route_id)
             proposed = existing_route.copy()
             proposed.update(payload)
             if module.check_mode:
@@ -344,7 +359,7 @@ def main():
                 meraki.result['data'].update(payload)
                 meraki.exit_json(**meraki.result)
             if meraki.is_update_required(existing_route, proposed, optional_ignore=['id']):
-                path = meraki.construct_path('update', net_id=net_id, custom={'route_id': meraki.params['route_id']})
+                path = meraki.construct_path('update', net_id=net_id, custom={'route_id': route_id})
                 meraki.result['data'] = meraki.request(path, method="PUT", payload=json.dumps(payload))
                 meraki.result['changed'] = True
             else:
