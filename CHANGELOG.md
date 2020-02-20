@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.2
+
+### Bugfixes
+* meraki_static_route - Fix idempotency bugs triggered with certain parameters
+
 ## v1.0.1
 
 ### Bugfixes

@@ -355,19 +355,17 @@ def main():
 
         if route_id is not None:
             existing_route = get_static_route(meraki, net_id, route_id)
-            proposed = existing_route.copy()
-            proposed.update(payload)
+            original = existing_route.copy()
+            payload = update_dict(existing_route, payload)
             if module.check_mode:
                 meraki.result['data'] = payload
                 meraki.exit_json(**meraki.result)
-            if meraki.is_update_required(existing_route, proposed, optional_ignore=['id']):
-                path = meraki.construct_path('update', net_id=net_id, custom={'route_id': route_id})
             if meraki.is_update_required(original, payload, optional_ignore=['id']):
-                path = meraki.construct_path('update', net_id=net_id, custom={'route_id': meraki.params['route_id']})
+                path = meraki.construct_path('update', net_id=net_id, custom={'route_id': route_id})
                 meraki.result['data'] = meraki.request(path, method="PUT", payload=json.dumps(payload))
                 meraki.result['changed'] = True
             else:
-                meraki.result['data'] = existing_route
+                meraki.result['data'] = original
         else:
             if module.check_mode:
                 meraki.result['data'] = payload
