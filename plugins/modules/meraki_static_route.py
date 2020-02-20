@@ -240,11 +240,19 @@ def get_static_route(meraki, net_id, route_id):
     r = meraki.request(path, method='GET')
     return r
 
+<<<<<<< HEAD
 def does_route_exist(name, routes):
     for route in routes:
         if name == route['name']:
             return route
     return None
+=======
+def update_dict(original, proposed):
+    for k, v in proposed.items():
+        if v is not None:
+            original[k] = v
+    return original
+>>>>>>> 38fef75... Update idempotency checks to not delete data
 
 
 def main():
@@ -338,7 +346,6 @@ def main():
                                                              meraki.params['fixed_ip_assignments'])
         if meraki.params['reserved_ip_ranges'] is not None:
             payload['reservedIpRanges'] = meraki.params['reserved_ip_ranges']
-            # meraki.fail_json(msg="payload", payload=payload)
         if meraki.params['enabled'] is not None:
             payload['enabled'] = meraki.params['enabled']
 
@@ -355,11 +362,12 @@ def main():
             proposed = existing_route.copy()
             proposed.update(payload)
             if module.check_mode:
-                meraki.result['data'] = proposed
-                meraki.result['data'].update(payload)
+                meraki.result['data'] = payload
                 meraki.exit_json(**meraki.result)
             if meraki.is_update_required(existing_route, proposed, optional_ignore=['id']):
                 path = meraki.construct_path('update', net_id=net_id, custom={'route_id': route_id})
+            if meraki.is_update_required(original, payload, optional_ignore=['id']):
+                path = meraki.construct_path('update', net_id=net_id, custom={'route_id': meraki.params['route_id']})
                 meraki.result['data'] = meraki.request(path, method="PUT", payload=json.dumps(payload))
                 meraki.result['changed'] = True
             else:

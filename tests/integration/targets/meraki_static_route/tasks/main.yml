@@ -87,6 +87,7 @@
 
   - assert:
       that:
+        - update is changed
         - update.data.subnet == "192.0.3.0/24"
 
   - name: Query static routes
