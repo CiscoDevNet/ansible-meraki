@@ -37,6 +37,22 @@
   - set_fact:
       route_ids: "{{ route_ids + [create_route.data.id] }}"
 
+  - name: Create static_route with idempotency
+    meraki_static_route:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetwork
+      name: Test Route
+      subnet: 192.0.1.0/24
+      gateway_ip: 192.168.128.1
+    delegate_to: localhost
+    register: create_route_idempotent
+
+  - assert:
+      that:
+        - create_route_idempotent is not changed
+
   - name: Create second static_route
     meraki_static_route:
       auth_key: '{{auth_key}}'
@@ -71,6 +87,7 @@
 
   - assert:
       that:
+        - update is changed
         - update.data.subnet == "192.0.3.0/24"
 
   - name: Query static routes
