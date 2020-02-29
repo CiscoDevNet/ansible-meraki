@@ -4,6 +4,7 @@
 
 ### Bugfixes
 * meraki_static_route - Fix idempotency bugs triggered with certain parameters
+* meraki_mx_l3_firewall - Remove unnecessary org lookup which may crash
 
 ## v1.0.1
 

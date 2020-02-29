@@ -268,7 +268,6 @@ def main():
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
     org_id = meraki.params['org_id']
-    orgs = None
     if org_id is None:
         orgs = meraki.get_orgs()
         for org in orgs:
@@ -276,8 +275,6 @@ def main():
                 org_id = org['id']
     net_id = meraki.params['net_id']
     if net_id is None:
-        if orgs is None:
-            orgs = meraki.get_orgs()
         net_id = meraki.get_net_id(net_name=meraki.params['net_name'],
                                    data=meraki.get_nets(org_id=org_id))
 
