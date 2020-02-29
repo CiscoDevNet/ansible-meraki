@@ -64,7 +64,7 @@
   - name: Set one firewall rule
     meraki_mx_l3_firewall:
       auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
+      org_id: '{{test_org_id}}'
       net_name: TestNetAppliance
       state: present
       rules:
