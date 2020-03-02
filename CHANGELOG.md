@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.3
+
+## Miscellaneous
+* Remove accidentally added meraki_site_to_site_vpn module which shouldn't have been published
+
 ## v1.0.2
 
 ### Bugfixes
