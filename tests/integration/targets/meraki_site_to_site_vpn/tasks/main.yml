@@ -1,0 +1,102 @@
+# Test code for the Meraki Admin module
+# Copyright: (c) 2018, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+
+  - name: Create hub network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+      type: appliance
+    delegate_to: localhost
+    register: net_hub
+
+  - name: Create spoke network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_spoke'
+      type: appliance
+    delegate_to: localhost
+    register: net_spoke
+
+  - debug:
+      var: net_hub
+
+  - set_fact:
+      net_spoke_id: '{{net_spoke.data.id}}'
+      net_hub_id: '{{net_hub.data.id}}'
+
+  - name: Set hub mode
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+      mode: hub
+    delegate_to: localhost
+    register: set_hub
+
+  - debug:
+      var: set_hub
+
+  - name: Set spoke mode
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_spoke'
+      mode: spoke
+      hubs:
+        - hub_id: '{{net_hub_id}}'
+          use_default_route: false
+    delegate_to: localhost
+    register: set_spoke
+
+  - debug:
+      var: set_spoke
+
+  - name: Query all rules
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+    delegate_to: localhost
+    register: query_all
+
+
+  # always:
+  # #############################################################################
+  # # Tear down starts here
+  # #############################################################################
+  # - name: Delete administrators
+  #   meraki_admin:
+  #     auth_key: '{{auth_key}}'
+  #     state: absent
+  #     org_name: '{{test_org_name}}'
+  #     email: '{{item}}'
+  #   delegate_to: localhost
+  #   register: delete_all
+  #   ignore_errors: yes
+  #   loop:
+  #       - '{{email_prefix}}+janedoe@{{email_domain}}'
+  #       - '{{email_prefix}}+johndoe@{{email_domain}}'
+  #       - '{{email_prefix}}+jimdoe@{{email_domain}}'
+
+  # - name: Query all administrators
+  #   meraki_admin:
+  #     auth_key: '{{auth_key}}'
+  #     state: query
+  #     org_name: '{{test_org_name}}'
+  #   delegate_to: localhost
+  #   register: query_all_deleted
+
+  # - assert:
+  #     that:
+  #       - query_all_deleted.data | length == 1
