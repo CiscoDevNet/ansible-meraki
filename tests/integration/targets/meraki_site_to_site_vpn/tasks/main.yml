@@ -25,9 +25,6 @@
     delegate_to: localhost
     register: net_spoke
 
-  - debug:
-      var: net_hub
-
   - set_fact:
       net_spoke_id: '{{net_spoke.data.id}}'
       net_hub_id: '{{net_hub.data.id}}'
@@ -45,30 +42,45 @@
   - debug:
       var: set_hub
 
-  - name: Set spoke mode
-    meraki_site_to_site_vpn:
-      auth_key: '{{auth_key}}'
-      state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}_spoke'
-      mode: spoke
-      hubs:
-        - hub_id: '{{net_hub_id}}'
-          use_default_route: false
-    delegate_to: localhost
-    register: set_spoke
+  # - name: Set spoke mode
+  #   meraki_site_to_site_vpn:
+  #     auth_key: '{{auth_key}}'
+  #     state: present
+  #     org_name: '{{test_org_name}}'
+  #     net_name: '{{test_net_name}}_spoke'
+  #     mode: spoke
+  #     hubs:
+  #       - hub_id: '{{net_hub_id}}'
+  #         use_default_route: false
+  #   delegate_to: localhost
+  #   register: set_spoke
 
-  - debug:
-      var: set_spoke
+  # - debug:
+  #     var: set_spoke
 
-  - name: Query all rules
+  - name: Query rules for hub
     meraki_site_to_site_vpn:
       auth_key: '{{auth_key}}'
       state: query
       org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
+      net_name: '{{test_net_name}}_hub'
     delegate_to: localhost
-    register: query_all
+    register: query_all_hub
+
+  - debug:
+      var: query_all_hub
+
+  - name: Query rules for spoke
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_spoke'
+    delegate_to: localhost
+    register: query_all_spoke
+
+  - debug:
+      var: query_all_spoke
 
 
   # always:
