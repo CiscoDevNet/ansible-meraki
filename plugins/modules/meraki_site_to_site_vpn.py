@@ -35,57 +35,38 @@ options:
         description:
         - ID of network which MX firewall is in.
         type: str
-    rules:
+    mode:
         description:
-        - List of firewall rules.
+        - Set VPN mode for network
+        choices: ['none', 'hub', 'spoke']
+        type: str
+    hubs:
+        description:
+        - List of hubs to assign to a spoke.
         type: list
         suboptions:
-            policy:
+            hub_id:
                 description:
-                - Policy to apply if rule is hit.
-                choices: [allow, deny]
+                - Network ID of hub
                 type: str
-            protocol:
+            use_default_route:
                 description:
-                - Protocol to match against.
-                choices: [any, icmp, tcp, udp]
-                type: str
-            dest_port:
-                description:
-                - Comma separated list of destination port numbers to match against.
-                - C(Any) must be capitalized.
-                type: str
-            dest_cidr:
-                description:
-                - Comma separated list of CIDR notation destination networks.
-                - C(Any) must be capitalized.
-                type: str
-            src_port:
-                description:
-                - Comma separated list of source port numbers to match against.
-                - C(Any) must be capitalized.
-                type: str
-            src_cidr:
-                description:
-                - Comma separated list of CIDR notation source networks.
-                - C(Any) must be capitalized.
-                type: str
-            comment:
-                description:
-                - Optional comment to describe the firewall rule.
-                type: str
-            syslog_enabled:
-                description:
-                - Whether to log hints against the firewall rule.
-                - Only applicable if a syslog server is specified against the network.
+                - Indicates whether deafult troute traffic should be sent to this hub.
+                - Only valid in spoke mode.
                 type: bool
-    syslog_default_rule:
+    subnets:
         description:
-        - Whether to log hits against the default firewall rule.
-        - Only applicable if a syslog server is specified against the network.
-        - This is not shown in response from Meraki. Instead, refer to the C(syslog_enabled) value in the default rule.
-        type: bool
-        default: no
+        - List of subnets to advertise over VPN.
+        type: list
+        suboptions:
+            local_subnet:
+                description:
+                - CIDR formatted subnet.
+                type: str
+            use_vpn:
+                description:
+                - Whether to advertise over VPN.
+                type: bool
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: meraki
@@ -205,6 +186,7 @@ def assemble_payload(meraki):
             subnet['localSubnet'] = subnet.pop('local_subnet')
             subnet['useVpn'] = subnet.pop('use_vpn')
     return payload
+
 
 def main():
     # define the available arguments/parameters that a user can pass to

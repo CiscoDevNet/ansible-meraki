@@ -42,21 +42,40 @@
   - debug:
       var: set_hub
 
-  # - name: Set spoke mode
-  #   meraki_site_to_site_vpn:
-  #     auth_key: '{{auth_key}}'
-  #     state: present
-  #     org_name: '{{test_org_name}}'
-  #     net_name: '{{test_net_name}}_spoke'
-  #     mode: spoke
-  #     hubs:
-  #       - hub_id: '{{net_hub_id}}'
-  #         use_default_route: false
-  #   delegate_to: localhost
-  #   register: set_spoke
+  - name: Set spoke mode
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_spoke'
+      mode: spoke
+      hubs:
+        - hub_id: '{{net_hub_id}}'
+          use_default_route: false
+    delegate_to: localhost
+    register: set_spoke
 
-  # - debug:
-  #     var: set_spoke
+  - debug:
+      var: set_spoke
+
+  - name: Set spoke configuration
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_spoke'
+      mode: spoke
+      hubs:
+        - hub_id: '{{net_hub_id}}'
+          use_default_route: false
+      subnets:
+        - local_subnet: '192.168.169.0/24'
+          use_vpn: true
+    delegate_to: localhost
+    register: set_spoke
+
+  - debug:
+      var: set_spoke
 
   - name: Query rules for hub
     meraki_site_to_site_vpn:
@@ -81,34 +100,3 @@
 
   - debug:
       var: query_all_spoke
-
-
-  # always:
-  # #############################################################################
-  # # Tear down starts here
-  # #############################################################################
-  # - name: Delete administrators
-  #   meraki_admin:
-  #     auth_key: '{{auth_key}}'
-  #     state: absent
-  #     org_name: '{{test_org_name}}'
-  #     email: '{{item}}'
-  #   delegate_to: localhost
-  #   register: delete_all
-  #   ignore_errors: yes
-  #   loop:
-  #       - '{{email_prefix}}+janedoe@{{email_domain}}'
-  #       - '{{email_prefix}}+johndoe@{{email_domain}}'
-  #       - '{{email_prefix}}+jimdoe@{{email_domain}}'
-
-  # - name: Query all administrators
-  #   meraki_admin:
-  #     auth_key: '{{auth_key}}'
-  #     state: query
-  #     org_name: '{{test_org_name}}'
-  #   delegate_to: localhost
-  #   register: query_all_deleted
-
-  # - assert:
-  #     that:
-  #       - query_all_deleted.data | length == 1
