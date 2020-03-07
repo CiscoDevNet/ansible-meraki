@@ -73,100 +73,80 @@ extends_documentation_fragment: meraki
 '''
 
 EXAMPLES = r'''
-- name: Query firewall rules
-  meraki_mx_l3_firewall:
+- name: Set hub mode
+  meraki_site_to_site_vpn:
     auth_key: abc123
+    state: present
     org_name: YourOrg
-    net_name: YourNet
+    net_name: hub_network
+    mode: hub
+  delegate_to: localhost
+  register: set_hub
+
+- name: Set spoke mode
+  meraki_site_to_site_vpn:
+    auth_key: abc123
+    state: present
+    org_name: YourOrg
+    net_name: spoke_network
+    mode: spoke
+    hubs:
+      - hub_id: N_1234
+        use_default_route: false
+  delegate_to: localhost
+  register: set_spoke
+
+- name: Query rules for hub
+  meraki_site_to_site_vpn:
+    auth_key: abc123
     state: query
-  delegate_to: localhost
-
-- name: Set two firewall rules
-  meraki_mx_l3_firewall:
-    auth_key: abc123
     org_name: YourOrg
-    net_name: YourNet
-    state: present
-    rules:
-      - comment: Block traffic to server
-        src_cidr: 192.0.1.0/24
-        src_port: any
-        dest_cidr: 192.0.2.2/32
-        dest_port: any
-        protocol: any
-        policy: deny
-      - comment: Allow traffic to group of servers
-        src_cidr: 192.0.1.0/24
-        src_port: any
-        dest_cidr: 192.0.2.0/24
-        dest_port: any
-        protocol: any
-        policy: permit
+    net_name: hub_network
   delegate_to: localhost
-
-- name: Set one firewall rule and enable logging of the default rule
-  meraki_mx_l3_firewall:
-    auth_key: abc123
-    org_name: YourOrg
-    net_name: YourNet
-    state: present
-    rules:
-      - comment: Block traffic to server
-        src_cidr: 192.0.1.0/24
-        src_port: any
-        dest_cidr: 192.0.2.2/32
-        dest_port: any
-        protocol: any
-        policy: deny
-    syslog_default_rule: yes
-  delegate_to: localhost
+  register: query_all_hub
 '''
 
 RETURN = r'''
 data:
-    description: Firewall rules associated to network.
+    description: VPN settings.
     returned: success
     type: complex
     contains:
-        comment:
-            description: Comment to describe the firewall rule.
+        mode:
+            description: Mode assigned to network.
             returned: always
             type: str
-            sample: Block traffic to server
-        src_cidr:
-            description: Comma separated list of CIDR notation source networks.
+            sample: spoke
+        hubs:
+            description: Hub networks to associate to.
             returned: always
-            type: str
-            sample: 192.0.1.1/32,192.0.1.2/32
-        src_port:
-            description: Comma separated list of source ports.
+            type: complex
+            contains:
+                hub_id:
+                    description: ID of hub network.
+                    returned: always
+                    type: complex
+                    sample: N_12345
+                use_default_route:
+                    description: Whether to send all default route traffic over VPN.
+                    returned: always
+                    type: bool
+                    sample: true
+        subnets:
+            description: List of subnets to advertise over VPN.
             returned: always
-            type: str
-            sample: 80,443
-        dest_cidr:
-            description: Comma separated list of CIDR notation destination networks.
-            returned: always
-            type: str
-            sample: 192.0.1.1/32,192.0.1.2/32
-        dest_port:
-            description: Comma separated list of destination ports.
-            returned: always
-            type: str
-            sample: 80,443
-        protocol:
-            description: Network protocol for which to match against.
-            returned: always
-            type: str
-            sample: tcp
-        policy:
-            description: Action to take when rule is matched.
-            returned: always
-            type: str
-        syslog_enabled:
-            description: Whether to log to syslog when rule is matched.
-            returned: always
-            type: bool
-            sample: true
+            type: complex
+            contains:
+                local_subnet:
+                    description: CIDR formatted subnet.
+                    returned: always
+                    type: str
+                    sample: 192.168.1.0/24
+                use_vpn:
+                    description: Whether subnet should use the VPN.
+                    returned: always
+                    type: bool
+                    sample: true
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
