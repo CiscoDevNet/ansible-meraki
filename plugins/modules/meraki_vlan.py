@@ -206,6 +206,25 @@ EXAMPLES = r'''
     dns_nameservers: opendns
   delegate_to: localhost
 
+- name: Enable DHCP on VLAN with options
+  meraki_vlan:
+    auth_key: abc123
+    state: present
+    org_name: YourOrg
+    net_name: YourNet
+    vlan_id: 2
+    name: TestVLAN
+    subnet: 192.168.250.0/24
+    appliance_ip: 192.168.250.2
+    dhcp_handling: server
+    dhcp_lease_time: 1 hour
+    dhcp_boot_options_enabled: false
+    dhcp_options:
+      - code: 5
+        type: ip
+        value: 192.0.1.1
+  delegate_to: localhost
+
 - name: Delete a VLAN.
   meraki_vlan:
     auth_key: abc12345
