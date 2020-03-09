@@ -96,7 +96,60 @@ options:
         name:
           description: Descriptive name of IP assignment binding.
           type: str
-
+    dhcp_handling:
+        description:
+        - How to handle DHCP packets on network.
+        type: str
+        choices: ['Run a DHCP server',
+                  'Relay DHCP to another server',
+                  'Do not respond to DHCP requests',
+                  'none',
+                  'server',
+                  'relay']
+    dhcp_relay_server_ips:
+        description:
+        - IP addresses to forward DHCP packets to.
+        type: list
+    dhcp_lease_time:
+        description:
+        - DHCP lease timer setting
+        type: str
+        choices: ['30 minutes',
+                  '1 hour',
+                  '4 hours',
+                  '12 hours',
+                  '1 day',
+                  '1 week']
+    dhcp_boot_options_enabled:
+        description:
+        - Enable DHCP boot options
+        type: bool
+    dhcp_boot_next_server:
+        description:
+        - DHCP boot option to direct boot clients to the server to load boot file from.
+        type: str
+    dhcp_boot_filename:
+        description:
+        - Filename to boot from for DHCP boot
+        type: str
+    dhcp_options:
+        description:
+        - List of DHCP option values
+        type: list
+        suboptions:
+            code:
+                description:
+                - DHCP option number.
+                type: int
+            type:
+                description:
+                - Type of value for DHCP option.
+                type: str
+                choices: ['text', 'ip', 'hex', 'integer']
+            value:
+                description:
+                - Value for DHCP option.
+                type: str
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: meraki
@@ -317,8 +370,52 @@ def is_vlan_valid(meraki, net_id, vlan_id):
     return False
 
 
+def construct_payload(meraki):
+    payload = {'id': meraki.params['vlan_id'],
+               'name': meraki.params['name'],
+               'subnet': meraki.params['subnet'],
+               'applianceIp': meraki.params['appliance_ip'],
+               }
+    if meraki.params['dns_nameservers']:
+        if meraki.params['dns_nameservers'] not in ('opendns', 'google_dns', 'upstream_dns'):
+            payload['dnsNameservers'] = format_dns(meraki.params['dns_nameservers'])
+        else:
+            payload['dnsNameservers'] = meraki.params['dns_nameservers']
+    if meraki.params['fixed_ip_assignments']:
+        payload['fixedIpAssignments'] = fixed_ip_factory(meraki, meraki.params['fixed_ip_assignments'])
+    if meraki.params['reserved_ip_range']:
+        payload['reservedIpRanges'] = meraki.params['reserved_ip_range']
+    if meraki.params['vpn_nat_subnet']:
+        payload['vpnNatSubnet'] = meraki.params['vpn_nat_subnet']
+    if meraki.params['dhcp_handling']:
+        payload['dhcpHandling'] = normalize_dhcp_handling(meraki.params['dhcp_handling'])
+    if meraki.params['dhcp_relay_server_ips']:
+        payload['dhcpRelayServerIps'] = meraki.params['dhcp_relay_server_ips']
+    if meraki.params['dhcp_lease_time']:
+        payload['dhcpLeaseTime'] = meraki.params['dhcp_lease_time']
+    if meraki.params['dhcp_boot_next_server']:
+        payload['dhcpBootNextServer'] = meraki.params['dhcp_boot_next_server']
+    if meraki.params['dhcp_boot_filename']:
+        payload['dhcpBootFilename'] = meraki.params['dhcp_boot_filename']
+    if meraki.params['dhcp_options']:
+        payload['dhcpOptions'] = meraki.params['dhcp_options']
+    # if meraki.params['dhcp_handling']:
+    #     meraki.fail_json(payload)
+
+    return payload
+
+
 def format_dns(nameservers):
     return nameservers.replace(';', '\n')
+
+
+def normalize_dhcp_handling(parameter):
+    if parameter == 'none':
+        return 'Do not respond to DHCP requests'
+    elif parameter == 'server':
+        return 'Run a DHCP server'
+    elif parameter == 'relay':
+        return 'Relay DHCP to another server'
 
 
 def main():
@@ -335,6 +432,11 @@ def main():
                                 comment=dict(type='str'),
                                 )
 
+    dhcp_options_arg_spec = dict(code=dict(type='int'),
+                                 type=dict(type='str', choices=['text', 'ip', 'hex', 'integer']),
+                                 value=dict(type='str'),
+                                 )
+
     argument_spec = meraki_argument_spec()
     argument_spec.update(state=dict(type='str', choices=['absent', 'present', 'query'], default='query'),
                          net_name=dict(type='str', aliases=['network']),
@@ -347,6 +449,24 @@ def main():
                          reserved_ip_range=dict(type='list', default=None, elements='dict', options=reserved_ip_arg_spec),
                          vpn_nat_subnet=dict(type='str'),
                          dns_nameservers=dict(type='str'),
+                         dhcp_handling=dict(type='str', choices=['Run a DHCP server',
+                                                                 'Relay DHCP to another server',
+                                                                 'Do not respond to DHCP requests',
+                                                                 'none',
+                                                                 'server',
+                                                                 'relay'],
+                                            ),
+                         dhcp_relay_server_ips=dict(type='list', default=None, elements='str'),
+                         dhcp_lease_time=dict(type='str', choices=['30 minutes',
+                                                                   '1 hour',
+                                                                   '4 hours',
+                                                                   '12 hours',
+                                                                   '1 day',
+                                                                   '1 week']),
+                         dhcp_boot_options_enabled=dict(type='bool'),
+                         dhcp_boot_next_server=dict(type='str'),
+                         dhcp_boot_filename=dict(type='str'),
+                         dhcp_options=dict(type='list', default=None, elements='dict', options=dhcp_options_arg_spec),
                          )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -390,11 +510,7 @@ def main():
             response = meraki.request(path, method='GET')
             meraki.result['data'] = response
     elif meraki.params['state'] == 'present':
-        payload = {'id': meraki.params['vlan_id'],
-                   'name': meraki.params['name'],
-                   'subnet': meraki.params['subnet'],
-                   'applianceIp': meraki.params['appliance_ip'],
-                   }
+        payload = construct_payload(meraki)
         if is_vlan_valid(meraki, net_id, meraki.params['vlan_id']) is False:  # Create new VLAN
             if meraki.module.check_mode is True:
                 meraki.result['data'] = payload
@@ -407,17 +523,6 @@ def main():
         else:  # Update existing VLAN
             path = meraki.construct_path('get_one', net_id=net_id, custom={'vlan_id': meraki.params['vlan_id']})
             original = meraki.request(path, method='GET')
-            if meraki.params['dns_nameservers']:
-                if meraki.params['dns_nameservers'] not in ('opendns', 'google_dns', 'upstream_dns'):
-                    payload['dnsNameservers'] = format_dns(meraki.params['dns_nameservers'])
-                else:
-                    payload['dnsNameservers'] = meraki.params['dns_nameservers']
-            if meraki.params['fixed_ip_assignments']:
-                payload['fixedIpAssignments'] = fixed_ip_factory(meraki, meraki.params['fixed_ip_assignments'])
-            if meraki.params['reserved_ip_range']:
-                payload['reservedIpRanges'] = meraki.params['reserved_ip_range']
-            if meraki.params['vpn_nat_subnet']:
-                payload['vpnNatSubnet'] = meraki.params['vpn_nat_subnet']
             ignored = ['networkId']
             if meraki.is_update_required(original, payload, optional_ignore=ignored):
                 meraki.generate_diff(original, payload)
