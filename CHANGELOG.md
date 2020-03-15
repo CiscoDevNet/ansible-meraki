@@ -5,6 +5,9 @@
 ### Features
 * meraki_vlan - Add full DHCP server configuration support
 
+## Bugfixes
+* meraki_mx_l3_firewall - Fix idempotency when 'any' is passed as a parameter
+
 ## v1.0.3
 
 ### Miscellaneous
