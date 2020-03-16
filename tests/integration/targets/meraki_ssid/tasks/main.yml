@@ -349,6 +349,23 @@
       that:
         - set_radius_server_idempotent is not changed
 
+  - name: Set WPA3
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      encryption_mode: wpa
+      wpa_encryption_mode: WPA3 only
+      auth_mode: 8021x-radius
+    delegate_to: localhost
+    register: wpa3
+
+  - assert:
+      that:
+        - wpa3.data.wpa_encryption_mode == 'WPA3 only'
+
   #################
   # Error testing #
   #################

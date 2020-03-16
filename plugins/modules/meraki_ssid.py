@@ -69,7 +69,7 @@ options:
         description:
         - Encryption mode within WPA2 specification.
         type: str
-        choices: [WPA1 and WPA2, WPA2 only]
+        choices: [WPA1 only, WPA1 and WPA2, WPA2 only, WPA3 Transition Mode, WPA3 only]
     splash_page:
         description:
         - Set to enable splash page and specify type of splash.
@@ -460,7 +460,12 @@ def main():
                          auth_mode=dict(type='str', choices=['open', 'psk', 'open-with-radius', '8021x-meraki', '8021x-radius']),
                          encryption_mode=dict(type='str', choices=['wpa', 'eap', 'wpa-eap']),
                          psk=dict(type='str', no_log=True),
-                         wpa_encryption_mode=dict(type='str', choices=['WPA1 and WPA2', 'WPA2 only']),
+                         wpa_encryption_mode=dict(type='str', choices=['WPA1 only',
+                                                                       'WPA1 and WPA2', 
+                                                                       'WPA2 only',
+                                                                       'WPA3 Transition Mode',
+                                                                       'WPA3 only',
+                                                                       ]),
                          splash_page=dict(type='str', choices=['None',
                                                                'Click-through splash page',
                                                                'Billing',

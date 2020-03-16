@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.0
+
+### Enhancements
+* meraki_ssid - Add support for WPA3
+
 ## v1.0.3
 
 ## Miscellaneous
