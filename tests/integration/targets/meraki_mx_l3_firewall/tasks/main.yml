@@ -207,6 +207,43 @@
       that:
         - default_syslog.data is defined
 
+  - name: Set protocol to any for idempotency check
+    meraki_mx_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: TestNetAppliance
+      state: present
+      rules:
+        - comment: Deny to documentation address
+          src_port: any
+          src_cidr: any
+          dest_port: any
+          dest_cidr: 192.0.1.1/32
+          protocol: any
+          policy: deny        
+    delegate_to: localhost
+
+  - name: Check for protocol any idempotency
+    meraki_mx_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: TestNetAppliance
+      state: present
+      rules:
+        - comment: Deny to documentation address
+          src_port: any
+          src_cidr: any
+          dest_port: any
+          dest_cidr: 192.0.1.1/32
+          protocol: any
+          policy: deny        
+    delegate_to: localhost
+    register: any_idempotency
+
+  - assert:
+      that:
+        - any_idempotency is not changed
+
   - name: Query firewall rules
     meraki_mx_l3_firewall:
       auth_key: '{{ auth_key }}'

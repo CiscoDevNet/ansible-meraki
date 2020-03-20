@@ -221,6 +221,21 @@ def get_rules(meraki, net_id):
     if meraki.status == 200:
         return response
 
+def normalize_case(rule):
+    any = ['any', 'Any', 'ANY']
+    if 'srcPort' in rule:
+        if rule['srcPort'] in any:
+            rule['srcPort'] = 'Any'
+    if 'srcCidr' in rule:
+        if rule['srcCidr'] in any:
+            rule['srcCidr'] = 'Any'
+    if 'destPort' in rule:
+        if rule['destPort'] in any:
+            rule['destPort'] = 'Any'
+    if 'destCidr' in rule:
+        if rule['destCidr'] in any:
+            rule['destCidr'] = 'Any'
+
 
 def main():
     # define the available arguments/parameters that a user can pass to
@@ -301,11 +316,16 @@ def main():
                 default_rule = rules[len(rules) - 1].copy()
                 del rules[len(rules) - 1]  # Remove default rule for comparison
                 if len(rules) - 1 == 0:
+                    normalize_case(rules[0])
+                    normalize_case(payload['rules'][0])
+                    # meraki.fail_json(msg='Compare', original=rules, payload=payload)
                     if meraki.is_update_required(rules[0], payload['rules'][0]) is True:
-                        # meraki.fail_json(msg="Compare", original=rules[0], payload=payload['rules'][0])
                         update = True
                 else:
                     for r in range(len(rules) - 1):
+                        normalize_case(rules[r])
+                        normalize_case(payload['rules'][r])
+                        # meraki.fail_json(msg='Full Compare', original=rules, payload=payload)
                         if meraki.is_update_required(rules[r], payload['rules'][r]) is True:
                             update = True
                 rules.append(default_rule)
