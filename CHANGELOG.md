@@ -5,6 +5,7 @@
 ### New Modules
 * meraki_management_interface
 * meraki_mx_uplink
+* meraki_site_to_site_vpn
 
 ### Features
 * meraki_vlan - Add full DHCP server configuration support
