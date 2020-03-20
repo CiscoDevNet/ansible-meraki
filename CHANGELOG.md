@@ -1,9 +1,12 @@
 # Changelog
 
 ## v1.1.0
+<<<<<<< HEAD
 
 ### Features
 * meraki_vlan - Add full DHCP server configuration support
+=======
+>>>>>>> Change version number in CHANGELOG
 
 ## Bugfixes
 * meraki_mx_l3_firewall - Fix idempotency when 'any' is passed as a parameter
