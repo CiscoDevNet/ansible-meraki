@@ -3,6 +3,9 @@
 ## v1.1.0
 <<<<<<< HEAD
 
+### New Modules
+* meraki_management_interface
+
 ### Features
 * meraki_vlan - Add full DHCP server configuration support
 =======
