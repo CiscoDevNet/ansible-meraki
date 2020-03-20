@@ -334,6 +334,79 @@
         - '"1.1.1.1" in update_vlan_dns_list.data.dns_nameservers'
         - update_vlan_dns_list.changed == True
 
+  - name: Enable DHCP Relay on VLAN
+    meraki_vlan:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      vlan_id: 2
+      name: TestVLAN
+      subnet: 192.168.250.0/24
+      appliance_ip: 192.168.250.2
+      dhcp_handling: relay
+      dhcp_relay_server_ips:
+        - 192.168.100.1
+    delegate_to: localhost
+    register: enable_relay
+
+  - debug:
+      var: enable_relay
+
+  - assert:
+      that:
+        - enable_relay is changed
+        - enable_relay.data.dhcp_handling == 'Relay DHCP to another server'
+        - enable_relay.data.dhcp_relay_server_ips[0] == '192.168.100.1'
+
+  - name: Enable DHCP on VLAN
+    meraki_vlan:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      vlan_id: 2
+      name: TestVLAN
+      subnet: 192.168.250.0/24
+      appliance_ip: 192.168.250.2
+      dhcp_handling: server
+    delegate_to: localhost
+    register: enable_dhcp
+
+  - debug:
+      var: enable_dhcp
+
+  - assert:
+      that:
+        - enable_dhcp is changed
+        - enable_dhcp.data.dhcp_handling == 'Run a DHCP server'
+
+  - name: Enable DHCP on VLAN with options
+    meraki_vlan:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      vlan_id: 2
+      name: TestVLAN
+      subnet: 192.168.250.0/24
+      appliance_ip: 192.168.250.2
+      dhcp_handling: server
+      dhcp_lease_time: 1 hour
+      dhcp_boot_options_enabled: false
+      dhcp_options:
+        - code: 5
+          type: ip
+          value: 192.0.1.1
+    delegate_to: localhost
+    register: enable_dhcp_options
+
+  - assert:
+      that:
+        - enable_dhcp_options is changed
+        - enable_dhcp_options.data.dhcp_handling == 'Run a DHCP server'
+        - enable_dhcp_options.data.dhcp_options.0.code == '5'
+
   - name: Query all VLANs in network
     meraki_vlan:
       auth_key: '{{ auth_key }}'

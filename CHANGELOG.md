@@ -1,8 +1,13 @@
 # Changelog
 
+## v1.1.0
+
+### Features
+* meraki_vlan - Add full DHCP server configuration support
+
 ## v1.0.3
 
-## Miscellaneous
+### Miscellaneous
 * Remove accidentally added meraki_site_to_site_vpn module which shouldn't have been published
 
 ## v1.0.2
