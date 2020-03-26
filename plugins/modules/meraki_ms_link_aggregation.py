@@ -20,6 +20,8 @@ short_description: Manage link aggregations on MS switches
 version_added: "2.10"
 description:
 - Allows for management of MS switch link aggregations in a Meraki environment.
+notes:
+- Switch profile ports are not supported in this module.
 options:
     state:
         description:
@@ -27,15 +29,6 @@ options:
         type: str
         choices: [ absent, query, present ]
         default: present
-    number:
-        description:
-        - SSID number within network.
-        type: int
-        aliases: [ssid_number]
-    name:
-        description:
-        - Name of SSID.
-        type: str
     net_name:
         description:
         - Name of network.
@@ -44,19 +37,91 @@ options:
         description:
         - ID of network.
         type: str
-
+    lag_id:
+        description:
+        - ID of lag to query or modify.
+        type: str
+    switch_ports:
+        description:
+        - List of switchports to include in link aggregation.
+        type: list
+        suboptions:
+            serial:
+                description:
+                - Serial number of switch to own link aggregation.
+                type: str
+            port_id:
+                description:
+                - Port number which should be included in link aggregation.
+                type: str
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: meraki
 '''
 
 EXAMPLES = r'''
+- name: Create LAG
+  meraki_ms_link_aggregation:
+    auth_key: '{{auth_key}}'
+    state: present
+    org_name: '{{test_org_name}}'
+    net_name: '{{test_switch_net_name}}'
+    switch_ports:
+      - serial: '{{serial_switch}}'
+        port_id: "1"
+      - serial: '{{serial_switch}}'
+        port_id: "2"
+  delegate_to: localhost
 
+- name: Update LAG
+  meraki_ms_link_aggregation:
+    auth_key: '{{auth_key}}'
+    state: present
+    org_name: '{{test_org_name}}'
+    net_name: '{{test_switch_net_name}}'
+    lag_id: '{{lag_id}}'
+    switch_ports:
+      - serial: '{{serial_switch}}'
+        port_id: "1"
+      - serial: '{{serial_switch}}'
+        port_id: "2"
+      - serial: '{{serial_switch}}'
+        port_id: "3"
+      - serial: '{{serial_switch}}'
+        port_id: "4"
+  delegate_to: localhost
 '''
 
 RETURN = r'''
 data:
-
+  description: List of aggregated links.
+  returned: success
+  type: complex
+  contains:
+      id:
+          description:
+            - ID of link aggregation.
+          returned: success
+          type: string
+          sample: "MTK3M4A2ZDdfM3=="
+      switch_ports:
+          description:
+            - List of switch ports to be included in link aggregation.
+          returned: success
+          type: complex
+          contains:
+              port_id:
+                description:
+                  - Port number.
+                type: string
+                returned: success
+                sample: "1"
+              serial:
+                description:
+                  - Serial number of switch on which port resides.
+                type: string
+                returned: success
+                sample: "ABCD-1234-WXYZ"
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
@@ -160,9 +225,9 @@ def main():
         if meraki.params['lag_id'] is not None:  # Need to update
             lag = is_lag_valid(get_lags(meraki, net_id), meraki.params['lag_id'])
             if lag is not False:  # Lag ID is valid
+                payload = construct_payload(meraki)
                 if meraki.is_update_required(lag, payload) is True:
                     path = meraki.construct_path('update', net_id=net_id, custom={'lag_id': meraki.params['lag_id']})
-                    payload = construct_payload(meraki)
                     response = meraki.request(path, method='PUT', payload=json.dumps(payload))
                     meraki.result['changed'] = True
                     meraki.result['data'] = response
@@ -182,7 +247,6 @@ def main():
         response = meraki.request(path, method='DELETE')
         meraki.result['data'] = {}
         meraki.result['changed'] = True
-
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results

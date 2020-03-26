@@ -59,7 +59,7 @@
 
   - assert:
       that:
-        update_ports is updated
+        - update_ports is changed
 
   - name: Update LAG with idempotency
     meraki_ms_link_aggregation:
@@ -82,7 +82,7 @@
 
   - assert:
       that:
-        - update_ports_idempotent is updated
+        - update_ports_idempotent is not changed
 
   - name: Query all LAGs
     meraki_ms_link_aggregation:
