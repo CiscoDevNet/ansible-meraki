@@ -195,10 +195,8 @@ data:
               type: int
 '''
 
-import os
-from ansible.module_utils.basic import AnsibleModule, json, env_fallback
-from ansible.module_utils._text import to_native
-from ansible.module_utils.common.dict_transformations import snake_dict_to_camel_dict, recursive_diff
+from ansible.module_utils.basic import AnsibleModule, json
+from ansible.module_utils.common.dict_transformations import recursive_diff
 from ansible.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
 INT_NAMES = ('wan1', 'wan2', 'cellular')
@@ -245,14 +243,6 @@ def main():
                          cellular=dict(type='dict', default=None, options=interface_arg_spec),
                          )
 
-    # seed the result dict in the object
-    # we primarily care about changed and state
-    # change is if this module effectively modified the target
-    # state will include any data that you want your module to pass back
-    # for consumption, for example, in a subsequent task
-    result = dict(
-        changed=False,
-    )
     # the AnsibleModule object will be our abstraction working with Ansible
     # this includes instantiation, a couple of common attr would be the
     # args/params passed to the execution, as well as if the module
