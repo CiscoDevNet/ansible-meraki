@@ -1,0 +1,115 @@
+# Test code for the Meraki MS Link Aggregation module
+# Copyright: (c) 2018, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Test an API key is provided
+    fail:
+      msg: Please define an API key
+    when: auth_key is not defined
+
+  - name: Create test network
+    meraki_network:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_switch_net_name}}'
+      type: switch
+    register: test_net
+
+  - name: Create LAG
+    meraki_ms_link_aggregation:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_switch_net_name}}'
+      switch_ports:
+        - serial: '{{serial_switch}}'
+          port_id: "1"
+        - serial: '{{serial_switch}}'
+          port_id: "2"
+    delegate_to: localhost
+    register: create_ports
+
+  - debug:
+      var: create_ports
+
+  - set_fact:
+      lag_id: '{{create_ports.data.id}}'
+
+  - name: Update LAG
+    meraki_ms_link_aggregation:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_switch_net_name}}'
+      lag_id: '{{lag_id}}'
+      switch_ports:
+        - serial: '{{serial_switch}}'
+          port_id: "1"
+        - serial: '{{serial_switch}}'
+          port_id: "2"
+        - serial: '{{serial_switch}}'
+          port_id: "3"
+        - serial: '{{serial_switch}}'
+          port_id: "4"
+    delegate_to: localhost
+    register: update_ports
+
+  - assert:
+      that:
+        - update_ports is changed
+
+  - name: Update LAG with idempotency
+    meraki_ms_link_aggregation:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_switch_net_name}}'
+      lag_id: '{{lag_id}}'
+      switch_ports:
+        - serial: '{{serial_switch}}'
+          port_id: "1"
+        - serial: '{{serial_switch}}'
+          port_id: "2"
+        - serial: '{{serial_switch}}'
+          port_id: "3"
+        - serial: '{{serial_switch}}'
+          port_id: "4"
+    delegate_to: localhost
+    register: update_ports_idempotent
+
+  - assert:
+      that:
+        - update_ports_idempotent is not changed
+
+  - name: Query all LAGs
+    meraki_ms_link_aggregation:
+      auth_key: '{{auth_key}}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_switch_net_name}}'
+    delegate_to: localhost
+    register: query_all
+
+  - debug:
+      var: query_all
+
+  always:
+  - name: Delete LAG
+    meraki_ms_link_aggregation:
+      auth_key: '{{auth_key}}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_switch_net_name}}'
+      lag_id: '{{lag_id}}'
+    delegate_to: localhost
+
+  # - name: Delete test network
+  #   meraki_network:
+  #     auth_key: '{{auth_key}}'
+  #     state: absent
+  #     org_name: '{{test_org_name}}'
+  #     net_name: '{{test_switch_net_name}}'
+  #   register: delete_net

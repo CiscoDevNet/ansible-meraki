@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.0
+
+### New Modules
+* meraki_ms_link_aggregation
+
 ## v1.1.0
 
 ### New Modules
