@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.3.0
+
+### Enhancements
+* meraki_site_to_site_vpn - Add support for check mode
+
 ## v1.2.1
 
 ### Bugfixes

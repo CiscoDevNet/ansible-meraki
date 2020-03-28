@@ -29,6 +29,25 @@
       net_spoke_id: '{{net_spoke.data.id}}'
       net_hub_id: '{{net_hub.data.id}}'
 
+  - name: Set hub mode with check mode
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+      mode: hub
+      subnets:
+        - local_subnet: '192.168.128.0/24'
+          use_vpn: no
+    delegate_to: localhost
+    check_mode: yes
+    register: set_hub_check
+
+  - assert:
+      that:
+        - set_hub_check is changed
+        - set_hub_check.data is defined
+
   - name: Set hub mode
     meraki_site_to_site_vpn:
       auth_key: '{{auth_key}}'
