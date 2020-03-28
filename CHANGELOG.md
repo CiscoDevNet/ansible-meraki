@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.1
+
+### Bugfixes
+* meraki_site_to_site_vpn - Enable idempotency and changed statuses
+
 ## v1.2.0
 
 ### New Modules

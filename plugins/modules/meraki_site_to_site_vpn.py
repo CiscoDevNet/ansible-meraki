@@ -151,6 +151,7 @@ data:
 
 from ansible.module_utils.basic import AnsibleModule, json
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
+from copy import deepcopy
 
 
 def assemble_payload(meraki):
@@ -207,8 +208,6 @@ def main():
 
     payload = None
 
-    # execute checks for argument completeness
-
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
     org_id = meraki.params['org_id']
@@ -227,11 +226,18 @@ def main():
         response = meraki.request(path, method='GET')
         meraki.result['data'] = response
     elif meraki.params['state'] == 'present':
+        path = meraki.construct_path('get_all', net_id=net_id)
+        original = meraki.request(path, method='GET')
         payload = assemble_payload(meraki)
-        # meraki.fail_json(payload)
-        path = meraki.construct_path('update', net_id=net_id)
-        response = meraki.request(path, method='PUT', payload=json.dumps(payload))
-        meraki.result['data'] = response
+        comparable = deepcopy(original)
+        comparable.update(payload)
+        if meraki.is_update_required(original, payload):
+            path = meraki.construct_path('update', net_id=net_id)
+            response = meraki.request(path, method='PUT', payload=json.dumps(payload))
+            meraki.result['changed'] = True
+            meraki.result['data'] = response
+        else:
+            meraki.result['data'] = original
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results
