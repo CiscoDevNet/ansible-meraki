@@ -221,6 +221,7 @@ def get_rules(meraki, net_id):
     if meraki.status == 200:
         return response
 
+
 def normalize_case(rule):
     any = ['any', 'Any', 'ANY']
     if 'srcPort' in rule:

@@ -240,11 +240,13 @@ def get_static_route(meraki, net_id, route_id):
     r = meraki.request(path, method='GET')
     return r
 
+
 def does_route_exist(name, routes):
     for route in routes:
         if name == route['name']:
             return route
     return None
+
 
 def update_dict(original, proposed):
     for k, v in proposed.items():
