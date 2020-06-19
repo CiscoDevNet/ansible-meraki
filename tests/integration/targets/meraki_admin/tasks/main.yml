@@ -96,9 +96,6 @@
     register: create_tags_check
     check_mode: yes
 
-  - debug:
-      var: create_tags_check
-
   - assert:
       that:
         - create_tags_check is changed
@@ -178,9 +175,14 @@
       org_name: '{{test_org_name}}'
       net_name: '{{item}}'
       type: switch
+    register: new_networks
     loop:
       - TestNet
       - TestNet2
+
+  - set_fact:
+      testnet_id: new_networks.results[0].data.id
+      testnet2_id: new_networks.results[1].data.id
 
   - name: Create administrator with networks with check mode
     meraki_admin:
@@ -193,7 +195,7 @@
       networks:
         - network: TestNet
           access: read-only
-        - network: TestNet2
+        - id: testnet2_id
           access: full
     delegate_to: localhost
     register: create_network_check
