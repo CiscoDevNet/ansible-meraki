@@ -4,6 +4,7 @@
 
 ### Bugfixes
 * meraki_device - Rewrite module to be more reliable when hostname is specified
+* meraki_admin - Fix crash when specifying networks parameter
 
 ## v1.2.1
 
