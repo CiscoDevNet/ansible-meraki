@@ -63,6 +63,10 @@ options:
                 description:
                 - Network ID for which administrator should have privileges assigned.
                 type: str
+            network:
+                description:
+                - Network name for which administrator should have privileges assigned.
+                type: str
             access:
                 description:
                 - The privilege of the dashboard administrator on the network.
@@ -310,11 +314,17 @@ def delete_admin(meraki, org_id, admin_id):
 def network_factory(meraki, networks, nets):
     networks_new = []
     for n in networks:
-        networks_new.append({'id': meraki.get_net_id(org_name=meraki.params['org_name'],
-                                                     net_name=n['network'],
-                                                     data=nets),
-                             'access': n['access']
-                             })
+        if 'network' in n:
+            networks_new.append({'id': meraki.get_net_id(org_name=meraki.params['org_name'],
+                                                         net_name=n['network'],
+                                                         data=nets),
+                                 'access': n['access']
+                                 })
+        elif 'id' in n:
+            networks_new.append({'id': n['id'],
+                                 'access': n['access']
+                                 })
+
     return networks_new
 
 
@@ -379,6 +389,7 @@ def main():
     # the module
 
     network_arg_spec = dict(id=dict(type='str'),
+                            network=dict(type='str'),
                             access=dict(type='str'),
                             )
 
