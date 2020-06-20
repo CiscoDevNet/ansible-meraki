@@ -160,13 +160,30 @@
   - debug:
       msg: '{{query_model}}'
 
+  - name: Change device name for future test
+    meraki_device:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      serial: '{{serial}}'
+      hostname: mx60-temporary
+      address: 1060 W. Addison St., Chicago, IL
+      lat: 41.948038
+      lng: -87.65568
+      tags: recently-added
+      state: present
+      move_map_marker: True
+      note: Test device notes
+    delegate_to: localhost
+    register: update_device
+
   - name: Update a device
     meraki_device:
       auth_key: '{{auth_key}}'
       org_name: '{{test_org_name}}'
       net_name: '{{test_net_name}}'
       serial: '{{serial}}'
-      name: mr26
+      hostname: mx60
       address: 1060 W. Addison St., Chicago, IL
       lat: 41.948038
       lng: -87.65568
@@ -189,7 +206,7 @@
       org_name: '{{test_org_name}}'
       net_name: '{{test_net_name}}'
       serial: '{{serial}}'
-      name: mr26
+      name: mx60
       address: 1060 W. Addison St., Chicago, IL
       lat: 41.948038
       lng: -87.65568
