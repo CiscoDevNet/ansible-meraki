@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.3.1
+
+### Bugfixes
+* meraki_device - Rewrite module to be more reliable when hostname is specified
+
 ## v1.2.1
 
 ### Bugfixes
