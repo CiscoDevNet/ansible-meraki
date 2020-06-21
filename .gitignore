@@ -3,3 +3,6 @@ inventory.networking
 *.pyc
 .DS_Store
 tests/output/*
+.vscode
+.env
+venv
