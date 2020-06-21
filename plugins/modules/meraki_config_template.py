@@ -106,15 +106,26 @@ data:
     type: complex
     contains:
         id:
-          description: Unique identification number of organization
+          description: Unique identification number of organization.
           returned: success
           type: int
           sample: L_2930418
         name:
-          description: Name of configuration template
+          description: Name of configuration template.
           returned: success
           type: str
           sample: YourTemplate
+        product_types:
+          description: List of products which can exist in the network.
+          returned: success
+          type: list
+          sample: [ "appliance", "switch" ]
+        time_zone:
+          description: Timezone applied to each associated network.
+          returned: success
+          type: str
+          sample: "America/Chicago"
+
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
