@@ -1,4 +1,4 @@
-#!/usr/bin/python
+P#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # Copyright: (c) 2020, Kevin Breit (@kbreit) <kevin.breit@kevinbreit.net>
@@ -168,9 +168,9 @@ def main():
                              port_id=dict(type='str'),
                              )
 
-    switch_profile_ports_args = dict(profile=dict(type='str'),
-                                     port_id=dict(type='str'),
-                                     )
+    # switch_profile_ports_args = dict(profile=dict(type='str'),
+    #                                  port_id=dict(type='str'),
+    #                                  )
 
     argument_spec = meraki_argument_spec()
     argument_spec.update(state=dict(type='str', choices=['absent', 'present', 'query'], default='present'),

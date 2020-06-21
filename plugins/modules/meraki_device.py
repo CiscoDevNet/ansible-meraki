@@ -239,6 +239,7 @@ def get_net_devices(meraki, net_id):
         meraki.fail_json(msg='Failed to query all devices belonging to the network')
     return response
 
+
 def construct_payload(params):
     """ Create payload based on inputs """
     payload = {}
@@ -247,15 +248,15 @@ def construct_payload(params):
     if params['tags'] is not None:
         payload['tags'] = format_tags(params['tags'])
     if params['lat'] is not None:
-       payload['lat'] = params['lat']
+        payload['lat'] = params['lat']
     if params['lng'] is not None:
-       payload['lng'] = params['lng']
+        payload['lng'] = params['lng']
     if params['address'] is not None:
-       payload['address'] = params['address']
+        payload['address'] = params['address']
     if params['move_map_marker'] is not None:
-       payload['moveMapMarker'] = params['move_map_marker']
+        payload['moveMapMarker'] = params['move_map_marker']
     if params['note'] is not None:
-       payload['notes'] = params['note']
+        payload['notes'] = params['note']
     return payload
 
 

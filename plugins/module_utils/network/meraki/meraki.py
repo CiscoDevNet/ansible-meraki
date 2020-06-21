@@ -7,13 +7,12 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import time
-import os
 import re
-from ansible.module_utils.basic import AnsibleModule, json, env_fallback
+from ansible.module_utils.basic import json, env_fallback
 from ansible.module_utils.common.dict_transformations import camel_dict_to_snake_dict, recursive_diff
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.six.moves.urllib.parse import urlencode
-from ansible.module_utils._text import to_native, to_bytes, to_text
+from ansible.module_utils._text import to_native
 
 
 RATE_LIMIT_RETRY_MULTIPLIER = 3
@@ -91,7 +90,7 @@ def _error_report(function):
                     time.sleep(9)
                 if self.retry_time > self.params['internal_error_retry_time']:
                     raise InternalErrorException(e)
-            except HTTPError as e:
+            except HTTPError:
                 try:
                     self.fail_json(msg="HTTP error {0} - {1} - {2}".format(self.status, self.url, json.loads(self.body)['errors']),
                                    body=json.loads(self.body))
@@ -200,7 +199,7 @@ class MerakiModule(object):
                     items[self.key_map[k]] = self.sanitize_keys(data[k])
                 except KeyError:
                     snake_k = re.sub('([a-z0-9])([A-Z])', r'\1_\2', k).lower()
-                    new = {snake_k: data[k]}
+                    # new = {snake_k: data[k]}
                     items[snake_k] = self.sanitize_keys(data[k])
             return items
         elif isinstance(data, list):
