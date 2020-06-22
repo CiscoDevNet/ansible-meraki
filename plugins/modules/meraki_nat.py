@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_nat
 short_description: Manage NAT rules in Meraki cloud
-version_added: "2.9"
 description:
 - Allows for creation, management, and visibility of NAT rules (1:1, 1:many, port forwarding) within Meraki.
 
@@ -171,7 +170,7 @@ options:
 
 author:
     - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

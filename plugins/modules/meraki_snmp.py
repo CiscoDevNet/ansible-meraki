@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_snmp
 short_description: Manage organizations in the Meraki cloud
-version_added: "2.6"
 description:
 - Allows for management of SNMP settings for Meraki.
 options:
@@ -63,42 +62,35 @@ options:
         description:
         - Name of network.
         type: str
-        version_added: '2.9'
     net_id:
         description:
         - ID of network.
         type: str
-        version_added: '2.9'
     access:
         description:
         - Type of SNMP access.
         choices: [community, none, users]
         type: str
-        version_added: '2.9'
     community_string:
         description:
         - SNMP community string.
         - Only relevant if C(access) is set to C(community).
         type: str
-        version_added: '2.9'
     users:
         description:
         - Information about users with access to SNMP.
         - Only relevant if C(access) is set to C(users).
         type: list
-        version_added: '2.9'
         suboptions:
             username:
                 description: Username of user with access.
                 type: str
-                version_added: '2.9'
             passphrase:
                 description: Passphrase for user SNMP access.
                 type: str
-                version_added: '2.9'
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

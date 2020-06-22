@@ -17,7 +17,7 @@ DOCUMENTATION = r'''
 ---
 module: meraki_management_interface
 short_description: Configure Meraki management interfaces
-version_added: "2.10"
+version_added: "1.1.0"
 description:
 - Allows for configuration of management interfaces on Meraki devices.
 notes:
@@ -131,7 +131,7 @@ options:
 
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

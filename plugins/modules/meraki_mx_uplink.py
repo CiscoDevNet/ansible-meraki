@@ -17,7 +17,7 @@ DOCUMENTATION = r'''
 ---
 module: meraki_mx_uplink
 short_description: Manage uplinks on Meraki MX appliances
-version_added: "2.9"
+version_added: "1.1.0"
 description:
 - Configure and query information about uplinks on Meraki MX appliances.
 notes:
@@ -102,7 +102,7 @@ options:
               type: int
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

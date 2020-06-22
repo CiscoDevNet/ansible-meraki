@@ -17,7 +17,7 @@ DOCUMENTATION = r'''
 ---
 module: meraki_mx_site_to_site_firewall
 short_description: Manage MX appliance firewall rules for site-to-site VPNs
-version_added: "2.10"
+version_added: "1.0.0"
 description:
 - Allows for creation, management, and visibility into firewall rules for site-to-site VPNs implemented on Meraki MX firewalls.
 notes:
@@ -82,7 +82,7 @@ options:
         default: no
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

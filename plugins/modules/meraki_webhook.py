@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_webhook
 short_description: Manage webhooks configured in the Meraki cloud
-version_added: "2.9"
 description:
 - Configure and query information about webhooks within the Meraki cloud.
 notes:
@@ -65,7 +64,7 @@ options:
       type: str
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

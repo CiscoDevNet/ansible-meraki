@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_mx_l3_firewall
 short_description: Manage MX appliance layer 3 firewalls in the Meraki cloud
-version_added: "2.7"
 description:
 - Allows for creation, management, and visibility into layer 3 firewalls implemented on Meraki MX firewalls.
 notes:
@@ -91,7 +90,7 @@ options:
         default: no
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

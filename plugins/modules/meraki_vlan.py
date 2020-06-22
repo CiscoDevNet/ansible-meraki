@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_vlan
 short_description: Manage VLANs in the Meraki cloud
-version_added: "2.7"
 description:
 - Create, edit, query, or delete VLANs in a Meraki environment.
 notes:
@@ -68,6 +67,7 @@ options:
       description:
       - IP address ranges which should be reserve and not distributed via DHCP.
       type: list
+      elements: dict      
       suboptions:
         start:
           description: First IP address of reserved IP address range, inclusive.
@@ -86,6 +86,7 @@ options:
       description:
       - Static IP address assignments to be distributed via DHCP by MAC address.
       type: list
+      elements: dict
       suboptions:
         mac:
           description: MAC address for fixed IP assignment binding.
@@ -110,6 +111,7 @@ options:
         description:
         - IP addresses to forward DHCP packets to.
         type: list
+        elements: str
     dhcp_lease_time:
         description:
         - DHCP lease timer setting
@@ -136,6 +138,7 @@ options:
         description:
         - List of DHCP option values
         type: list
+        elements: dict
         suboptions:
             code:
                 description:
@@ -152,7 +155,7 @@ options:
                 type: str
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_firewalled_services
 short_description: Edit firewall policies for administrative network services
-version_added: "2.9"
 description:
 - Allows for setting policy firewalled services for Meraki network devices.
 
@@ -67,7 +66,7 @@ options:
 
 author:
     - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''
