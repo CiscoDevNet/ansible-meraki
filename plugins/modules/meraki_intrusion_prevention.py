@@ -184,7 +184,7 @@ data:
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
+from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
 param_map = {'whitelisted_rules': 'whitelistedRules',
              'rule_id': 'ruleId',
