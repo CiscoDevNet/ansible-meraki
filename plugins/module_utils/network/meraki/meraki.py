@@ -444,7 +444,7 @@ class MerakiModule(object):
         if self.params['output_format'] == 'camelcase':
             self.module.deprecate("Update your playbooks to support snake_case format instead of camelCase format.",
                                   date="2022-06-01",
-                                  collection_name="cisco.nxos")
+                                  collection_name="cisco.meraki")
         else:
             if 'data' in self.result:
                 try:
