@@ -106,11 +106,50 @@ data:
     returned: info
     type: complex
     contains:
-      id:
-        description: Identification string of network.
-        returned: success
+      categories:
+        description: List of available content filtering categories.
+        returned: query for categories
+        type: complex
+        contains:
+          id:
+            description: Unique ID of content filtering category.
+            returned: query for categories
+            type: str
+            sample: "meraki:contentFiltering/category/1"
+          name:
+            description: Name of content filtering category.
+            returned: query for categories
+            type: str
+            sample: "Real Estate"
+      allowed_url_patterns:
+        description: Explicitly permitted URL patterns
+        returned: query for policy
+        type: list
+        sample: ["http://www.ansible.com"]
+      blocked_url_patterns:
+        description: Explicitly denied URL patterns
+        returned: query for policy
+        type: list
+        sample: ["http://www.ansible.net"]
+      blocked_url_categories:
+        returned: query for policy
+        type: complex
+        contains:
+          id:
+            description: Unique ID of category to filter
+            returned: query for policy
+            type: list
+            sample: ["meraki:contentFiltering/category/1"]
+          name:
+            description: Name of category to filter
+            returned: query for policy
+            type: list
+            sample: ["Real Estate"]
+      url_cateogory_list_size:
+        description: Size of categories to cache on MX appliance
+        returned: query for policy
         type: str
-        sample: N_12345
+        sample: "topSites"
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
