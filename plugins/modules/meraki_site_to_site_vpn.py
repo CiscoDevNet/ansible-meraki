@@ -17,7 +17,7 @@ DOCUMENTATION = r'''
 ---
 module: meraki_site_to_site_vpn
 short_description: Manage AutoVPN connections in Meraki
-version_added: "2.10"
+version_added: "1.1.0"
 description:
 - Allows for creation, management, and visibility into AutoVPNs implemented on Meraki MX firewalls.
 options:
@@ -69,7 +69,7 @@ options:
                 type: bool
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

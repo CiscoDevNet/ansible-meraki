@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_switchport
 short_description: Manage switchports on a switch in the Meraki cloud
-version_added: "2.7"
 description:
 - Allows for management of switchports settings for Meraki MS switches.
 options:
@@ -37,6 +36,7 @@ options:
         - List of VLAN numbers to be allowed on switchport.
         default: all
         type: list
+        elements: str
     enabled:
         description:
         - Whether a switchport should be enabled or disabled.
@@ -76,6 +76,7 @@ options:
         description:
         - Serial nubmer of the switch.
         type: str
+        required: true
     stp_guard:
         description:
         - Set state of STP guard.
@@ -105,7 +106,7 @@ options:
 
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''
@@ -295,7 +296,7 @@ def main():
                          type=dict(type='str', choices=['access', 'trunk'], default='access'),
                          vlan=dict(type='int'),
                          voice_vlan=dict(type='int'),
-                         allowed_vlans=dict(type='list', default='all'),
+                         allowed_vlans=dict(type='list', elements='str', default='all'),
                          poe_enabled=dict(type='bool', default=True),
                          isolation_enabled=dict(type='bool', default=False),
                          rstp_enabled=dict(type='bool', default=True),

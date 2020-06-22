@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_organization
 short_description: Manage organizations in the Meraki cloud
-version_added: "2.6"
 description:
 - Allows for creation, management, and visibility into organizations within Meraki.
 options:
@@ -50,7 +49,7 @@ options:
         type: str
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

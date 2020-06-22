@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_intrusion_prevention
 short_description: Manage intrustion prevention in the Meraki cloud
-version_added: "2.9"
 description:
 - Allows for management of intrusion prevention rules networks within Meraki MX networks.
 
@@ -81,7 +80,7 @@ options:
 
 author:
     - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

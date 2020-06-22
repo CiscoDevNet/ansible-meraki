@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_ssid
 short_description: Manage wireless SSIDs in the Meraki cloud
-version_added: "2.7"
 description:
 - Allows for management of SSIDs in a Meraki wireless environment.
 notes:
@@ -211,7 +210,7 @@ options:
         type: str
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''
@@ -478,7 +477,7 @@ def main():
                          radius_failover_policy=dict(type='str', choices=['Deny access', 'Allow access']),
                          radius_load_balancing_policy=dict(type='str', choices=['Strict priority order', 'Round robin']),
                          radius_accounting_enabled=dict(type='bool'),
-                         radius_accounting_servers=dict(type='list', element='dict', options=radius_arg_spec),
+                         radius_accounting_servers=dict(type='list', elements='dict', options=radius_arg_spec),
                          ip_assignment_mode=dict(type='str', choices=['NAT mode',
                                                                       'Bridge mode',
                                                                       'Layer 3 roaming',
@@ -488,7 +487,7 @@ def main():
                          concentrator_network_id=dict(type='str'),
                          vlan_id=dict(type='int'),
                          default_vlan_id=dict(type='int'),
-                         ap_tags_vlan_ids=dict(type='list', default=None, element='dict', options=vlan_arg_spec),
+                         ap_tags_vlan_ids=dict(type='list', default=None, elements='dict', options=vlan_arg_spec),
                          walled_garden_enabled=dict(type='bool'),
                          walled_garden_ranges=dict(type='list'),
                          min_bitrate=dict(type='float', choices=[1, 2, 5.5, 6, 9, 11, 12, 18, 24, 36, 48, 54]),

@@ -17,7 +17,7 @@ DOCUMENTATION = r'''
 ---
 module: meraki_ms_link_aggregation
 short_description: Manage link aggregations on MS switches
-version_added: "2.10"
+version_added: "1.2.0"
 description:
 - Allows for management of MS switch link aggregations in a Meraki environment.
 notes:
@@ -56,7 +56,7 @@ options:
                 type: str
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

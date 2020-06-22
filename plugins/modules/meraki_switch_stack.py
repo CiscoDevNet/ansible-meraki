@@ -17,7 +17,7 @@ DOCUMENTATION = r'''
 ---
 module: meraki_switch_stack
 short_description: Modify switch stacking configuration in Meraki.
-version_added: "2.10"
+version_added: "1.3.0"
 description:
 - Allows for modification of Meraki MS switch stacks.
 notes:
@@ -45,6 +45,7 @@ options:
         description:
         - List of switch serial numbers which should be included or removed from a stack.
         type: list
+        elements: str
     name:
         description:
         - Name of stack.
@@ -52,7 +53,7 @@ options:
 
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

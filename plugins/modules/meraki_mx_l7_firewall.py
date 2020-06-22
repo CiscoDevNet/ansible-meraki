@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_mx_l7_firewall
 short_description: Manage MX appliance layer 7 firewalls in the Meraki cloud
-version_added: "2.9"
 description:
 - Allows for creation, management, and visibility into layer 7 firewalls implemented on Meraki MX firewalls.
 notes:
@@ -97,7 +96,7 @@ options:
         type: bool
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_static_route
 short_description: Manage static routes in the Meraki cloud
-version_added: "2.8"
 description:
 - Allows for creation, management, and visibility into static routes within Meraki.
 
@@ -56,6 +55,7 @@ options:
         description:
         - List of fixed MAC to IP bindings for DHCP.
         type: list
+        elements: dict
         suboptions:
             mac:
                 description:
@@ -73,6 +73,7 @@ options:
         description:
         - List of IP ranges reserved for static IP assignments.
         type: list
+        elements: dict
         suboptions:
             start:
                 description:
@@ -94,7 +95,7 @@ options:
 
 author:
     - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

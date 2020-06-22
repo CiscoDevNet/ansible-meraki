@@ -17,10 +17,8 @@ DOCUMENTATION = r'''
 ---
 module: meraki_network
 short_description: Manage networks in the Meraki cloud
-version_added: "2.6"
 description:
 - Allows for creation, management, and visibility into networks within Meraki.
-
 options:
     state:
         description:
@@ -62,7 +60,6 @@ options:
         - Boolean value specifying whether VLANs should be supported on a network.
         - Requires C(net_name) or C(net_id) to be specified.
         type: bool
-        version_added: '2.9'
     disable_my_meraki:
         description: >
             - Disables the local device status pages (U[my.meraki.com](my.meraki.com), U[ap.meraki.com](ap.meraki.com), U[switch.meraki.com](switch.meraki.com),
@@ -70,24 +67,21 @@ options:
             - Mutually exclusive of C(enable_my_meraki).
             - Will be deprecated in Ansible 2.13 in favor of C(enable_my_meraki).
         type: bool
-        version_added: '2.7'
     enable_my_meraki:
         description: >
             - Enables the local device status pages (U[my.meraki.com](my.meraki.com), U[ap.meraki.com](ap.meraki.com), U[switch.meraki.com](switch.meraki.com),
             U[wired.meraki.com](wired.meraki.com)).
             - Ansible 2.7 had this parameter as C(disable_my_meraki).
         type: bool
-        version_added: '2.9'
     enable_remote_status_page:
         description:
             - Enables access to the device status page (U(http://device LAN IP)).
             - Can only be set if C(enable_my_meraki:) is set to C(yes).
         type: bool
-        version_added: '2.9'
 
 author:
     - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''

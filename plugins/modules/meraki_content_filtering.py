@@ -17,10 +17,8 @@ DOCUMENTATION = r'''
 ---
 module: meraki_content_filtering
 short_description: Edit Meraki MX content filtering policies
-version_added: "2.8"
 description:
 - Allows for setting policy on content filtering.
-
 options:
     auth_key:
         description:
@@ -64,10 +62,9 @@ options:
         - Display only certain facts.
         choices: [categories, policy]
         type: str
-        version_added: '2.9'
 author:
     - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''
@@ -132,6 +129,7 @@ data:
         type: list
         sample: ["http://www.ansible.net"]
       blocked_url_categories:
+        description: List of blocked URL categories
         returned: query for policy
         type: complex
         contains:

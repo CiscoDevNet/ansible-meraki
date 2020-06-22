@@ -17,7 +17,6 @@ DOCUMENTATION = r'''
 ---
 module: meraki_mr_l3_firewall
 short_description: Manage MR access point layer 3 firewalls in the Meraki cloud
-version_added: "2.7"
 description:
 - Allows for creation, management, and visibility into layer 3 firewalls implemented on Meraki MR access points.
 - Module is not idempotent as of current release.
@@ -80,7 +79,7 @@ options:
                 type: str
 author:
 - Kevin Breit (@kbreit)
-extends_documentation_fragment: meraki
+extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''
