@@ -328,7 +328,6 @@ def get_rules(meraki, net_id):
 
 def rename_id_to_appid(rules):
     for rule in rules['rules']:
-        print(rule['type'])
         if rule['type'] == 'application' or rule['type'] == 'applicationCategory':
             rule['value']['appId'] = rule['value'].pop('id')
     return rules
