@@ -67,7 +67,7 @@ options:
       description:
       - IP address ranges which should be reserve and not distributed via DHCP.
       type: list
-      elements: dict
+      elements: dict      
       suboptions:
         start:
           description: First IP address of reserved IP address range, inclusive.
