@@ -89,11 +89,13 @@ options:
         description:
         - List of RADIUS servers.
         type: list
+        elements: dict
         suboptions:
             host:
                 description:
                 - IP address or hostname of RADIUS server.
                 type: str
+                required: true
             port:
                 description:
                 - Port number RADIUS server is listening to.
@@ -125,11 +127,13 @@ options:
         description:
         - List of RADIUS servers for RADIUS accounting.
         type: list
+        elements: dict
         suboptions:
             host:
                 description:
                 - IP address or hostname of RADIUS server.
                 type: str
+                required: true
             port:
                 description:
                 - Port number RADIUS server is listening to.
@@ -169,11 +173,13 @@ options:
         - Requires C(ip_assignment_mode) to be C(Bridge mode) or C(Layer 3 roaming).
         - Requires C(use_vlan_tagging) to be C(True).
         type: list
+        elements: dict
         suboptions:
             tags:
                 description:
                 - List of AP tags.
                 type: list
+                elements: str
             vlan_id:
                 description:
                 - Numerical identifier that is assigned to the VLAN.
@@ -186,6 +192,7 @@ options:
         description:
         - List of walled garden ranges.
         type: list
+        elements: str
     min_bitrate:
         description:
         - Minimum bitrate (Mbps) allowed on SSID.
@@ -443,7 +450,7 @@ def main():
                            port=dict(type='int'),
                            secret=dict(type='str', no_log=True),
                            )
-    vlan_arg_spec = dict(tags=dict(type='list'),
+    vlan_arg_spec = dict(tags=dict(type='list', elements='str'),
                          vlan_id=dict(type='int'),
                          )
 
@@ -472,7 +479,7 @@ def main():
                                                                'Facebook Wi-Fi',
                                                                'Google OAuth',
                                                                'Sponsored guest']),
-                         radius_servers=dict(type='list', default=None, element='dict', options=radius_arg_spec),
+                         radius_servers=dict(type='list', default=None, elements='dict', options=radius_arg_spec),
                          radius_coa_enabled=dict(type='bool'),
                          radius_failover_policy=dict(type='str', choices=['Deny access', 'Allow access']),
                          radius_load_balancing_policy=dict(type='str', choices=['Strict priority order', 'Round robin']),
@@ -489,7 +496,7 @@ def main():
                          default_vlan_id=dict(type='int'),
                          ap_tags_vlan_ids=dict(type='list', default=None, elements='dict', options=vlan_arg_spec),
                          walled_garden_enabled=dict(type='bool'),
-                         walled_garden_ranges=dict(type='list'),
+                         walled_garden_ranges=dict(type='list', elements='str'),
                          min_bitrate=dict(type='float', choices=[1, 2, 5.5, 6, 9, 11, 12, 18, 24, 36, 48, 54]),
                          band_selection=dict(type='str', choices=['Dual band operation',
                                                                   '5 GHz band only',

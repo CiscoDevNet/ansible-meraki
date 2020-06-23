@@ -44,8 +44,10 @@ options:
         choices: [ appliance, switch, wireless ]
         aliases: [ net_type ]
         type: list
+        elements: str
     tags:
         type: list
+        elements: str
         description:
         - List of tags to assign to network.
         - C(tags) name conflicts with the tags parameter in Ansible. Indentation problems may cause unexpected behaviors.
@@ -215,13 +217,13 @@ def main():
     argument_spec = meraki_argument_spec()
     argument_spec.update(
         net_id=dict(type='str'),
-        type=dict(type='list', choices=['wireless', 'switch', 'appliance'], aliases=['net_type']),
-        tags=dict(type='list'),
+        type=dict(type='list', elements='str', choices=['wireless', 'switch', 'appliance'], aliases=['net_type']),
+        tags=dict(type='list', elements='str'),
         timezone=dict(type='str'),
         net_name=dict(type='str', aliases=['name', 'network']),
         state=dict(type='str', choices=['present', 'query', 'absent'], default='present'),
         enable_vlans=dict(type='bool'),
-        disable_my_meraki=dict(type='bool', removed_in_version=2.13),
+        disable_my_meraki=dict(type='bool'),
         enable_my_meraki=dict(type='bool'),
         enable_remote_status_page=dict(type='bool'),
     )
