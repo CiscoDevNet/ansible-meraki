@@ -44,6 +44,7 @@ options:
         description:
         - List of hubs to assign to a spoke.
         type: list
+        elements: dict
         suboptions:
             hub_id:
                 description:
@@ -58,6 +59,7 @@ options:
         description:
         - List of subnets to advertise over VPN.
         type: list
+        elements: dict
         suboptions:
             local_subnet:
                 description:
