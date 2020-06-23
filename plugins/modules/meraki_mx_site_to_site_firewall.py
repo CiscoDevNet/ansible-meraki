@@ -33,6 +33,7 @@ options:
         description:
         - List of firewall rules.
         type: list
+        elements: dict
         suboptions:
             policy:
                 description:
