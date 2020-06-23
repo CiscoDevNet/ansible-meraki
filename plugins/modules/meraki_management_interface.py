@@ -50,6 +50,7 @@ options:
         description:
         - serial number of the device to configure.
         type: str
+        required: true
     wan1:
         description:
         - Management interface details for management interface.
@@ -85,6 +86,7 @@ options:
                 - DNS servers to use.
                 - Allows for a maximum of 2 addresses.
                 type: list
+                elements: str
             vlan:
                 description:
                 - VLAN number to use for the management network.
@@ -124,6 +126,7 @@ options:
                 - DNS servers to use.
                 - Allows for a maximum of 2 addresses.
                 type: list
+                elements: str
             vlan:
                 description:
                 - VLAN number to use for the management network.
@@ -177,7 +180,7 @@ data:
             wan_enabled:
                 description: Enabled state of interface
                 returned: success
-                type: string
+                type: str
                 sample: enabled
             using_static_ip:
                 description: Boolean value of whether static IP assignment is used on interface
@@ -187,17 +190,17 @@ data:
             static_ip:
                 description: Assigned static IP
                 returned: only if static IP assignment is used
-                type: string
+                type: str
                 sample: 192.0.1.2
             static_gateway_ip:
                 description: Assigned static gateway IP
                 returned: only if static IP assignment is used
-                type: string
+                type: str
                 sample: 192.0.1.1
             static_subnet_mask:
                 description: Assigned netmask for static IP
                 returned: only if static IP assignment is used
-                type: string
+                type: str
                 sample: 255.255.255.0
             static_dns:
                 description: List of DNS IP addresses
@@ -217,7 +220,7 @@ data:
             wan_enabled:
                 description: Enabled state of interface
                 returned: success
-                type: string
+                type: str
                 sample: enabled
             using_static_ip:
                 description: Boolean value of whether static IP assignment is used on interface
@@ -227,17 +230,17 @@ data:
             static_ip:
                 description: Assigned static IP
                 returned: only if static IP assignment is used
-                type: string
+                type: str
                 sample: 192.0.1.2
             static_gateway_ip:
                 description: Assigned static gateway IP
                 returned: only if static IP assignment is used
-                type: string
+                type: str
                 sample: 192.0.1.1
             static_subnet_mask:
                 description: Assigned netmask for static IP
                 returned: only if static IP assignment is used
-                type: string
+                type: str
                 sample: 255.255.255.0
             static_dns:
                 description: List of DNS IP addresses
@@ -265,7 +268,7 @@ def main():
                         static_ip=dict(type='str'),
                         static_gateway_ip=dict(type='str'),
                         static_subnet_mask=dict(type='str'),
-                        static_dns=dict(type='list', element='str'),
+                        static_dns=dict(type='list', elements='str'),
                         vlan=dict(type='int'),
                         )
 

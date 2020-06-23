@@ -41,6 +41,7 @@ options:
         description:
         - List of layer 7 firewall rules.
         type: list
+        elements: dict
         suboptions:
             policy:
                 description:
@@ -90,6 +91,7 @@ options:
                 - List of countries to whitelist or blacklist.
                 - The countries follow the two-letter ISO 3166-1 alpha-2 format.
                 type: list
+                elements: str
     categories:
         description:
         - When C(True), specifies that applications and application categories should be queried instead of firewall rules.
@@ -359,7 +361,7 @@ def main():
                          application=dict(type='dict', default=None, options=application_arg_spec),
                          host=dict(type='str'),
                          port=dict(type='str'),
-                         countries=dict(type='list'),
+                         countries=dict(type='list', elements='str'),
                          )
 
     argument_spec = meraki_argument_spec()

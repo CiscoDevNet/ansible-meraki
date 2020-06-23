@@ -50,6 +50,7 @@ options:
         description:
         - List of IDs related to rules which are whitelisted for the organization.
         type: list
+        elements: dict
         suboptions:
             rule_id:
                 description:
@@ -73,10 +74,12 @@ options:
                 description:
                 - List of network IP ranges to include in scanning.
                 type: list
+                elements: str
             excluded_cidr:
                 description:
                 - List of network IP ranges to exclude from scanning.
                 type: list
+                elements: str
 
 author:
     - Kevin Breit (@kbreit)
@@ -205,8 +208,8 @@ def main():
                               )
 
     protected_nets_arg_spec = dict(use_default=dict(type='bool'),
-                                   included_cidr=dict(type='list', element='str'),
-                                   excluded_cidr=dict(type='list', element='str'),
+                                   included_cidr=dict(type='list', elements='str'),
+                                   excluded_cidr=dict(type='list', elements='str'),
                                    )
 
     argument_spec = meraki_argument_spec()
@@ -214,7 +217,7 @@ def main():
         net_id=dict(type='str'),
         net_name=dict(type='str', aliases=['name', 'network']),
         state=dict(type='str', choices=['absent', 'present', 'query'], default='present'),
-        whitelisted_rules=dict(type='list', default=None, element='dict', options=whitelist_arg_spec),
+        whitelisted_rules=dict(type='list', default=None, elements='dict', options=whitelist_arg_spec),
         mode=dict(type='str', choices=['detection', 'disabled', 'prevention']),
         ids_rulesets=dict(type='str', choices=['connectivity', 'balanced', 'security']),
         protected_networks=dict(type='dict', default=None, options=protected_nets_arg_spec),

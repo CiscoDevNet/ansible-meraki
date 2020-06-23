@@ -45,6 +45,7 @@ options:
         description:
         - List of switchports to include in link aggregation.
         type: list
+        elements: dict
         suboptions:
             serial:
                 description:
@@ -102,7 +103,7 @@ data:
           description:
             - ID of link aggregation.
           returned: success
-          type: string
+          type: str
           sample: "MTK3M4A2ZDdfM3=="
       switch_ports:
           description:
@@ -113,13 +114,13 @@ data:
               port_id:
                 description:
                   - Port number.
-                type: string
+                type: str
                 returned: success
                 sample: "1"
               serial:
                 description:
                   - Serial number of switch on which port resides.
-                type: string
+                type: str
                 returned: success
                 sample: "ABCD-1234-WXYZ"
 '''

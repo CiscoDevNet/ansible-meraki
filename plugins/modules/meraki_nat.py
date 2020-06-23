@@ -46,10 +46,12 @@ options:
         choices: ['1:1', '1:many', all, port_forwarding]
         default: all
         type: list
+        elements: str
     one_to_one:
         description:
         - List of 1:1 NAT rules.
         type: list
+        elements: dict
         suboptions:
             name:
                 description:
@@ -72,6 +74,7 @@ options:
                 description:
                 - The ports this mapping will provide access on, and the remote IPs that will be allowed access to the resource.
                 type: list
+                elements: dict
                 suboptions:
                     protocol:
                         description:
@@ -83,14 +86,17 @@ options:
                         description:
                         - List of ports or port ranges that will be forwarded to the host on the LAN.
                         type: list
+                        elements: str
                     allowed_ips:
                         description:
                         - ranges of WAN IP addresses that are allowed to make inbound connections on the specified ports or port ranges, or 'any'.
                         type: list
+                        elements: str
     one_to_many:
         description:
         - List of 1:many NAT rules.
         type: list
+        elements: dict
         suboptions:
             public_ip:
                 description:
@@ -105,6 +111,7 @@ options:
                 description:
                 - List of associated port rules.
                 type: list
+                elements: dict
                 suboptions:
                     name:
                         description:
@@ -132,10 +139,12 @@ options:
                         description:
                         - Remote IP addresses or ranges that are permitted to access the internal resource via this port forwarding rule, or 'any'.
                         type: list
+                        elements: str
     port_forwarding:
         description:
         - List of port forwarding rules.
         type: list
+        elements: dict
         suboptions:
             name:
                 description:
@@ -162,6 +171,7 @@ options:
                 description:
                 - List of ranges of WAN IP addresses that are allowed to make inbound connections on the specified ports or port ranges (or any).
                 type: list
+                elements: str
             protocol:
                 description:
                 - Protocol to forward traffic for.
@@ -450,15 +460,15 @@ def main():
     # the module
 
     one_to_one_allowed_inbound_spec = dict(protocol=dict(type='str', choices=['tcp', 'udp', 'icmp-ping', 'any'], default='any'),
-                                           destination_ports=dict(type='list', element='str'),
-                                           allowed_ips=dict(type='list'),
+                                           destination_ports=dict(type='list', elements='str'),
+                                           allowed_ips=dict(type='list', elements='str'),
                                            )
 
     one_to_many_port_inbound_spec = dict(protocol=dict(type='str', choices=['tcp', 'udp']),
                                          name=dict(type='str'),
                                          local_ip=dict(type='str'),
                                          local_port=dict(type='str'),
-                                         allowed_ips=dict(type='list'),
+                                         allowed_ips=dict(type='list', elements='str'),
                                          public_port=dict(type='str'),
                                          )
 
@@ -466,12 +476,12 @@ def main():
                            public_ip=dict(type='str'),
                            lan_ip=dict(type='str'),
                            uplink=dict(type='str', choices=['internet1', 'internet2', 'both']),
-                           allowed_inbound=dict(type='list', element='dict', options=one_to_one_allowed_inbound_spec),
+                           allowed_inbound=dict(type='list', elements='dict', options=one_to_one_allowed_inbound_spec),
                            )
 
     one_to_many_spec = dict(public_ip=dict(type='str'),
                             uplink=dict(type='str', choices=['internet1', 'internet2', 'both']),
-                            port_rules=dict(type='list', element='dict', options=one_to_many_port_inbound_spec),
+                            port_rules=dict(type='list', elements='dict', options=one_to_many_port_inbound_spec),
                             )
 
     port_forwarding_spec = dict(name=dict(type='str'),
@@ -480,7 +490,7 @@ def main():
                                 protocol=dict(type='str', choices=['tcp', 'udp']),
                                 public_port=dict(type='int'),
                                 local_port=dict(type='int'),
-                                allowed_ips=dict(type='list'),
+                                allowed_ips=dict(type='list', elements='str'),
                                 )
 
     argument_spec = meraki_argument_spec()
@@ -488,10 +498,10 @@ def main():
         net_id=dict(type='str'),
         net_name=dict(type='str', aliases=['name', 'network']),
         state=dict(type='str', choices=['present', 'query'], default='present'),
-        subset=dict(type='list', choices=['1:1', '1:many', 'all', 'port_forwarding'], default='all'),
-        one_to_one=dict(type='list', element='dict', options=one_to_one_spec),
-        one_to_many=dict(type='list', element='dict', options=one_to_many_spec),
-        port_forwarding=dict(type='list', element='dict', options=port_forwarding_spec),
+        subset=dict(type='list', elements='str', choices=['1:1', '1:many', 'all', 'port_forwarding'], default='all'),
+        one_to_one=dict(type='list', elements='dict', options=one_to_one_spec),
+        one_to_many=dict(type='list', elements='dict', options=one_to_many_spec),
+        port_forwarding=dict(type='list', elements='dict', options=port_forwarding_spec),
     )
 
     # the AnsibleModule object will be our abstraction working with Ansible

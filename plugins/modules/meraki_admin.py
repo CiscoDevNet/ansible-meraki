@@ -44,6 +44,7 @@ options:
         - When creating a new administrator, C(org_name), C(network), or C(tags) must be specified.
         - If C(none) is specified, C(network) or C(tags) must be specified.
         type: list
+        elements: dict
         suboptions:
             tag:
                 description:
@@ -58,6 +59,7 @@ options:
         - List of networks the administrator has privileges on.
         - When creating a new administrator, C(org_name), C(network), or C(tags) must be specified.
         type: list
+        elements: dict
         suboptions:
             id:
                 description:
@@ -402,8 +404,8 @@ def main():
                          name=dict(type='str'),
                          email=dict(type='str'),
                          org_access=dict(type='str', aliases=['orgAccess'], choices=['full', 'read-only', 'none']),
-                         tags=dict(type='list', element='dict', options=tag_arg_spec),
-                         networks=dict(type='list', element='dict', options=network_arg_spec),
+                         tags=dict(type='list', elements='dict', options=tag_arg_spec),
+                         networks=dict(type='list', elements='dict', options=network_arg_spec),
                          org_name=dict(type='str', aliases=['organization']),
                          org_id=dict(type='str'),
                          )

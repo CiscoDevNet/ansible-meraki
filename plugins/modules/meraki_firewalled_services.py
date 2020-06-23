@@ -63,6 +63,7 @@ options:
         - List of IP addresses allowed to access a service.
         - Only used when C(access) is set to restricted.
         type: list
+        elements: str
 
 author:
     - Kevin Breit (@kbreit)
@@ -150,7 +151,7 @@ def main():
         state=dict(type='str', default='present', choices=['query', 'present']),
         service=dict(type='str', default=None, choices=['ICMP', 'SNMP', 'web']),
         access=dict(type='str', choices=['blocked', 'restricted', 'unrestricted']),
-        allowed_ips=dict(type='list', element='str'),
+        allowed_ips=dict(type='list', elements='str'),
     )
 
     mutually_exclusive = [('net_name', 'net_id')]

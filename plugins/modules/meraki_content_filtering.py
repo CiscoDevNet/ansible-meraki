@@ -43,15 +43,18 @@ options:
         description:
         - List of URL patterns which should be allowed.
         type: list
+        elements: str
     blocked_urls:
         description:
         - List of URL patterns which should be blocked.
         type: list
+        elements: str
     blocked_categories:
         description:
         - List of content categories which should be blocked.
         - Use the C(meraki_content_filtering_facts) module for a full list of categories.
         type: list
+        elements: str
     category_list_size:
         description:
         - Determines whether a network filters fo rall URLs in a category or only the list of top blocked sites.
@@ -171,9 +174,9 @@ def main():
         net_id=dict(type='str'),
         net_name=dict(type='str', aliases=['network']),
         state=dict(type='str', default='present', choices=['present', 'query']),
-        allowed_urls=dict(type='list'),
-        blocked_urls=dict(type='list'),
-        blocked_categories=dict(type='list'),
+        allowed_urls=dict(type='list', elements='str'),
+        blocked_urls=dict(type='list', elements='str'),
+        blocked_categories=dict(type='list', elements='str'),
         category_list_size=dict(type='str', choices=['top sites', 'full list']),
         subset=dict(type='str', choices=['categories', 'policy']),
     )
