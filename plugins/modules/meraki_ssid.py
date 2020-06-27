@@ -467,7 +467,7 @@ def main():
                          encryption_mode=dict(type='str', choices=['wpa', 'eap', 'wpa-eap']),
                          psk=dict(type='str', no_log=True),
                          wpa_encryption_mode=dict(type='str', choices=[
-                                                  'WPA1 and WPA2', 'WPA2 only', 'WPA3 Transition Mode', 'WPA3 only',]),
+                                                  'WPA1 and WPA2', 'WPA2 only', 'WPA3 Transition Mode', 'WPA3 only', ]),
                          splash_page=dict(type='str', choices=['None',
                                                                'Click-through splash page',
                                                                'Billing',
