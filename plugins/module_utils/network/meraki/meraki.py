@@ -50,58 +50,6 @@ class HTTPError(Exception):
         Exception.__init__(self, *args, **kwargs)
 
 
-def _error_report(function):
-    def inner(self, *args, **kwargs):
-        while True:
-            try:
-                response = function(self, *args, **kwargs)
-                if self.status == 429:
-                    raise RateLimitException(
-                        "Rate limiter hit, retry {0}".format(self.retry))
-                elif self.status == 500:
-                    raise InternalErrorException(
-                        "Internal server error 500, retry {0}".format(self.retry))
-                elif self.status == 502:
-                    raise InternalErrorException(
-                        "Internal server error 502, retry {0}".format(self.retry))
-                elif self.status == 400:
-                    raise HTTPError("")
-                elif self.status >= 400:
-                    raise HTTPError("")
-                self.retry = 0  # Needs to reset in case of future retries
-                return response
-            except RateLimitException as e:
-                self.retry += 1
-                if self.retry <= 10:
-                    self.retry_time += self.retry * RATE_LIMIT_RETRY_MULTIPLIER
-                    time.sleep(self.retry * RATE_LIMIT_RETRY_MULTIPLIER)
-                else:
-                    self.retry_time += 30
-                    time.sleep(30)
-                if self.retry_time > self.params['rate_limit_retry_time']:
-                    raise RateLimitException(e)
-            except InternalErrorException as e:
-                self.retry += 1
-                if self.retry <= 10:
-                    self.retry_time += self.retry * INTERNAL_ERROR_RETRY_MULTIPLIER
-                    time.sleep(self.retry * INTERNAL_ERROR_RETRY_MULTIPLIER)
-                else:
-                    self.retry_time += 9
-                    time.sleep(9)
-                if self.retry_time > self.params['internal_error_retry_time']:
-                    raise InternalErrorException(e)
-            except HTTPError:
-                try:
-                    self.fail_json(msg="HTTP error {0} - {1} - {2}".format(self.status, self.url, json.loads(self.body)['errors']),
-                                   body=json.loads(self.body))
-                except json.decoder.JSONDecodeError:
-                    self.fail_json(msg="HTTP error {0} - {1}".format(self.status, self.url))
-    try:
-        return inner
-    except HTTPError:
-        pass
-
-
 class MerakiModule(object):
 
     def __init__(self, module, function=None):
@@ -180,7 +128,7 @@ class MerakiModule(object):
         self.modifiable_methods = ['POST', 'PUT', 'DELETE']
 
         self.headers = {'Content-Type': 'application/json',
-                        'X-Cisco-Meraki-API-Key': module.params['auth_key'],
+                        'Authorization': 'Bearer {key}'.format(key=module.params['auth_key']),
                         }
 
     def define_protocol(self):
@@ -404,15 +352,17 @@ class MerakiModule(object):
             built_path += self.encode_url_params(params)
         return built_path
 
-    @_error_report
-    def request(self, path, method=None, payload=None):
-        """Generic HTTP method for Meraki requests."""
+    def _set_url(self, path, method, params):
         self.path = path
         self.define_protocol()
 
         if method is not None:
             self.method = method
-        self.url = '{protocol}://{host}/api/v0/{path}'.format(path=self.path.lstrip('/'), **self.params)
+
+        self.url = '{protocol}://{host}/api/v1/{path}'.format(path=self.path.lstrip('/'), **self.params)
+
+    def _execute_request(self, path, method=None, payload=None, params=None):
+        """ Execute query """
         resp, info = fetch_url(self.module, self.url,
                                headers=self.headers,
                                data=payload,
@@ -420,6 +370,45 @@ class MerakiModule(object):
                                timeout=self.params['timeout'],
                                use_proxy=self.params['use_proxy'],
                                )
+        self.status = info['status']
+
+        if self.status == 429:
+            self.module.warn("Rate limiter hit, retry {0}".format(self.retry))
+            self.retry += 1
+            if self.retry <= 10:
+                time.sleep(info['retry-after'])
+                request(path, method=method, payload=payload, params=params) 
+            else:
+                # raise RateLimitException()
+                self.fail_json(msg="Rate limit retries failed for {url}".format(url=self.url))     
+        elif self.status == 500:
+            self.retry += 1
+            self.module.warn("Internal server error 500, retry {0}".format(self.retry))
+            if self.retry <= 10:
+                self.retry_time += self.retry * INTERNAL_ERROR_RETRY_MULTIPLIER
+                time.sleep(self.retry_time)
+                request(path, method=method, payload=payload, params=params) 
+            else:
+                # raise RateLimitException(e)
+                self.fail_json(msg="Rate limit retries failed for {url}".format(url=self.url))     
+        elif self.status == 502:
+            self.module.warn("Internal server error 502, retry {0}".format(self.retry))
+        elif self.status == 400:
+            raise HTTPError("")
+        elif self.status >= 400:
+            self.fail_json(msg=self.status, url=self.url)
+            raise HTTPError("")
+        self.retry = 0  # Needs to reset in case of future retries
+        return resp, info
+
+    def request(self, path, method=None, payload=None, params=None):
+        """ Submit HTTP request to Meraki API """
+        self._set_url(path, method, params)
+        try:
+            resp, info = self._execute_request(path, method=method, payload=payload, params=params)
+        except HTTPError:
+            self.fail_json(msg="HTTP request to {url} failed with error code {code}".format(url=self.url, code=self.status))
+
         if 'body' in info:
             self.body = info['body']
         self.response = info['msg']
@@ -427,8 +416,8 @@ class MerakiModule(object):
 
         try:
             return json.loads(to_native(resp.read()))
-        except Exception:
-            pass
+        except json.decoder.JSONDecodeError:
+            return {}
 
     def exit_json(self, **kwargs):
         """Custom written method to exit from module."""
