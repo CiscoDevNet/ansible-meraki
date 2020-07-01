@@ -377,20 +377,20 @@ class MerakiModule(object):
             self.retry += 1
             if self.retry <= 10:
                 time.sleep(info['retry-after'])
-                request(path, method=method, payload=payload, params=params) 
+                self.request(path, method=method, payload=payload, params=params)
             else:
                 # raise RateLimitException()
-                self.fail_json(msg="Rate limit retries failed for {url}".format(url=self.url))     
+                self.fail_json(msg="Rate limit retries failed for {url}".format(url=self.url))
         elif self.status == 500:
             self.retry += 1
             self.module.warn("Internal server error 500, retry {0}".format(self.retry))
             if self.retry <= 10:
                 self.retry_time += self.retry * INTERNAL_ERROR_RETRY_MULTIPLIER
                 time.sleep(self.retry_time)
-                request(path, method=method, payload=payload, params=params) 
+                self.request(path, method=method, payload=payload, params=params)
             else:
                 # raise RateLimitException(e)
-                self.fail_json(msg="Rate limit retries failed for {url}".format(url=self.url))     
+                self.fail_json(msg="Rate limit retries failed for {url}".format(url=self.url))
         elif self.status == 502:
             self.module.warn("Internal server error 502, retry {0}".format(self.retry))
         elif self.status == 400:
