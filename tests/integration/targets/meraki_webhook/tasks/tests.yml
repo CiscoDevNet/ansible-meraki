@@ -261,10 +261,10 @@
       that:
         - delete is changed
 
-  always:
   #############################################################################
   # Tear down starts here
   #############################################################################
+  always:
   - name: Delete test network
     meraki_network:
       auth_key: '{{auth_key}}'
