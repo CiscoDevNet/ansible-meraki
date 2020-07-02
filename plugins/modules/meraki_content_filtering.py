@@ -192,8 +192,8 @@ def main():
     meraki = MerakiModule(module, function='content_filtering')
     module.params['follow_redirects'] = 'all'
 
-    category_urls = {'content_filtering': '/networks/{net_id}/contentFiltering/categories'}
-    policy_urls = {'content_filtering': '/networks/{net_id}/contentFiltering'}
+    category_urls = {'content_filtering': '/networks/{net_id}/appliance/contentFiltering/categories'}
+    policy_urls = {'content_filtering': '/networks/{net_id}/appliance/contentFiltering'}
 
     meraki.url_catalog['categories'] = category_urls
     meraki.url_catalog['policy'] = policy_urls
