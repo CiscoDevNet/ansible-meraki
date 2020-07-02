@@ -1,0 +1,10 @@
+breaking_changes:
+  - meraki_network - `tags` and `type` now return a list
+  - meraki_network - `enabled` response for VLAN status is now `vlans_enabled`
+  - meraki_network - `enable_my_meraki` is now called `local_status_page_enabled`
+  - meraki_network - `enable_remote_status_page` is now called `remote_status_page_enabled`
+  - meraki_network - `disable_my_meraki` has been deprecated
+  - meraki_network - `disable_my_meraki_com` response is now `local_status_page_enabled`
+  - meraki_network - `disableRemoteStatusPage` response is now `remote_status_page_enabled`
+  - meraki_network - Local and remote status page settings cannot be set during network creation
+  
