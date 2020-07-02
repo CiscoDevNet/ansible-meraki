@@ -124,21 +124,26 @@ data:
     returned: info
     type: complex
     contains:
-      host:
-        description: Hostname or IP address of syslog server.
-        returned: success
-        type: str
-        sample: 192.0.1.1
-      port:
-        description: Port number for syslog communication.
-        returned: success
-        type: str
-        sample: 443
-      roles:
-        description: List of roles assigned to syslog server.
-        returned: success
-        type: list
-        sample: "Wireless event log, URLs"
+      servers:
+        description: List of syslog servers.
+        returned: info
+        type: complex
+        contains:
+          host:
+            description: Hostname or IP address of syslog server.
+            returned: success
+            type: str
+            sample: 192.0.1.1
+          port:
+            description: Port number for syslog communication.
+            returned: success
+            type: str
+            sample: 443
+          roles:
+            description: List of roles assigned to syslog server.
+            returned: success
+            type: list
+            sample: "Wireless event log, URLs"
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
@@ -225,8 +230,7 @@ def main():
         path = meraki.construct_path('query_update', net_id=net_id)
         r = meraki.request(path, method='GET')
         if meraki.status == 200:
-            original = dict()
-            original['servers'] = r
+            original = r
 
         if meraki.is_update_required(original, payload):
             if meraki.module.check_mode is True:
