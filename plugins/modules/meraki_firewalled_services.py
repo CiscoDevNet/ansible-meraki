@@ -168,8 +168,8 @@ def main():
     meraki = MerakiModule(module, function='firewalled_services')
     module.params['follow_redirects'] = 'all'
 
-    net_services_urls = {'firewalled_services': '/networks/{net_id}/firewalledServices'}
-    services_urls = {'firewalled_services': '/networks/{net_id}/firewalledServices/{service}'}
+    net_services_urls = {'firewalled_services': '/networks/{net_id}/appliance/firewall/firewalledServices'}
+    services_urls = {'firewalled_services': '/networks/{net_id}/appliance/firewall/firewalledServices/{service}'}
 
     meraki.url_catalog['network_services'] = net_services_urls
     meraki.url_catalog['service'] = services_urls
