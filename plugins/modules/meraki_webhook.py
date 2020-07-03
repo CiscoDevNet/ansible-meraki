@@ -233,6 +233,7 @@ def main():
         nets = meraki.get_nets(org_id=org_id)
         net_id = meraki.get_net_id(net_name=meraki.params['net_name'], data=nets)
     webhook_id = meraki.params['webhook_id']
+    webhooks = None
     if webhook_id is None and meraki.params['name']:
         webhooks = get_all_webhooks(meraki, net_id)
         webhook_id = get_webhook_id(meraki.params['name'], webhooks)
