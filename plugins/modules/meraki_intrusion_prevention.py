@@ -126,8 +126,7 @@ EXAMPLES = r'''
     auth_key: '{{auth_key}}'
     state: absent
     org_name: '{{test_org_name}}'
-    whitelisted_rules:
-      -
+    whitelisted_rules: []
   delegate_to: localhost
 '''
 
@@ -235,10 +234,10 @@ def main():
     module.params['follow_redirects'] = 'all'
     payload = None
 
-    query_org_urls = {'intrusion_prevention': '/organizations/{org_id}/security/intrusionSettings'}
-    query_net_urls = {'intrusion_prevention': '/networks/{net_id}/security/intrusionSettings'}
-    set_org_urls = {'intrusion_prevention': '/organizations/{org_id}/security/intrusionSettings'}
-    set_net_urls = {'intrusion_prevention': '/networks/{net_id}/security/intrusionSettings'}
+    query_org_urls = {'intrusion_prevention': '/organizations/{org_id}/appliance/security/intrusion'}
+    query_net_urls = {'intrusion_prevention': '/networks/{net_id}/appliance/security/intrusion'}
+    set_org_urls = {'intrusion_prevention': '/organizations/{org_id}/appliance/security/intrusion'}
+    set_net_urls = {'intrusion_prevention': '/networks/{net_id}/appliance/security/intrusion'}
     meraki.url_catalog['query_org'] = query_org_urls
     meraki.url_catalog['query_net'] = query_net_urls
     meraki.url_catalog['set_org'] = set_org_urls
