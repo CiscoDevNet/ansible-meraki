@@ -276,8 +276,7 @@
       auth_key: '{{auth_key}}'
       state: absent
       org_name: '{{test_org_name}}'
-      whitelisted_rules:
-        - 
+      whitelisted_rules: []
     check_mode: yes
     register: cleared
 
@@ -291,16 +290,13 @@
       auth_key: '{{auth_key}}'
       state: absent
       org_name: '{{test_org_name}}'
-      whitelisted_rules:
-        - 
-
+      whitelisted_rules: []
   - name: Clear rules from organization with idempotency
     meraki_intrusion_prevention:
       auth_key: '{{auth_key}}'
       state: absent
       org_name: '{{test_org_name}}'
-      whitelisted_rules:
-        - 
+      whitelisted_rules: []
     register: del_idempotent
 
   - assert:
