@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.0
+
+### Features
+
+* meraki_ssid - Add `WPA3 Only` and `WPA3 Transition Mode`
+
 ## v1.3.1
 
 ### Bugfixes
