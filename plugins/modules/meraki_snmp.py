@@ -165,7 +165,7 @@ data:
             returned: success and no network specified.
             type: str
             sample: n1.meraki.com
-        peerIps:
+        peer_ips:
             description: Semi-colon delimited list of IPs which can poll SNMP information.
             returned: success and no network specified.
             type: str
@@ -325,9 +325,9 @@ def main():
     meraki.params['follow_redirects'] = 'all'
 
     query_urls = {'snmp': '/organizations/{org_id}/snmp'}
-    query_net_urls = {'snmp': '/networks/{net_id}/snmpSettings'}
+    query_net_urls = {'snmp': '/networks/{net_id}/snmp'}
     update_urls = {'snmp': '/organizations/{org_id}/snmp'}
-    update_net_urls = {'snmp': '/networks/{net_id}/snmpSettings'}
+    update_net_urls = {'snmp': '/networks/{net_id}/snmp'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['query_net_all'] = query_net_urls

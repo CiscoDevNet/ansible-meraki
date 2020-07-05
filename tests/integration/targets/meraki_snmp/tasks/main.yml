@@ -198,13 +198,9 @@
       v3_auth_pass: ansible
       v3_priv_mode: AES128
       v3_priv_pass: ansible
-      peer_ips: 1.1.1.1;2.2.2.2
     delegate_to: localhost
     register: short_password
     ignore_errors: yes
-
-  - debug:
-      msg: '{{short_password}}'
 
   - assert:
       that:
