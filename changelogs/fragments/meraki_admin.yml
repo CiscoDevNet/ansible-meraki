@@ -1,0 +1,5 @@
+minor_changes:
+  - meraki_admin - Update endpoints for API v1
+
+bugfixes:
+  - meraki_admin - Fix error when adding network privileges to admin using network name

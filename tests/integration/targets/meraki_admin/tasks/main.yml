@@ -373,10 +373,10 @@
         - query_name.data.name == "Jane Doe"
         - 'query_email.data.email == "{{email_prefix}}+janedoe@{{email_domain}}"'
 
-  always:
   #############################################################################
   # Tear down starts here
   #############################################################################
+  always:
   - name: Delete administrators
     meraki_admin:
       auth_key: '{{auth_key}}'
