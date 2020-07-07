@@ -116,12 +116,9 @@
     register: invalid_role
     ignore_errors: yes
 
-  - debug:
-      msg: '{{invalid_role.msg}}'
-
   - assert:
       that:
-        - '"Please select at least one valid role" in invalid_role.body.errors.0'
+        - '"Invalid role found in servers" in invalid_role.msg'
 
   - name: Add role to existing syslog server  # Adding doesn't work, just creation
     meraki_syslog:
@@ -133,16 +130,16 @@
         - host: 192.0.1.2
           port: 514
           roles:
-            - flows
+            - Flows
     delegate_to: localhost
     register: add_role
 
   - debug:
-      msg: '{{add_role.data.0.roles}}'
+      msg: '{{add_role.data}}'
 
   - assert:
       that:
-        - add_role.data.0.roles.0 == 'Flows'
+        - add_role.data.servers.0.roles.0 == 'Flows'
 
   always:
     - name: Delete syslog test network
