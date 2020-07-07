@@ -341,9 +341,9 @@ def main():
     elif meraki.params['state'] == 'present':
         path = meraki.construct_path('get_one', net_id=net_id, custom={'serial': meraki.params['serial']})
         original = meraki.request(path, method='GET')
-        meraki.fail_json(msg=original)
         if meraki.is_update_required(original, payload):
             if meraki.check_mode is True:
+                diff = recursive_diff(original, payload)
                 original.update(payload)
                 meraki.result['diff'] = {'before': diff[0],
                                          'after': diff[1]}
