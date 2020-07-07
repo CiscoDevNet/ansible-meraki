@@ -402,7 +402,7 @@ class MerakiModule(object):
             try:
                 self.fail_json(msg="HTTP error {0} - {1} - {2}".format(self.status, self.url, json.loads(info['body'])['errors'][0]))
             except json.decoder.JSONDecodeError:
-                self.fail_json(msg="HTTP error {0} - {1}".format(self.status, self.url))            
+                self.fail_json(msg="HTTP error {0} - {1}".format(self.status, self.url))
         self.retry = 0  # Needs to reset in case of future retries
         return resp, info
 
