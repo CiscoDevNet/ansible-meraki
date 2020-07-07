@@ -316,7 +316,7 @@ def delete_admin(meraki, org_id, admin_id):
 def network_factory(meraki, networks, nets):
     networks_new = []
     for n in networks:
-        if 'network' in n:
+        if 'network' in n and n['network'] is not None:
             networks_new.append({'id': meraki.get_net_id(org_name=meraki.params['org_name'],
                                                          net_name=n['network'],
                                                          data=nets),
@@ -326,7 +326,6 @@ def network_factory(meraki, networks, nets):
             networks_new.append({'id': n['id'],
                                  'access': n['access']
                                  })
-
     return networks_new
 
 
