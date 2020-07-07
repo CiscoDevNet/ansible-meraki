@@ -26,11 +26,16 @@ options:
         choices: [query, present]
         default: query
         type: str
+    access_policy_type:
+        description:
+        - Type of access policy to apply to port.
+        type: str
+        choices: [Open, Custom access policy, MAC whitelist, Sticky MAC whitelist]
     access_policy_number:
         description:
         - Number of the access policy to apply.
         - Only applicable to access port types.
-        type: str
+        type: int
     allowed_vlans:
         description:
         - List of VLAN numbers to be allowed on switchport.
@@ -85,8 +90,9 @@ options:
         type: str
     tags:
         description:
-        - Space delimited list of tags to assign to a port.
-        type: str
+        - List of tags to assign to a port.
+        type: list
+        elements: str
     type:
         description:
         - Set port type.
@@ -196,10 +202,10 @@ data:
             type: str
             sample: "Jim Phone Port"
         tags:
-            description: Space delimited list of tags assigned to port.
+            description: List of tags assigned to port.
             returned: success
-            type: str
-            sample: phone marketing
+            type: list
+            sample: ['phone', 'marketing']
         enabled:
             description: Enabled state of port.
             returned: success
@@ -256,6 +262,7 @@ from ansible.module_utils.basic import AnsibleModule, json
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
 param_map = {'access_policy_number': 'accessPolicyNumber',
+             'access_policy_type': 'accessPolicyType',
              'allowed_vlans': 'allowedVlans',
              'enabled': 'enabled',
              'isolation_enabled': 'isolationEnabled',
@@ -283,6 +290,24 @@ def sort_vlans(meraki, vlans):
     return ','.join(vlans_str)
 
 
+def assemble_payload(meraki):
+    payload = dict()
+    # if meraki.params['enabled'] is not None:
+    #     payload['enabled'] = meraki.params['enabled']
+
+    for k, v in meraki.params.items():
+        try:
+            if meraki.params[k] is not None:
+                if k == 'access_policy_number':
+                    if meraki.params['access_policy_type'] is not None:
+                        payload[param_map[k]] = v
+                else:
+                    payload[param_map[k]] = v
+        except KeyError:
+            pass
+    return payload
+
+
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
@@ -291,7 +316,7 @@ def main():
                          serial=dict(type='str', required=True),
                          number=dict(type='str'),
                          name=dict(type='str', aliases=['description']),
-                         tags=dict(type='str'),
+                         tags=dict(type='list', elements='str'),
                          enabled=dict(type='bool', default=True),
                          type=dict(type='str', choices=['access', 'trunk'], default='access'),
                          vlan=dict(type='int'),
@@ -301,7 +326,8 @@ def main():
                          isolation_enabled=dict(type='bool', default=False),
                          rstp_enabled=dict(type='bool', default=True),
                          stp_guard=dict(type='str', choices=['disabled', 'root guard', 'bpdu guard', 'loop guard'], default='disabled'),
-                         access_policy_number=dict(type='str'),
+                         access_policy_type=dict(type='str', choices=['Open', 'Custom access policy', 'MAC whitelist', 'Sticky MAC whitelist']),
+                         access_policy_number=dict(type='int'),
                          link_negotiation=dict(type='str',
                                                choices=['Auto negotiate', '100Megabit (auto)', '100 Megabit full duplex (forced)'],
                                                default='Auto negotiate'),
@@ -321,15 +347,13 @@ def main():
         if not meraki.params['allowed_vlans']:
             meraki.params['allowed_vlans'] = ['all']  # Backdoor way to set default without conflicting on access
 
-    query_urls = {'switchport': '/devices/{serial}/switchPorts'}
-    query_url = {'switchport': '/devices/{serial}/switchPorts/{number}'}
-    update_url = {'switchport': '/devices/{serial}/switchPorts/{number}'}
+    query_urls = {'switchport': '/devices/{serial}/switch/ports'}
+    query_url = {'switchport': '/devices/{serial}/switch/ports/{number}'}
+    update_url = {'switchport': '/devices/{serial}/switch/ports/{number}'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['get_one'].update(query_url)
     meraki.url_catalog['update'] = update_url
-
-    payload = None
 
     # execute checks for argument completeness
 
@@ -347,14 +371,8 @@ def main():
             response = meraki.request(path, method='GET')
             meraki.result['data'] = response
     elif meraki.params['state'] == 'present':
-        payload = dict()
-
-        for k, v in meraki.params.items():
-            try:
-                payload[param_map[k]] = v
-            except KeyError:
-                pass
-
+        payload = assemble_payload(meraki)
+        # meraki.fail_json(msg='payload', payload=payload)
         allowed = set()  # Use a set to remove duplicate items
         if meraki.params['allowed_vlans'][0] == 'all':
             allowed.add('all')
@@ -380,6 +398,7 @@ def main():
         original = meraki.request(query_path, method='GET')
         if meraki.params['type'] == 'trunk':
             proposed['voiceVlan'] = original['voiceVlan']  # API shouldn't include voice VLAN on a trunk port
+        # meraki.fail_json(msg='Compare', original=original, payload=payload)
         if meraki.is_update_required(original, proposed, optional_ignore=['number']):
             if meraki.check_mode is True:
                 original.update(proposed)
@@ -389,6 +408,7 @@ def main():
             path = meraki.construct_path('update', custom={'serial': meraki.params['serial'],
                                                            'number': meraki.params['number'],
                                                            })
+            # meraki.fail_json(msg=payload)
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             meraki.result['data'] = response
             meraki.result['changed'] = True
