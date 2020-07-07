@@ -1,0 +1,8 @@
+trivial:
+  - meraki_webhook - Update URLs to webhook endpoints
+
+bugfixes:
+  - meraki_webhook - Proper response is shown when creating webhook test
+
+breaking_changes:
+  - meraki_webhook - Querying test status now uses state of query.

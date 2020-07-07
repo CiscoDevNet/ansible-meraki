@@ -194,7 +194,7 @@ def main():
                          url=dict(type='str'),
                          shared_secret=dict(type='str', no_log=True),
                          webhook_id=dict(type='str'),
-                         test=dict(type='str', choices=['test', 'status']),
+                         test=dict(type='str', choices=['test']),
                          test_id=dict(type='str'),
                          )
 
@@ -249,6 +249,12 @@ def main():
             response = meraki.request(path, method='GET')
             if meraki.status == 200:
                 meraki.result['data'] = response
+        elif meraki.params['test_id'] is not None:
+            path = meraki.construct_path('test_status', net_id=net_id, custom={'testid': meraki.params['test_id']})
+            response = meraki.request(path, method='GET')
+            if meraki.status == 200:
+                meraki.result['data'] = response
+                meraki.exit_json(**meraki.result)
         else:
             path = meraki.construct_path('get_all', net_id=net_id)
             response = meraki.request(path, method='GET')
@@ -259,22 +265,10 @@ def main():
             payload = {'url': meraki.params['url']}
             path = meraki.construct_path('test', net_id=net_id)
             response = meraki.request(path, method='POST', payload=json.dumps(payload))
-            if meraki.status == 200:
+            if meraki.status == 201:
                 meraki.result['data'] = response
                 meraki.exit_json(**meraki.result)
-        elif meraki.params['test'] == 'status':
-            if meraki.params['test_id'] is None:
-                meraki.fail_json("test_id is required when querying test status.")
-            path = meraki.construct_path('test_status', net_id=net_id, custom={'testid': meraki.params['test_id']})
-            response = meraki.request(path, method='GET')
-            if meraki.status == 200:
-                meraki.result['data'] = response
-                meraki.exit_json(**meraki.result)
-        if webhook_id is None:  # Make sure it is downloaded
-            if webhooks is None:
-                webhooks = get_all_webhooks(meraki, net_id)
-            webhook_id = get_webhook_id(meraki.params['name'], webhooks)
-        if webhook_id is None:  # Test to see if it needs to be created
+        if webhook_id is None:  # New webhook needs to be created
             if meraki.check_mode is True:
                 meraki.result['data'] = payload
                 meraki.result['data']['networkId'] = net_id
