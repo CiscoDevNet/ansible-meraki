@@ -57,7 +57,7 @@ options:
       description:
       - Indicates whether to test or query status.
       type: str
-      choices: [test, status]
+      choices: [test]
     test_id:
       description:
       - ID of webhook test query.
