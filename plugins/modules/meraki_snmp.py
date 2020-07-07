@@ -56,8 +56,9 @@ options:
         type: str
     peer_ips:
         description:
-        - Semi-colon delimited IP addresses which can perform SNMP queries.
-        type: str
+        - List of IP addresses which can perform SNMP queries.
+        type: list
+        elements: str
     net_name:
         description:
         - Name of network.
@@ -243,10 +244,6 @@ def get_snmp(meraki, org_id):
 
 def set_snmp(meraki, org_id):
     payload = dict()
-    if meraki.params['peer_ips']:
-        if len(meraki.params['peer_ips']) > 7:
-            if ';' not in meraki.params['peer_ips']:
-                meraki.fail_json(msg='Peer IP addresses are semi-colon delimited.')
     if meraki.params['v2c_enabled'] is not None:
         payload = {'v2cEnabled': meraki.params['v2c_enabled'],
                    }
@@ -306,7 +303,7 @@ def main():
                          v3_auth_pass=dict(type='str', no_log=True),
                          v3_priv_mode=dict(type='str', choices=['DES', 'AES128']),
                          v3_priv_pass=dict(type='str', no_log=True),
-                         peer_ips=dict(type='str'),
+                         peer_ips=dict(type='list', default=None, elements='str'),
                          access=dict(type='str', choices=['none', 'community', 'users']),
                          community_string=dict(type='str', no_log=True),
                          users=dict(type='list', default=None, elements='dict', options=user_arg_spec),
