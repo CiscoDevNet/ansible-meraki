@@ -1,2 +1,5 @@
 trivial:
   - meraki_snmp - Update URLs to SNMP endpoints
+
+breaking_changes:
+  - meraki_snmp - peer_ips is now a list
