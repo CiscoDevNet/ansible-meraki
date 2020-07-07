@@ -223,9 +223,9 @@ def main():
         net_name=dict(type='str', aliases=['name', 'network']),
         state=dict(type='str', choices=['present', 'query', 'absent'], default='present'),
         enable_vlans=dict(type='bool'),
-        disable_my_meraki=dict(type='bool'),
-        enable_my_meraki=dict(type='bool'),
-        enable_remote_status_page=dict(type='bool'),
+        disable_my_meraki=dict(type='bool', removed_in_version='2.0.0', removed_from_collection='cisco.meraki'),
+        enable_my_meraki=dict(type='bool', removed_in_version='2.0.0', removed_from_collection='cisco.meraki'),
+        enable_remote_status_page=dict(type='bool', removed_in_version='2.0.0', removed_from_collection='cisco.meraki'),
     )
 
     # the AnsibleModule object will be our abstraction working with Ansible
