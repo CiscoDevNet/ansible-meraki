@@ -12,7 +12,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: query
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
   delegate_to: localhost
   register: query_all
 
@@ -23,7 +23,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: query
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 1
   delegate_to: localhost
   register: query_one
@@ -35,7 +35,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: true
   delegate_to: localhost
@@ -54,7 +54,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: true
   delegate_to: localhost
@@ -71,7 +71,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: false
   delegate_to: localhost
@@ -89,7 +89,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     name: Test Port
   delegate_to: localhost
@@ -106,7 +106,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: true
     name: Test Port
@@ -129,7 +129,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: true
     name: Test Port
@@ -150,7 +150,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 8
     enabled: true
     name: Test Port
@@ -163,7 +163,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 8
     enabled: true
     name: Test Port
@@ -175,7 +175,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 8
     enabled: true
     name: Test Port
@@ -188,11 +188,26 @@
     that:
       - convert_idempotent.changed == False
 
+- name: Change voice VLAN for next task
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    name: Test Port
+    tags: desktop
+    type: access
+    vlan: 10
+    voice_vlan: 12
+  delegate_to: localhost
+  register: update_port_vvlan
+
 - name: Configure access port with voice VLAN
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: true
     name: Test Port
@@ -215,7 +230,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: true
     name: Test Port
@@ -238,7 +253,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: true
     name: Server port
@@ -254,7 +269,7 @@
 
 - assert:
     that:
-      - update_trunk.data.tags == 'server'
+      - update_trunk.data.tags.0 == 'server'
       - update_trunk.data.type == 'trunk'
       - update_trunk.data.allowed_vlans == 'all'
 
@@ -262,7 +277,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: true
     name: Server port
@@ -281,7 +296,7 @@
 
 - assert:
     that:
-      - update_trunk.data.tags == 'server'
+      - update_trunk.data.tags.0 == 'server'
       - update_trunk.data.type == 'trunk'
       - update_trunk.data.allowed_vlans == '8,10,15,20'
 
@@ -289,7 +304,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: true
     name: Server port
@@ -308,7 +323,7 @@
 
 - assert:
     that:
-      - update_trunk.data.tags == 'server'
+      - update_trunk.data.tags.0 == 'server'
       - update_trunk.data.type == 'trunk'
       - update_trunk.data.allowed_vlans == '2,10,15,20'
 
@@ -316,7 +331,7 @@
   meraki_switchport:
     auth_key: '{{auth_key}}'
     state: present
-    serial: Q2HP-2C6E-GTLD
+    serial: '{{ serial_switch }}'
     number: 7
     enabled: true
     name: Server port
