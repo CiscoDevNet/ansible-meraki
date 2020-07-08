@@ -144,8 +144,8 @@ def main():
     meraki = MerakiModule(module, function='switch_storm_control')
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'switch_storm_control': '/networks/{net_id}/switch/settings/stormControl'}
-    update_url = {'switch_storm_control': '/networks/{net_id}/switch/settings/stormControl'}
+    query_urls = {'switch_storm_control': '/networks/{net_id}/switch/stormControl'}
+    update_url = {'switch_storm_control': '/networks/{net_id}/switch/stormControl'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['update'] = update_url
