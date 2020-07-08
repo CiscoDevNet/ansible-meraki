@@ -1,0 +1,10 @@
+trivial:
+  - meraki_device - Update URLs to device endpoints
+
+breaking_changes:
+  - meraki_device - Changed tags from string to list
+  - meraki_device - Removed serial_uplink parameter
+  - meraki_device - Removed serial_lldp_cdp parameter
+
+minor_changes:
+  - meraki_device - Added query parameter
