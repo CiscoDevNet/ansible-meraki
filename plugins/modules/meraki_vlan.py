@@ -502,11 +502,11 @@ def main():
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'vlan': '/networks/{net_id}/vlans'}
-    query_url = {'vlan': '/networks/{net_id}/vlans/{vlan_id}'}
-    create_url = {'vlan': '/networks/{net_id}/vlans'}
-    update_url = {'vlan': '/networks/{net_id}/vlans/'}
-    delete_url = {'vlan': '/networks/{net_id}/vlans/'}
+    query_urls = {'vlan': '/networks/{net_id}/appliance/vlans'}
+    query_url = {'vlan': '/networks/{net_id}/appliance/vlans/{vlan_id}'}
+    create_url = {'vlan': '/networks/{net_id}/appliance/vlans'}
+    update_url = {'vlan': '/networks/{net_id}/appliance/vlans/'}
+    delete_url = {'vlan': '/networks/{net_id}/appliance/vlans/'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['get_one'].update(query_url)
