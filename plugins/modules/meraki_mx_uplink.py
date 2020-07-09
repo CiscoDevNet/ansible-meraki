@@ -254,8 +254,8 @@ def main():
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'mx_uplink': '/networks/{net_id}/uplinkSettings'}
-    update_bw_url = {'mx_uplink': '/networks/{net_id}/uplinkSettings'}
+    query_urls = {'mx_uplink': '/networks/{net_id}/appliance/trafficShaping/uplinkBandwidth'}
+    update_bw_url = {'mx_uplink': '/networks/{net_id}/appliance/trafficShaping/uplinkBandwidth'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['update_bw'] = update_bw_url
