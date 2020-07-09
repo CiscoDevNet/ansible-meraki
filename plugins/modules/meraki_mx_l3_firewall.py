@@ -154,46 +154,46 @@ data:
             description: List of firewall rules.
             returned: success
             type: complex
-             contains:
-            comment:
-                description: Comment to describe the firewall rule.
-                returned: always
-                type: str
-                sample: Block traffic to server
-            src_cidr:
-                description: Comma separated list of CIDR notation source networks.
-                returned: always
-                type: str
-                sample: 192.0.1.1/32,192.0.1.2/32
-            src_port:
-                description: Comma separated list of source ports.
-                returned: always
-                type: str
-                sample: 80,443
-            dest_cidr:
-                description: Comma separated list of CIDR notation destination networks.
-                returned: always
-                type: str
-                sample: 192.0.1.1/32,192.0.1.2/32
-            dest_port:
-                description: Comma separated list of destination ports.
-                returned: always
-                type: str
-                sample: 80,443
-            protocol:
-                description: Network protocol for which to match against.
-                returned: always
-                type: str
-                sample: tcp
-            policy:
-                description: Action to take when rule is matched.
-                returned: always
-                type: str
-            syslog_enabled:
-                description: Whether to log to syslog when rule is matched.
-                returned: always
-                type: bool
-                sample: true
+            contains:
+                comment:
+                    description: Comment to describe the firewall rule.
+                    returned: always
+                    type: str
+                    sample: Block traffic to server
+                src_cidr:
+                    description: Comma separated list of CIDR notation source networks.
+                    returned: always
+                    type: str
+                    sample: 192.0.1.1/32,192.0.1.2/32
+                src_port:
+                    description: Comma separated list of source ports.
+                    returned: always
+                    type: str
+                    sample: 80,443
+                dest_cidr:
+                    description: Comma separated list of CIDR notation destination networks.
+                    returned: always
+                    type: str
+                    sample: 192.0.1.1/32,192.0.1.2/32
+                dest_port:
+                    description: Comma separated list of destination ports.
+                    returned: always
+                    type: str
+                    sample: 80,443
+                protocol:
+                    description: Network protocol for which to match against.
+                    returned: always
+                    type: str
+                    sample: tcp
+                policy:
+                    description: Action to take when rule is matched.
+                    returned: always
+                    type: str
+                syslog_enabled:
+                    description: Whether to log to syslog when rule is matched.
+                    returned: always
+                    type: bool
+                    sample: true
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
