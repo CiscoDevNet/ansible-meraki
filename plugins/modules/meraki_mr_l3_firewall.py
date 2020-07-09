@@ -197,8 +197,8 @@ def main():
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'mr_l3_firewall': '/networks/{net_id}/ssids/{number}/l3FirewallRules'}
-    update_urls = {'mr_l3_firewall': '/networks/{net_id}/ssids/{number}/l3FirewallRules'}
+    query_urls = {'mr_l3_firewall': '/networks/{net_id}/wireless/ssids/{number}/firewall/l3FirewallRules'}
+    update_urls = {'mr_l3_firewall': '/networks/{net_id}/wireless/ssids/{number}/firewall/l3FirewallRules'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['update'] = update_urls
@@ -245,6 +245,7 @@ def main():
                         update = True
         except KeyError:
             pass
+        meraki.fail_json(msg=rules)
         if rules[len(rules) - 2] != meraki.params['allow_lan_access']:
             update = True
         if update is True:
