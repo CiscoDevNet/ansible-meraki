@@ -139,45 +139,50 @@ data:
     returned: success
     type: complex
     contains:
-        comment:
-            description: Comment to describe the firewall rule.
-            returned: always
-            type: str
-            sample: Block traffic to server
-        src_cidr:
-            description: Comma separated list of CIDR notation source networks.
-            returned: always
-            type: str
-            sample: 192.0.1.1/32,192.0.1.2/32
-        src_port:
-            description: Comma separated list of source ports.
-            returned: always
-            type: str
-            sample: 80,443
-        dest_cidr:
-            description: Comma separated list of CIDR notation destination networks.
-            returned: always
-            type: str
-            sample: 192.0.1.1/32,192.0.1.2/32
-        dest_port:
-            description: Comma separated list of destination ports.
-            returned: always
-            type: str
-            sample: 80,443
-        protocol:
-            description: Network protocol for which to match against.
-            returned: always
-            type: str
-            sample: tcp
-        policy:
-            description: Action to take when rule is matched.
-            returned: always
-            type: str
-        syslog_enabled:
-            description: Whether to log to syslog when rule is matched.
-            returned: always
-            type: bool
-            sample: true
+        rules:
+            description: List of firewall rules associated to network.
+            returned: success
+            type: complex
+            contains:
+                comment:
+                    description: Comment to describe the firewall rule.
+                    returned: always
+                    type: str
+                    sample: Block traffic to server
+                src_cidr:
+                    description: Comma separated list of CIDR notation source networks.
+                    returned: always
+                    type: str
+                    sample: 192.0.1.1/32,192.0.1.2/32
+                src_port:
+                    description: Comma separated list of source ports.
+                    returned: always
+                    type: str
+                    sample: 80,443
+                dest_cidr:
+                    description: Comma separated list of CIDR notation destination networks.
+                    returned: always
+                    type: str
+                    sample: 192.0.1.1/32,192.0.1.2/32
+                dest_port:
+                    description: Comma separated list of destination ports.
+                    returned: always
+                    type: str
+                    sample: 80,443
+                protocol:
+                    description: Network protocol for which to match against.
+                    returned: always
+                    type: str
+                    sample: tcp
+                policy:
+                    description: Action to take when rule is matched.
+                    returned: always
+                    type: str
+                syslog_enabled:
+                    description: Whether to log to syslog when rule is matched.
+                    returned: always
+                    type: bool
+                    sample: true
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
@@ -242,8 +247,8 @@ def main():
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'mx_site_to_site_firewall': '/organizations/{org_id}/vpnFirewallRules/'}
-    update_urls = {'mx_site_to_site_firewall': '/organizations/{org_id}/vpnFirewallRules/'}
+    query_urls = {'mx_site_to_site_firewall': '/organizations/{org_id}/appliance/vpn/vpnFirewallRules/'}
+    update_urls = {'mx_site_to_site_firewall': '/organizations/{org_id}/appliance/vpn/vpnFirewallRules/'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['update'] = update_urls
@@ -276,36 +281,36 @@ def main():
             payload['syslogDefaultRule'] = meraki.params['syslog_default_rule']
         try:
             if meraki.params['rules'] is not None:
-                if len(rules) - 1 != len(payload['rules']):  # Quick and simple check to avoid more processing
+                if len(rules['rules']) - 1 != len(payload['rules']):  # Quick and simple check to avoid more processing
                     update = True
             if meraki.params['syslog_default_rule'] is not None:
-                if rules[len(rules) - 1]['syslogEnabled'] != meraki.params['syslog_default_rule']:
+                if rules['rules'][len(rules['rules']) - 1]['syslogEnabled'] != meraki.params['syslog_default_rule']:
                     update = True
             if update is False:
-                default_rule = rules[len(rules) - 1].copy()
-                del rules[len(rules) - 1]  # Remove default rule for comparison
-                if len(rules) - 1 == 0:
-                    if meraki.is_update_required(rules[0], payload['rules'][0]) is True:
-                        # meraki.fail_json(msg="Compare", original=rules[0], payload=payload['rules'][0])
+                default_rule = rules['rules'][len(rules['rules']) - 1].copy()
+                # meraki.fail_json(msg=update)
+                del rules['rules'][len(rules['rules']) - 1]  # Remove default rule for comparison
+                if len(rules['rules']) - 1 == 0:
+                    if meraki.is_update_required(rules['rules'][0], payload['rules'][0]) is True:
                         update = True
                 else:
                     for r in range(len(rules) - 1):
-                        if meraki.is_update_required(rules[r], payload['rules'][r]) is True:
+                        if meraki.is_update_required(rules['rules'][r], payload['rules'][r]) is True:
                             update = True
-                rules.append(default_rule)
+                rules['rules'].append(default_rule)
         except KeyError:
             pass
         if update is True:
             if meraki.check_mode is True:
                 if meraki.params['rules'] is not None:
-                    data = payload['rules']
-                    data.append(rules[len(rules) - 1])  # Append the default rule
+                    data = payload
+                    data['rules'].append(rules['rules'][len(rules['rules']) - 1])  # Append the default rule
                     if meraki.params['syslog_default_rule'] is not None:
-                        data[len(payload) - 1]['syslog_enabled'] = meraki.params['syslog_default_rule']
+                        data['rules'][len(payload['rules']) - 1]['syslog_enabled'] = meraki.params['syslog_default_rule']
                 else:
                     if meraki.params['syslog_default_rule'] is not None:
                         data = rules
-                        data[len(data) - 1]['syslogEnabled'] = meraki.params['syslog_default_rule']
+                        data['rules'][len(data['rules']) - 1]['syslogEnabled'] = meraki.params['syslog_default_rule']
                 meraki.result['data'] = data
                 meraki.result['changed'] = True
                 meraki.exit_json(**meraki.result)
