@@ -399,9 +399,9 @@ def main():
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'mx_l7_firewall': '/networks/{net_id}/l7FirewallRules/'}
-    query_category_urls = {'mx_l7_firewall': '/networks/{net_id}/l7FirewallRules/applicationCategories'}
-    update_urls = {'mx_l7_firewall': '/networks/{net_id}/l7FirewallRules/'}
+    query_urls = {'mx_l7_firewall': '/networks/{net_id}/appliance/firewall/l7FirewallRules/'}
+    query_category_urls = {'mx_l7_firewall': '/networks/{net_id}/appliance/firewall/l7FirewallRules/applicationCategories'}
+    update_urls = {'mx_l7_firewall': '/networks/{net_id}/appliance/firewall/l7FirewallRules/'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['get_categories'] = (query_category_urls)
