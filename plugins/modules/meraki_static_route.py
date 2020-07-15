@@ -297,11 +297,11 @@ def main():
     module.params['follow_redirects'] = 'all'
     payload = None
 
-    query_urls = {'static_route': '/networks/{net_id}/staticRoutes'}
-    query_one_urls = {'static_route': '/networks/{net_id}/staticRoutes/{route_id}'}
-    create_urls = {'static_route': '/networks/{net_id}/staticRoutes/'}
-    update_urls = {'static_route': '/networks/{net_id}/staticRoutes/{route_id}'}
-    delete_urls = {'static_route': '/networks/{net_id}/staticRoutes/{route_id}'}
+    query_urls = {'static_route': '/networks/{net_id}/appliance/staticRoutes'}
+    query_one_urls = {'static_route': '/networks/{net_id}/appliance/staticRoutes/{route_id}'}
+    create_urls = {'static_route': '/networks/{net_id}/appliance/staticRoutes/'}
+    update_urls = {'static_route': '/networks/{net_id}/appliance/staticRoutes/{route_id}'}
+    delete_urls = {'static_route': '/networks/{net_id}/appliance/staticRoutes/{route_id}'}
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['get_one'].update(query_one_urls)
     meraki.url_catalog['create'] = create_urls
