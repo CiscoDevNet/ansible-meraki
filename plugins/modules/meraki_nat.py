@@ -557,9 +557,9 @@ def main():
                 rule['localPort'] = str(rule['localPort'])
                 rule['publicPort'] = str(rule['publicPort'])
 
-    onetomany_urls = {'nat': '/networks/{net_id}/oneToManyNatRules'}
-    onetoone_urls = {'nat': '/networks/{net_id}/oneToOneNatRules'}
-    port_forwarding_urls = {'nat': '/networks/{net_id}/portForwardingRules'}
+    onetomany_urls = {'nat': '/networks/{net_id}/appliance/firewall/oneToManyNatRules'}
+    onetoone_urls = {'nat': '/networks/{net_id}/appliance/firewall/oneToOneNatRules'}
+    port_forwarding_urls = {'nat': '/networks/{net_id}/appliance/firewall/portForwardingRules'}
     meraki.url_catalog['1:many'] = onetomany_urls
     meraki.url_catalog['1:1'] = onetoone_urls
     meraki.url_catalog['port_forwarding'] = port_forwarding_urls
