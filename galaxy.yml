@@ -19,5 +19,15 @@ tags:
 - cisco
 version: 1.3.1
 build_ignore:
-- tests/output/*
+- 'tests'
 - '*tar.gz'
+- '*.DS_Store'
+- 'CHANGELOG.md'
+- '*.json'
+- 'venv'
+- '.vscode'
+- '.gitignore'
+- '.env'
+- '.github'
+- 'changelogs'
+- 'README.md'
