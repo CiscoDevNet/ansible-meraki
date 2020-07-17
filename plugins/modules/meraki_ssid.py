@@ -407,6 +407,8 @@ def construct_payload(meraki):
 
     if meraki.params['ap_tags_vlan_ids'] is not None:
         for i in payload['apTagsAndVlanIds']:
+            if 'tags' in i:
+                i['tags'] = ','.join(i['tags'])
             try:
                 i['vlanId'] = i['vlan_id']
                 del i['vlan_id']
