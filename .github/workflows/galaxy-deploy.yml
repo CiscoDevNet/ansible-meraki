@@ -1,0 +1,30 @@
+name: CD
+on:
+  push:
+    branches:
+      - '*galaxy-deploy'
+    # tags:
+    #   - v*
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          path: ansible_collections/cisco/meraki
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+          architecture: x64
+      - name: Set tag env var
+        run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF#refs/*/}
+      - name: Install ansible-base (devel)
+        run: pip install https://github.com/ansible/ansible/archive/devel.tar.gz --disable-pip-version-
+      - name: Fake publish file
+        run: ansible-galaxy collection publish filename.tar --api-key=${{ GALAXY_TOKEN }}
+      # - name: Build collection package
+      #   run: ansible-galaxy collection build
+      # - name: Publish to Ansible Galaxy
+      #   run: ansible-galaxy collection publish 
