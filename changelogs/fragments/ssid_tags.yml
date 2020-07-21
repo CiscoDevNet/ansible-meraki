@@ -1,2 +1,0 @@
-bugfixes:
-  - meraki_ssid - Specifying tags for VLAN information would crash as it was an improper type
