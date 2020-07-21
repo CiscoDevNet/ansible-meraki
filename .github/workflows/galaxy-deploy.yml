@@ -20,7 +20,7 @@ jobs:
       - name: Install ansible-base (devel)
         run: pip install https://github.com/ansible/ansible/archive/devel.tar.gz --disable-pip-version-
       - name: Fake publish file
-        run: ansible-galaxy collection publish filename.tar --api-key=${{ GALAXY_TOKEN }}
+        run: echo ansible-galaxy collection publish filename.tar --api-key=${{ GALAXY_TOKEN }}
       # - name: Build collection package
       #   run: ansible-galaxy collection build
       # - name: Publish to Ansible Galaxy
