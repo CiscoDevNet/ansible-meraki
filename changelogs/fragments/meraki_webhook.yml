@@ -1,3 +1,0 @@
-bugfixes:
-  - meraki_webhook - Fix response when creating webhook test
-  - meraki_webhook - Fix crash with missing variable

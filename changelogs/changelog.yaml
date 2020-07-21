@@ -1,0 +1,22 @@
+ancestor: null
+releases:
+  1.3.2:
+    changes:
+      bugfixes:
+      - Fixed sanity errors in all modules including documentation and argument specs
+      - Remove unnecessary files from the collection package, significantly reduces
+        package size
+      - meraki_ssid - Specifying tags for VLAN information would crash as it was an
+        improper type
+      - meraki_webhook - Fix crash with missing variable
+      - meraki_webhook - Fix response when creating webhook test
+      minor_changes:
+      - meraki_device - Added deprecation notices to some parameters
+      - meraki_network - Added deprecation notices to some parameters
+    fragments:
+    - build_ignore.yml
+    - deprecations.yml
+    - meraki_webhook.yml
+    - sanity_fixes.yml
+    - ssid_tags.yml
+    release_date: '2020-07-21'
