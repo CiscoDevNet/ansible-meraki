@@ -1,2 +1,0 @@
-bugfixes:
-  - Remove unnecessary files from the collection package, significantly reduces package size

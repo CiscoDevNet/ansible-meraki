@@ -1,3 +1,0 @@
-minor_changes:
-  - meraki_network - Added deprecation notices to some parameters
-  - meraki_device - Added deprecation notices to some parameters
