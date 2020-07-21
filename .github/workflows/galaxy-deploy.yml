@@ -1,8 +1,5 @@
 name: CD
-on:
-  push:
-    branches:
-      - '*galaxy-deploy'
+on: push
     # tags:
     #   - v*
 jobs:
