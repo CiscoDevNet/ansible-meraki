@@ -202,8 +202,8 @@ def main():
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'site_to_site_vpn': '/networks/{net_id}/siteToSiteVpn/'}
-    update_urls = {'site_to_site_vpn': '/networks/{net_id}/siteToSiteVpn/'}
+    query_urls = {'site_to_site_vpn': '/networks/{net_id}/appliance/vpn/siteToSiteVpn/'}
+    update_urls = {'site_to_site_vpn': '/networks/{net_id}/appliance/vpn/siteToSiteVpn/'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['update'] = update_urls
