@@ -26,6 +26,11 @@ Meraki's MX firewalls support full layer 3-7 deep packet inspection. MX firewall
 
 MR access points are enterprise-class, high-performance access points for the enterprise. MR access points have MIMO technology and integrated beamforming built-in for high performance applications. BLE allows for advanced location applications to be developed with no on-premises analytics platforms.
 
+## List of Meraki Modules
+
+* meraki_organization - Responsible for the creation and configuration of organizations
+* meraki_network - Creates, deletes, and configures settings for a network object. Most configuration options, such as firewall rules or SSIDs are in separate modules.
+
 ## Using the Meraki modules
 
 Meraki modules provide a user-friendly interface to manage your Meraki environment using Ansible. For example, details about SNMP settings for a particular organization can be discovered using the module `meraki_snmp <meraki_snmp_module>`.
