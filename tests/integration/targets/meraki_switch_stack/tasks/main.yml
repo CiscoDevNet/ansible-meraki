@@ -4,6 +4,34 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
 - block:
+  - name: Create network with type switch
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_switch_net_name}}'
+      type: switch
+      timezone: America/Chicago
+    delegate_to: localhost
+    register: create_net_switch
+
+  - set_fact:
+      net_id: '{{create_net_switch.data.id}}'
+
+  - name: Claim devices into network
+    meraki_device:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      serial: '{{item}}'
+      state: present
+    delegate_to: localhost
+    register: claim_device
+    loop:
+      - "QBSB-BPR6-PRER"
+      - "QBSB-VLNE-E299"
+      - "QBSB-D75G-PXCG"
+
   - name: Create new stack
     meraki_switch_stack:
       auth_key: '{{ auth_key }}'
@@ -38,9 +66,6 @@
         - "QBSB-D75G-PXCG"
     register: add_stack
 
-  - debug:
-      var: add_stack
-
   - assert:
       that:
         - add_stack.data is defined
@@ -57,9 +82,6 @@
       serials:
         - "QBSB-D75G-PXCG"
     register: add_stack_idempotent
-
-  - debug:
-      var: add_stack_idempotent
 
   - assert:
       that:
@@ -166,3 +188,11 @@
       net_name: '{{test_switch_net_name}}'
       stack_id: '{{stack_id}}'
     register: delete
+
+  - name: Delete network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_switch_net_name}}'
+    delegate_to: localhost

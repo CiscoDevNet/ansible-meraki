@@ -179,12 +179,12 @@ def main():
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'switch_stack': '/networks/{net_id}/switchStacks'}
-    query_url = {'switch_stack': '/networks/{net_id}/switchStacks/{stack_id}'}
-    add_urls = {'switch_stack': '/networks/{net_id}/switchStacks/{stack_id}/add'}
-    remove_urls = {'switch_stack': '/networks/{net_id}/switchStacks/{stack_id}/remove'}
-    create_urls = {'switch_stack': '/networks/{net_id}/switchStacks'}
-    delete_urls = {'switch_stack': '/networks/{net_id}/switchStacks/{stack_id}'}
+    query_urls = {'switch_stack': '/networks/{net_id}/switch/switchStacks'}
+    query_url = {'switch_stack': '/networks/{net_id}/switch/switchStacks/{stack_id}'}
+    add_urls = {'switch_stack': '/networks/{net_id}/switch/switchStacks/{stack_id}/add'}
+    remove_urls = {'switch_stack': '/networks/{net_id}/switch/switchStacks/{stack_id}/remove'}
+    create_urls = {'switch_stack': '/networks/{net_id}/switch/switchStacks'}
+    delete_urls = {'switch_stack': '/networks/{net_id}/switch/switchStacks/{stack_id}'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['get_one'].update(query_url)
@@ -235,7 +235,9 @@ def main():
             original = get_stack(stack_id, stacks)
             comparable = deepcopy(original)
             comparable.update(payload)
-            comparable['serials'].append(meraki.params['serials'][0])
+            if meraki.params['serials'][0] not in comparable['serials']:
+                comparable['serials'].append(meraki.params['serials'][0])
+            # meraki.fail_json(msg=comparable)
             if meraki.is_update_required(original, comparable, optional_ignore=['serial']):
                 path = meraki.construct_path('add', net_id=net_id, custom={'stack_id': stack_id})
                 response = meraki.request(path, method='POST', payload=json.dumps(payload))
@@ -255,7 +257,8 @@ def main():
             original = get_stack(stack_id, stacks)
             comparable = deepcopy(original)
             comparable.update(payload)
-            comparable['serials'].remove(meraki.params['serials'][0])
+            if meraki.params['serials'][0] in comparable['serials']:
+                comparable['serials'].remove(meraki.params['serials'][0])
             if meraki.is_update_required(original, comparable, optional_ignore=['serial']):
                 path = meraki.construct_path('remove', net_id=net_id, custom={'stack_id': stack_id})
                 response = meraki.request(path, method='POST', payload=json.dumps(payload))
