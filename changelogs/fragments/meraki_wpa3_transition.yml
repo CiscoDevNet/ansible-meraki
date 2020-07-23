@@ -1,0 +1,2 @@
+minor_changes:
+  - meraki_ssid - Add `WPA3 Only` and `WPA3 Transition Mode`
