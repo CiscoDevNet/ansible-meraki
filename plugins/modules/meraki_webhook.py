@@ -181,6 +181,18 @@ def get_all_webhooks(meraki, net_id):
     if meraki.status == 200:
         return response
 
+def sanitize_no_log_values(meraki):
+    try:
+        meraki.result['diff']['before']['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
+    except KeyError:
+        pass
+
+    try:
+        meraki.result['data'][0]['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
+    except KeyError:
+        pass
+
+
 
 def main():
     # define the available arguments/parameters that a user can pass to
@@ -249,17 +261,23 @@ def main():
             response = meraki.request(path, method='GET')
             if meraki.status == 200:
                 meraki.result['data'] = response
+                sanitize_no_log_values(meraki)
+                meraki.exit_json(**meraki.result)
         elif meraki.params['test_id'] is not None:
             path = meraki.construct_path('test_status', net_id=net_id, custom={'testid': meraki.params['test_id']})
             response = meraki.request(path, method='GET')
             if meraki.status == 200:
                 meraki.result['data'] = response
+                sanitize_no_log_values(meraki)
                 meraki.exit_json(**meraki.result)
         else:
             path = meraki.construct_path('get_all', net_id=net_id)
             response = meraki.request(path, method='GET')
             if meraki.status == 200:
                 meraki.result['data'] = response
+                # meraki.fail_json(msg=meraki.result)
+                sanitize_no_log_values(meraki)
+                meraki.exit_json(**meraki.result)
     elif meraki.params['state'] == 'present':
         if meraki.params['test'] == 'test':
             payload = {'url': meraki.params['url']}
@@ -285,6 +303,7 @@ def main():
             if meraki.is_update_required(original, payload):
                 if meraki.check_mode is True:
                     meraki.generate_diff(original, payload)
+                    sanitize_no_log_values(meraki)
                     original.update(payload)
                     meraki.result['data'] = original
                     meraki.result['changed'] = True
@@ -293,6 +312,7 @@ def main():
                 response = meraki.request(path, method='PUT', payload=json.dumps(payload))
                 if meraki.status == 200:
                     meraki.generate_diff(original, response)
+                    sanitize_no_log_values(meraki)
                     meraki.result['data'] = response
                     meraki.result['changed'] = True
             else:
