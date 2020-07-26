@@ -1,9 +1,10 @@
+---
 #  Test code for the Meraki SSID module
 # Copyright: (c) 2018, Kevin Breit (@kbreit)
 ​
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
----
-- block:
+- name: Test block
+  block:
   - name: Test an API key is provided
     fail:
       msg: Please define an API key
