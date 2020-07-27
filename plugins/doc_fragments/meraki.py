@@ -15,7 +15,7 @@ notes:
 - Some of the options are likely only used for developers within Meraki.
 - As of Ansible 2.9, Meraki modules output keys as snake case. To use camel case, set the C(ANSIBLE_MERAKI_FORMAT) environment variable to C(camelcase).
 - Ansible's Meraki modules will stop supporting camel case output in Ansible 2.13. Please update your playbooks.
-- Check Mode tests do not contact Meraki for responses on validity of plays. Check mode will always report changed for a play, regardless of configuration in Meraki.
+- Check Mode tests do not contact Meraki for responses on validity of plays. Check mode will always report changed for a play.
 options:
     auth_key:
         description:
