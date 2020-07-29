@@ -408,24 +408,16 @@ def construct_payload(meraki):
     if meraki.params['ap_tags_vlan_ids'] is not None:
         for i in payload['apTagsAndVlanIds']:
             try:
+                i['tags'] = ','.join(i['tags'])
+            except KeyError:
+                pass
+            try:
                 i['vlanId'] = i['vlan_id']
                 del i['vlan_id']
             except KeyError:
                 pass
 
-    if payload.get('walledGardenRanges', False):
-        payload['walledGardenRanges'] = list_to_str(payload['walledGardenRanges'])
-
     return payload
-
-
-def list_to_str(data):
-    space_separated_list = ""
-
-    for item in data:
-        space_separated_list = space_separated_list + " " + item
-
-    return space_separated_list.strip()
 
 
 def per_line_to_str(data):
@@ -515,9 +507,9 @@ def main():
     meraki = MerakiModule(module, function='ssid')
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'ssid': '/networks/{net_id}/ssids'}
-    query_url = {'ssid': '/networks/{net_id}/ssids/{number}'}
-    update_url = {'ssid': '/networks/{net_id}/ssids/'}
+    query_urls = {'ssid': '/networks/{net_id}/wireless/ssids'}
+    query_url = {'ssid': '/networks/{net_id}/wireless/ssids/{number}'}
+    update_url = {'ssid': '/networks/{net_id}/wireless/ssids/'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['get_one'].update(query_url)
@@ -572,8 +564,6 @@ def main():
         if number is None:
             number = get_ssid_number(meraki.params['name'], ssids)
         original = ssids[number]
-        if original.get('walledGardenRanges', False):  # Update original so it's a string
-            original['walledGardenRanges'] = per_line_to_str(original['walledGardenRanges'])
         if meraki.is_update_required(original, payload, optional_ignore=['secret']):
             ssid_id = meraki.params['number']
             if ssid_id is None:  # Name should be used to lookup number
