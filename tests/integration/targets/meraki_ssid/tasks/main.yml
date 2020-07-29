@@ -21,6 +21,15 @@
   - debug: 
       msg: '{{test_net}}'
 
+  - name: Add access points to network
+    meraki_device:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      serial: '{{serial_wireless}}'
+    delegate_to: localhost
+
   - name: Query all SSIDs
     meraki_ssid:
       auth_key: '{{auth_key}}'
@@ -221,7 +230,7 @@
       that:
         - psk.data.auth_mode == 'psk'
         - psk.data.encryption_mode == 'wpa'
-        - psk.data.wpa_encryption_mode == 'WPA2 only'
+         - psk.data.wpa_encryption_mode == 'WPA3 Transition Mode'
 
   - name: Set PSK with idempotency
     meraki_ssid:
@@ -242,6 +251,96 @@
   - assert:
       that:
         - psk_idempotent is not changed
+
+  #
+  # Check WPA3 Transition Mode
+  #
+  - name: Set WPA3 Transition Mode
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      auth_mode: psk
+      psk: abc1234567890
+      encryption_mode: WPA3 Transition Mode
+    delegate_to: localhost
+    register: psk_wpa3_transition_mode
+
+  - debug:
+      msg: '{{ psk_wpa3_transition_mode }}'
+
+  - assert:
+      that:
+        - psk_wpa3_transition_mode.data.auth_mode == 'psk'
+        - psk_wpa3_transition_mode.data.encryption_mode == 'wpa'
+        - psk_wpa3_transition_mode.data.wpa_encryption_mode == 'WPA3 Transition Mode'
+
+  - name: Set WPA3 Transition Mode with Idempotency
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      auth_mode: psk
+      psk: abc1234567890
+      encryption_mode: WPA3 Transition Mode
+    delegate_to: localhost
+    register: psk_wpa3_transition_mode_idempotent
+
+  - debug:
+      msg: '{{ psk_wpa3_transition_mode_idempotent }}'
+
+  - assert:
+      that:
+        - psk_wpa3_transition_mode_idempotent is not changed
+
+  #
+  # WPA3 Only Mode
+  #
+  - name: Set WPA3 Transition Mode
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      auth_mode: psk
+      psk: abc1234567890
+      encryption_mode: WPA3 Only
+    delegate_to: localhost
+    register: psk_wpa3
+
+  - debug:
+      msg: '{{ psk_wpa3 }}'
+
+  - assert:
+      that:
+        - psk_wpa3.data.auth_mode == 'psk'
+        - psk_wpa3.data.encryption_mode == 'wpa'
+        - psk_wpa3.data.wpa_encryption_mode == 'WPA3 Only'
+
+  - name: Set WPA3 Transition Mode
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      auth_mode: psk
+      psk: abc1234567890
+      encryption_mode: WPA3 Transition Mode
+    delegate_to: localhost
+    register: psk_wpa3_idempotent
+
+  - debug:
+      msg: '{{ psk_wpa3_idempotent }}'
+
+  - assert:
+      that:
+        - psk_wpa3_idempotent is not changed
 
   - name: Enable click-through splash page
     meraki_ssid:
