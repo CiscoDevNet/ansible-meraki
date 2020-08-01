@@ -1,0 +1,72 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2018, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Create network with type switch
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkSwitch
+      type: switch
+      timezone: America/Chicago
+    delegate_to: localhost
+    register: create_net_switch
+
+  - name: Claim a device into a network
+    meraki_device:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkSwitch
+      serial: QBSB-VLNE-E299
+      state: present
+    delegate_to: localhost
+
+  - name: Query all l3 interfaces
+    meraki_ms_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: query
+      serial: QBSB-VLNE-E299
+    delegate_to: localhost
+    register: query_all
+
+  - debug:
+      var: query_all
+
+  - name: Create l3 interface
+    meraki_ms_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: present
+      serial: QBSB-VLNE-E299
+      name: "Test L3 interface"
+      subnet: "192.168.2.0/24"
+      interface_ip: "192.168.2.2"
+      multicast_routing: disabled
+      vlan_id: 10
+      default_gateway: "192.168.2.1"
+      # ospf_settings:
+      #   area: 0
+      #   cost: 1
+      #   is_passive_enabled: true
+    delegate_to: localhost
+    register: create
+
+  - debug:
+      var: create
+
+
+
+#############################################################################
+# Tear down starts here
+#############################################################################
+
+  # always:
+  # - name: Delete network
+  #   meraki_network:
+  #     auth_key: '{{ auth_key }}'
+  #     state: absent
+  #     org_name: '{{test_org_name}}'
+  #     net_name: IntTestNetworkSwitch
+  #   delegate_to: localhost
