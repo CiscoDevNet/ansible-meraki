@@ -245,8 +245,8 @@ def main():
                         update = True
         except KeyError:
             pass
-        meraki.fail_json(msg=rules)
-        if rules[len(rules) - 2] != meraki.params['allow_lan_access']:
+        # meraki.fail_json(msg=rules)
+        if rules['rules'][len(rules['rules']) - 2] != meraki.params['allow_lan_access']:
             update = True
         if update is True:
             payload['allowLanAccess'] = meraki.params['allow_lan_access']
@@ -254,10 +254,10 @@ def main():
                 # This code is disgusting, rework it at some point
                 if 'rules' in payload:
                     cleansed_payload = payload['rules']
-                    cleansed_payload.append(rules[len(rules) - 1])
-                    cleansed_payload.append(rules[len(rules) - 2])
+                    cleansed_payload.append(rules['rules'][len(rules['rules']) - 1])
+                    cleansed_payload.append(rules['rules'][len(rules['rules']) - 2])
                     if meraki.params['allow_lan_access'] is None:
-                        cleansed_payload[len(cleansed_payload) - 2]['policy'] = rules[len(rules) - 2]['policy']
+                        cleansed_payload[len(cleansed_payload) - 2]['policy'] = rules['rules'][len(rules['rules']) - 2]['policy']
                     else:
                         if meraki.params['allow_lan_access'] is True:
                             cleansed_payload[len(cleansed_payload) - 2]['policy'] = 'allow'
@@ -265,9 +265,9 @@ def main():
                             cleansed_payload[len(cleansed_payload) - 2]['policy'] = 'deny'
                 else:
                     if meraki.params['allow_lan_access'] is True:
-                        rules[len(rules) - 2]['policy'] = 'allow'
+                        rules['rules'][len(rules['rules']) - 2]['policy'] = 'allow'
                     else:
-                        rules[len(rules) - 2]['policy'] = 'deny'
+                        rules['rules'][len(rules['rules']) - 2]['policy'] = 'deny'
                     cleansed_payload = rules
                 meraki.result['data'] = cleansed_payload
                 meraki.result['changed'] = True
