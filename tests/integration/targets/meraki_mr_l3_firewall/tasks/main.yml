@@ -67,8 +67,8 @@
 
   - assert:
       that:
-        - create_one.data.0.comment == 'Integration test rule'
-        - create_one.data.1.policy == 'deny'
+        - create_one.data.rules.0.comment == 'Integration test rule'
+        - create_one.data.rules.1.policy == 'deny'
         - create_one.data is defined
 
   - name: Enable local LAN access with check mode
@@ -88,7 +88,7 @@
 
   - assert:
       that:
-        - enable_lan_check.data.1.policy == 'allow'
+        - enable_lan_check.data.rules.1.policy == 'allow'
         - enable_lan_check is changed
 
   - name: Enable local LAN access
@@ -104,7 +104,7 @@
 
   - assert:
       that:
-        - enable_lan.data.1.policy == 'allow'
+        - enable_lan.data.rules.1.policy == 'allow'
 
   - name: Update rules without specifying LAN access with check mode
     meraki_mr_l3_firewall:
@@ -127,7 +127,7 @@
 
   - assert:
       that:
-        - update_one_check.data.0.comment == 'Integration test rule'
+        - update_one_check.data.rules.0.comment == 'Integration test rule'
         - update_one_check.data is defined
 
   - name: Query firewall rules
@@ -145,8 +145,8 @@
 
   - assert:
       that:
-        - query.data.1.comment == 'Wireless clients accessing LAN'
-        - query.data.2.comment == 'Default rule'
+        - query.data.rules.1.comment == 'Wireless clients accessing LAN'
+        - query.data.rules.2.comment == 'Default rule'
         - query.changed == False
 
 ############################################################################
