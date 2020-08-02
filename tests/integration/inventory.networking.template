@@ -27,6 +27,8 @@ email_prefix=YourEmail
 email_domain=YourDomain
 serial=YourSerial
 serial_switch=YourSwitchSerial
+serial_switch_l3=YourL3SwitchSerial
+
 
 ###
 # Example
