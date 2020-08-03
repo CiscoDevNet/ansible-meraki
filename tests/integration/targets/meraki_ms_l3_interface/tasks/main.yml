@@ -40,16 +40,16 @@
       auth_key: '{{ auth_key }}'
       state: present
       serial: QBSB-VLNE-E299
-      name: "Test L3 interface"
-      subnet: "192.168.2.0/24"
-      interface_ip: "192.168.2.2"
+      name: "Test L3 interface 2"
+      subnet: "192.168.3.0/24"
+      interface_ip: "192.168.3.2"
       multicast_routing: disabled
-      vlan_id: 10
+      vlan_id: 11
       default_gateway: "192.168.2.1"
-      # ospf_settings:
-      #   area: 0
-      #   cost: 1
-      #   is_passive_enabled: true
+      ospf_settings:
+        area: 0
+        cost: 1
+        is_passive_enabled: true
     delegate_to: localhost
     register: create
 
