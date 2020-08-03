@@ -19,6 +19,8 @@ module: meraki_ms_l3_interface
 short_description: Manage routed interfaces on MS switches
 description:
 - Allows for creation, management, and visibility into routed interfaces on Meraki MS switches.
+notes:
+- Once a layer 3 interface is created, the API does not allow updating the interface and specifying C(default_gateway).
 options:
     state:
         description:
