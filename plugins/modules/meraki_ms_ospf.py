@@ -63,7 +63,7 @@ options:
                 description:
                 - MD5 authentication key index.
                 - Must be between 1 and 255.
-                type: int
+                type: str
             passphrase:
                 description:
                 - Plain text authentication passphrase
@@ -176,6 +176,7 @@ def construct_payload(meraki):
                                         }
         except KeyError:
             pass
+
     return payload
 
 
@@ -188,7 +189,7 @@ def main():
                           area_type=dict(type='str', aliases=['type'], choices=['normal', 'stub', 'nssa']),
                           )
 
-    md5_auth_arg_spec = dict(id=dict(type='int'),
+    md5_auth_arg_spec = dict(id=dict(type='str'),
                              passphrase=dict(type='str', no_log=True),
                              )
 

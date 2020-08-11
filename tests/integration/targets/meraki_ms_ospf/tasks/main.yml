@@ -54,7 +54,10 @@
         - area_id: 1
           area_name: Office
           area_type: nssa
-      md5_authentication_enabled: false
+      md5_authentication_enabled: true
+      md5_authentication_key:
+        id: 1
+        passphrase: 'secretpass'
     check_mode: true
     register: enable_check_mode
 
@@ -78,10 +81,10 @@
         - area_id: 1
           area_name: Office
           area_type: nssa
-      md5_authentication_enabled: false
-      # md5_authentication_key:
-      #   id: 1
-      #   passphrase: 'secretpass'
+      md5_authentication_enabled: true
+      md5_authentication_key:
+        id: 1
+        passphrase: 'secretpass'
     register: enable
 
   - assert:
@@ -104,10 +107,10 @@
         - area_id: 1
           area_name: Office
           area_type: nssa
-      md5_authentication_enabled: false
-      # md5_authentication_key:
-      #   id: 1
-      #   passphrase: 'secretpass'
+      md5_authentication_enabled: true
+      md5_authentication_key:
+        id: 1
+        passphrase: 'secretpass'
     delegate_to: localhost
     register: enable_ospf_idempotent
 
