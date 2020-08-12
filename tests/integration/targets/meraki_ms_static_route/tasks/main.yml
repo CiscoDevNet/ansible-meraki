@@ -21,7 +21,7 @@
       auth_key: '{{auth_key}}'
       org_name: '{{test_org_name}}'
       net_name: IntTestNetworkSwitch
-      serial: QBSB-VLNE-E299
+      serial: '{{ serial_switch_l3 }}'
       state: present
     delegate_to: localhost
     register: claim_device
@@ -30,30 +30,137 @@
     meraki_ms_static_route:
       auth_key: '{{auth_key}}'
       state: query
-      serial: QBSB-VLNE-E299
+      serial: '{{ serial_switch_l3 }}'
     delegate_to: localhost
     register: query_all
+
+  - name: Create static route with check mode
+    meraki_ms_static_route:
+      auth_key: '{{auth_key}}'
+      state: present
+      serial: '{{ serial_switch_l3 }}'
+      name: Test Route
+      subnet: 192.168.17.0/24
+      next_hop_ip: 192.168.2.1
+    delegate_to: localhost
+    register: create_check
+    check_mode: true
+
+  - debug:
+      var: create_check
+  
+  - assert:
+      that:
+        - create_check.data is defined
+        - create_check is changed
 
   - name: Create static route
     meraki_ms_static_route:
       auth_key: '{{auth_key}}'
       state: present
-      serial: QBSB-VLNE-E299
+      serial: '{{ serial_switch_l3 }}'
       name: Test Route
       subnet: 192.168.17.0/24
-      next_hop_ip: 1.1.1.1
+      next_hop_ip: 192.168.2.1
     delegate_to: localhost
     register: create
 
   - debug:
       var: create
 
+  - set_fact:
+      static_route_id: '{{ create.data.static_route_id }}'
+
+  - name: Query a single static route
+    meraki_ms_static_route:
+      auth_key: '{{auth_key}}'
+      state: query
+      serial: '{{ serial_switch_l3 }}'
+      name: Test Route
+    delegate_to: localhost
+    register: query_one
+
+  - debug:
+      var: query_one
+
+  - name: Update static route with check mode
+    meraki_ms_static_route:
+      auth_key: '{{auth_key}}'
+      state: present
+      serial: '{{ serial_switch_l3 }}'
+      name: Test Route
+      subnet: 192.168.17.0/24
+      next_hop_ip: 192.168.2.200
+    delegate_to: localhost
+    register: update_check
+    check_mode: true
+
+  - assert:
+      that:
+        - update_check is changed
+        - update_check.data is defined
+
+  - name: Update static route
+    meraki_ms_static_route:
+      auth_key: '{{auth_key}}'
+      state: present
+      serial: '{{ serial_switch_l3 }}'
+      name: Test Route
+      subnet: 192.168.17.0/24
+      next_hop_ip: 192.168.2.200
+    delegate_to: localhost
+    register: update
+
+  - debug:
+      var: update
+
+  - name: Update static route with idempotency
+    meraki_ms_static_route:
+      auth_key: '{{auth_key}}'
+      state: present
+      serial: '{{ serial_switch_l3 }}'
+      name: Test Route
+      subnet: 192.168.17.0/24
+      next_hop_ip: 192.168.2.200
+    delegate_to: localhost
+    register: update_idempotent
+
+  - debug:
+      var: update_idempotent
+
+  - assert:
+      that:
+        - update_idempotent is not changed
+
 
   # #############################################################################
   # # Tear down starts here
   # #############################################################################
 
-  # always:
+  always:
+  - name: Delete static route with check mode
+    meraki_ms_static_route:
+      auth_key: '{{auth_key}}'
+      state: absent
+      serial: '{{ serial_switch_l3 }}'
+      name: Test Route
+    delegate_to: localhost
+    register: delete_check
+    check_mode: true
+
+  - assert:
+      that:
+        - delete_check is changed
+
+  - name: Delete static route
+    meraki_ms_static_route:
+      auth_key: '{{auth_key}}'
+      state: absent
+      serial: '{{ serial_switch_l3 }}'
+      name: Test Route
+    delegate_to: localhost
+    register: delete
+
   # - name: Delete network
   #   meraki_network:
   #     auth_key: '{{ auth_key }}'

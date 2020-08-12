@@ -26,97 +26,72 @@ options:
         type: str
         choices: [ present, query ]
         default: present
-    net_name:
+    serial:
         description:
-        - Name of network containing access points.
+        - Serial number of MS switch.
         type: str
-    net_id:
+    name:
         description:
-        - ID of network containing access points.
+        - Name or description for layer 3 static route.
         type: str
-    number:
+    static_route_id:
         description:
-        - Number of SSID to apply firewall rule to.
+        - Identification number of existing static route.
         type: str
-        aliases: [ ssid_number ]
-    ssid_name:
+    subnet:
         description:
-        - Name of SSID to apply firewall rule to.
+        - The subnet which is routed via this static route and should be specified in CIDR notation (ex. 1.2.3.0/24).
         type: str
-        aliases: [ ssid ]
-    allow_lan_access:
+    next_hop_ip:
         description:
-        - Sets whether devices can talk to other devices on the same LAN.
+        - IP address of the next hop device to which the device sends its traffic for the subnet.
+        type: str
+    advertise_via_ospf_enabled:
+        description:
+        - Option to advertise static route via OSPF.
         type: bool
-        default: yes
-    rules:
+    prefer_over_ospf_routes_enabled:
         description:
-        - List of firewall rules.
-        type: list
-        elements: dict
-        suboptions:
-            policy:
-                description:
-                - Specifies the action that should be taken when rule is hit.
-                type: str
-                choices: [ allow, deny ]
-            protocol:
-                description:
-                - Specifies protocol to match against.
-                type: str
-                choices: [ any, icmp, tcp, udp ]
-            dest_port:
-                description:
-                - Comma-seperated list of destination ports to match.
-                type: str
-            dest_cidr:
-                description:
-                - Comma-separated list of CIDR notation networks to match.
-                type: str
-            comment:
-                description:
-                - Optional comment describing the firewall rule.
-                type: str
+        - Option to prefer static route over OSPF routes.
+        type: bool
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''
-- name: Create single firewall rule
-  meraki_mr_l3_firewall:
-    auth_key: abc123
-    state: present
-    org_name: YourOrg
-    net_id: 12345
-    number: 1
-    rules:
-      - comment: Integration test rule
-        policy: allow
-        protocol: tcp
-        dest_port: 80
-        dest_cidr: 192.0.2.0/24
-    allow_lan_access: no
-  delegate_to: localhost
-
-- name: Enable local LAN access
-  meraki_mr_l3_firewall:
-    auth_key: abc123
-    state: present
-    org_name: YourOrg
-    net_id: 123
-    number: 1
-    rules:
-    allow_lan_access: yes
-  delegate_to: localhost
-
-- name: Query firewall rules
-  meraki_mr_l3_firewall:
+- name: Query all static routes on a switch
+  meraki_ms_static_route:
     auth_key: abc123
     state: query
-    org_name: YourOrg
-    net_name: YourNet
-    number: 1
+    serial: aaa-bbb-ccc
+  delegate_to: localhost
+
+- name: Query a single static route
+  meraki_ms_static_route:
+    auth_key: abc123
+    state: query
+    serial: aaa-bbb-ccc
+    name: Test Route
+
+- name: Create static route with check mode
+  meraki_ms_static_route:
+    auth_key: abc123
+    state: present
+    serial: aaa-bbb-ccc
+    name: Test Route
+    subnet: 192.168.17.0/24
+    next_hop_ip: 192.168.2.1
+  delegate_to: localhost
+
+- name: Create static route
+  meraki_ms_static_route:
+    auth_key: abc123
+    state: present
+    serial: aaa-bbb-ccc
+    name: Test Route
+    subnet: 192.168.17.0/24
+    next_hop_ip: 192.168.2.1
   delegate_to: localhost
 '''
 
@@ -143,13 +118,27 @@ def construct_payload(meraki):
     return payload
 
 
+def get_static_route(static_routes, id):
+    for route in static_routes:
+        if route['staticRouteId'] == id:
+            return route
+    return None            
+
+def get_static_route_id(static_routes, name):
+    for route in static_routes:
+        if route['name'] == name:
+            return route['staticRouteId']
+    return None
+
+
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
     argument_spec = meraki_argument_spec()
-    argument_spec.update(state=dict(type='str', choices=['present', 'query'], default='present'),
+    argument_spec.update(state=dict(type='str', choices=['present', 'query', 'absent'], default='present'),
                          serial=dict(type='str'),
                          name=dict(type='str'),
+                         static_route_id=dict(type='str'),
                          subnet=dict(type='str'),
                          next_hop_ip=dict(type='str'),
                          advertise_via_ospf_enabled=dict(type='bool'),
@@ -161,38 +150,87 @@ def main():
     # args/params passed to the execution, as well as if the module
     # supports check mode
     module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=False,
+                           supports_check_mode=True,
                            )
     meraki = MerakiModule(module, function='ms_static_route')
 
     meraki.params['follow_redirects'] = 'all'
 
     query_urls = {'ms_static_route': '/devices/{serial}/switch/routing/staticRoutes'}
+    query_one_urls = {'ms_static_route': '/devices/{serial}/switch/routing/staticRoutes/{static_route_id}'}
     create_urls = {'ms_static_route': '/devices/{serial}/switch/routing/staticRoutes'}
+    update_urls = {'ms_static_route': '/devices/{serial}/switch/routing/staticRoutes/{static_route_id}'}
+    delete_urls = {'ms_static_route': '/devices/{serial}/switch/routing/staticRoutes/{static_route_id}'}
 
     meraki.url_catalog['get_all'].update(query_urls)
+    meraki.url_catalog['get_one'].update(query_one_urls)
     meraki.url_catalog['create'] = create_urls
+    meraki.url_catalog['update'] = update_urls
+    meraki.url_catalog['delete'] = delete_urls
 
     payload = None
 
-    # execute checks for argument completeness
-
-    # manipulate or modify the state as needed (this is going to be the
-    # part where your module will do what it needs to do)
+    static_route_id = meraki.params['static_route_id']
+    static_routes = None
+    if static_route_id is None:
+        path = meraki.construct_path('get_all', custom={'serial': meraki.params['serial']})
+        static_routes = meraki.request(path, method='GET')
+        static_route_id = get_static_route_id(static_routes, meraki.params['name'])
 
     if meraki.params['state'] == 'query':
-        path = meraki.construct_path('get_all', custom={'serial': meraki.params['serial']})
-        response = meraki.request(path, method='GET')
-        meraki.result['data'] = response
+        if static_route_id is None:
+            path = meraki.construct_path('get_all', custom={'serial': meraki.params['serial']})
+            response = meraki.request(path, method='GET')
+            meraki.result['data'] = response
+        else:
+            path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
+                                                            'static_route_id': static_route_id})
+            response = meraki.request(path, method='GET')
+            meraki.result['data'] = response
         meraki.exit_json(**meraki.result)
     elif meraki.params['state'] == 'present':
-        path = meraki.construct_path('create', custom={'serial': meraki.params['serial']})
-        payload = construct_payload(meraki)
-        response = meraki.request(path, method='POST', payload=json.dumps(payload))
-        meraki.result['data'] = response
+        if static_route_id is None:  # Create new static route
+            payload = construct_payload(meraki)
+            if meraki.check_mode is True:
+                meraki.result['data'] = payload
+                meraki.result['changed'] = True
+                meraki.exit_json(**meraki.result)
+            path = meraki.construct_path('create', custom={'serial': meraki.params['serial']})
+            response = meraki.request(path, method='POST', payload=json.dumps(payload))
+            meraki.result['data'] = response
+            meraki.result['changed'] = True
+        else:  # Update existing static route
+            if static_routes is None:
+                path = meraki.construct_path('get_all', custom={'serial': meraki.params['serial']})
+                static_routes = meraki.request(path, method='GET')
+            original = get_static_route(static_routes, static_route_id)
+            payload = construct_payload(meraki)
+            if meraki.is_update_required(original, payload) is True:
+                if meraki.check_mode is True:
+                    original.update(payload)
+                    meraki.result['data'] = original
+                    meraki.result['changed'] = True
+                    meraki.exit_json(**meraki.result)
+                path = meraki.construct_path('update', custom={'serial': meraki.params['serial'],
+                                                               'static_route_id': static_route_id})
+                payload = construct_payload(meraki)
+                response = meraki.request(path, method='PUT', payload=json.dumps(payload))
+                meraki.result['data'] = response
+                meraki.result['changed'] = True
+            else:
+                meraki.result['data'] = original
+        meraki.exit_json(**meraki.result)
+    elif meraki.params['state'] == 'absent':
+        if meraki.check_mode is True:
+            meraki.result['data'] = {}
+            meraki.result['changed'] = True
+            meraki.exit_json(**meraki.result)
+        path = meraki.construct_path('delete', custom={'serial': meraki.params['serial'],
+                                                       'static_route_id': static_route_id})
+        response = meraki.request(path, method='DELETE')
+        meraki.result['data'] = {}
         meraki.result['changed'] = True
         meraki.exit_json(**meraki.result)
-
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results

@@ -1,0 +1,2 @@
+major_changes:
+  - meraki_ms_static_route - Configure static routes on MS switches.
