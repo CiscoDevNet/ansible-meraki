@@ -26,104 +26,180 @@ options:
         description:
         - Create or modify an organization.
         type: str
-        choices: [ present, query ]
+        choices: [ present, query, absent ]
         default: present
-    net_name:
+    serial:
         description:
-        - Name of network containing access points.
+        - Serial number of MS switch hosting the layer 3 interface.
         type: str
-    net_id:
+    vlan_id:
         description:
-        - ID of network containing access points.
+        - The VLAN this routed interface is on.
+        - VLAN must be between 1 and 4094.
+        type: int
+    default_gateway:
+        description:
+        - The next hop for any traffic that isn't going to a directly connected subnet or over a static route.
+        - This IP address must exist in a subnet with a routed interface.
         type: str
-    number:
+    interface_ip:
         description:
-        - Number of SSID to apply firewall rule to.
+        - The IP address this switch will use for layer 3 routing on this VLAN or subnet.
+        - This cannot be the same as the switch's management IP.
         type: str
-        aliases: [ ssid_number ]
-    ssid_name:
+    interface_id:
         description:
-        - Name of SSID to apply firewall rule to.
+        - Uniqiue identification number for layer 3 interface.
         type: str
-        aliases: [ ssid ]
-    allow_lan_access:
+    multicast_routing:
         description:
-        - Sets whether devices can talk to other devices on the same LAN.
-        type: bool
-        default: yes
-    rules:
+        - Enable multicast support if multicast routing between VLANs is required.
+        type: str
+        choices: [disabled, enabled, IGMP snooping querier]
+    name:
         description:
-        - List of firewall rules.
-        type: list
-        elements: dict
+        - A friendly name or description for the interface or VLAN.
+        type: str
+    subnet:
+        description:
+        - The network that this routed interface is on, in CIDR notation.
+        type: str
+    ospf_settings:
+        description:
+        - The OSPF routing settings of the interface.
+        type: dict
         suboptions:
-            policy:
+            cost:
                 description:
-                - Specifies the action that should be taken when rule is hit.
-                type: str
-                choices: [ allow, deny ]
-            protocol:
+                - The path cost for this interface.
+                type: int
+            area:
                 description:
-                - Specifies protocol to match against.
+                - The OSPF area to which this interface should belong.
+                - Can be either 'disabled' or the identifier of an existing OSPF area.
                 type: str
-                choices: [ any, icmp, tcp, udp ]
-            dest_port:
+            is_passive_enabled:
                 description:
-                - Comma-seperated list of destination ports to match.
-                type: str
-            dest_cidr:
-                description:
-                - Comma-separated list of CIDR notation networks to match.
-                type: str
-            comment:
-                description:
-                - Optional comment describing the firewall rule.
-                type: str
+                - When enabled, OSPF will not run on the interface, but the subnet will still be advertised.
+                type: bool
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
 '''
 
 EXAMPLES = r'''
-- name: Create single firewall rule
-  meraki_mr_l3_firewall:
-    auth_key: abc123
-    state: present
-    org_name: YourOrg
-    net_id: 12345
-    number: 1
-    rules:
-      - comment: Integration test rule
-        policy: allow
-        protocol: tcp
-        dest_port: 80
-        dest_cidr: 192.0.2.0/24
-    allow_lan_access: no
-  delegate_to: localhost
-
-- name: Enable local LAN access
-  meraki_mr_l3_firewall:
-    auth_key: abc123
-    state: present
-    org_name: YourOrg
-    net_id: 123
-    number: 1
-    rules:
-    allow_lan_access: yes
-  delegate_to: localhost
-
-- name: Query firewall rules
-  meraki_mr_l3_firewall:
+- name: Query all l3 interfaces
+  meraki_ms_l3_interface:
     auth_key: abc123
     state: query
-    org_name: YourOrg
-    net_name: YourNet
-    number: 1
-  delegate_to: localhost
+    serial: aaa-bbb-ccc
+
+- name: Query one l3 interface
+  meraki_ms_l3_interface:
+    auth_key: abc123
+    state: query
+    serial: aaa-bbb-ccc
+    name: Test L3 interface
+
+- name: Create l3 interface
+  meraki_ms_l3_interface:
+    auth_key: abc123
+    state: present
+    serial: aaa-bbb-ccc
+    name: "Test L3 interface 2"
+    subnet: "192.168.3.0/24"
+    interface_ip: "192.168.3.2"
+    multicast_routing: disabled
+    vlan_id: 11
+    ospf_settings:
+      area: 0
+      cost: 1
+      is_passive_enabled: true
+
+- name: Update l3 interface
+  meraki_ms_l3_interface:
+    auth_key: abc123
+    state: present
+    serial: aaa-bbb-ccc
+    name: "Test L3 interface 2"
+    subnet: "192.168.3.0/24"
+    interface_ip: "192.168.3.2"
+    multicast_routing: disabled
+    vlan_id: 11
+    ospf_settings:
+      area: 0
+      cost: 2
+      is_passive_enabled: true
+
+- name: Delete l3 interface
+  meraki_ms_l3_interface:
+    auth_key: abc123
+    state: absent
+    serial: aaa-bbb-ccc
+    interface_id: abc123344566
 '''
 
 RETURN = r'''
-
+data:
+    description: Information about the layer 3 interfaces.
+    returned: success
+    type: complex
+    contains:
+        vlan_id:
+            description: The VLAN this routed interface is on.
+            returned: success
+            type: int
+            sample: 10
+        default_gateway:
+            description: The next hop for any traffic that isn't going to a directly connected subnet or over a static route.
+            returned: success
+            type: str
+            sample: 192.168.2.1
+        interface_ip:
+            description: The IP address this switch will use for layer 3 routing on this VLAN or subnet.
+            returned: success
+            type: str
+            sample: 192.168.2.2
+        interface_id:
+            description: Uniqiue identification number for layer 3 interface.
+            returned: success
+            type: str
+            sample: 62487444811111120
+        multicast_routing:
+            description: Enable multicast support if multicast routing between VLANs is required.
+            returned: success
+            type: str
+            sample: disabled
+        name:
+            description: A friendly name or description for the interface or VLAN.
+            returned: success
+            type: str
+            sample: L3 interface
+        subnet:
+            description: The network that this routed interface is on, in CIDR notation.
+            returned: success
+            type: str
+            sample: 192.168.2.0/24
+        ospf_settings:
+            description: The OSPF routing settings of the interface.
+            returned: success
+            type: complex
+            contains:
+                cost:
+                    description: The path cost for this interface.
+                    returned: success
+                    type: int
+                    sample: 1
+                area:
+                    description: The OSPF area to which this interface should belong.
+                    returned: success
+                    type: str
+                    sample: 0
+                is_passive_enabled:
+                    description: When enabled, OSPF will not run on the interface, but the subnet will still be advertised.
+                    returned: success
+                    type: bool
+                    sample: true
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
@@ -155,6 +231,21 @@ def construct_payload(meraki):
     return payload
 
 
+def get_interface_id(meraki, data, name):
+    # meraki.fail_json(msg=data)
+    for interface in data:
+        if interface['name'] == name:
+            return interface['interfaceId']
+    return None
+
+
+def get_interface(interfaces, interface_id):
+    for interface in interfaces:
+        if interface['interfaceId'] == interface_id:
+            return interface
+    return None
+
+
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
@@ -165,10 +256,11 @@ def main():
                          )
 
     argument_spec = meraki_argument_spec()
-    argument_spec.update(state=dict(type='str', choices=['present', 'query'], default='present'),
+    argument_spec.update(state=dict(type='str', choices=['present', 'query', 'absent'], default='present'),
                          serial=dict(type='str'),
                          name=dict(type='str'),
                          subnet=dict(type='str'),
+                         interface_id=dict(type='str'),
                          interface_ip=dict(type='str'),
                          multicast_routing=dict(type='str', choices=['disabled', 'enabled', 'IGMP snooping querier']),
                          vlan_id=dict(type='int'),
@@ -181,38 +273,96 @@ def main():
     # args/params passed to the execution, as well as if the module
     # supports check mode
     module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=False,
+                           supports_check_mode=True,
                            )
     meraki = MerakiModule(module, function='ms_l3_interfaces')
 
     meraki.params['follow_redirects'] = 'all'
 
     query_urls = {'ms_l3_interfaces': '/devices/{serial}/switch/routing/interfaces'}
+    query_one_urls = {'ms_l3_interfaces': '/devices/{serial}/switch/routing/interfaces'}
     create_urls = {'ms_l3_interfaces': '/devices/{serial}/switch/routing/interfaces'}
+    update_urls = {'ms_l3_interfaces': '/devices/{serial}/switch/routing/interfaces/{interface_id}'}
+    delete_urls = {'ms_l3_interfaces': '/devices/{serial}/switch/routing/interfaces/{interface_id}'}
 
     meraki.url_catalog['get_all'].update(query_urls)
+    meraki.url_catalog['get_one'].update(query_one_urls)
     meraki.url_catalog['create'] = create_urls
+    meraki.url_catalog['update'] = update_urls
+    meraki.url_catalog['delete'] = delete_urls
 
     payload = None
 
-    # execute checks for argument completeness
+    if meraki.params['vlan_id'] is not None:
+        if meraki.params['vlan_id'] < 1 or meraki.params['vlan_id'] > 4094:
+            meraki.fail_json(msg='vlan_id must be between 1 and 4094')
+
+    interface_id = meraki.params['interface_id']
+    interfaces = None
+    if interface_id is None:
+        if meraki.params['name'] is not None:
+            path = meraki.construct_path('get_all', custom={'serial': meraki.params['serial']})
+            interfaces = meraki.request(path, method='GET')
+            interface_id = get_interface_id(meraki, interfaces, meraki.params['name'])
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
 
     if meraki.params['state'] == 'query':
-        path = meraki.construct_path('get_all', custom={'serial': meraki.params['serial']})
-        response = meraki.request(path, method='GET')
-        meraki.result['data'] = response
-        meraki.exit_json(**meraki.result)
+        if interface_id is not None:  # Query one interface
+            path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
+                                                            'interface_id': interface_id})
+            response = meraki.request(path, method='GET')
+            meraki.result['data'] = response
+            meraki.exit_json(**meraki.result)
+        else:  # Query all interfaces
+            path = meraki.construct_path('get_all', custom={'serial': meraki.params['serial']})
+            response = meraki.request(path, method='GET')
+            meraki.result['data'] = response
+            meraki.exit_json(**meraki.result)
     elif meraki.params['state'] == 'present':
-        path = meraki.construct_path('create', custom={'serial': meraki.params['serial']})
-        payload = construct_payload(meraki)
-        response = meraki.request(path, method='POST', payload=json.dumps(payload))
+        if interface_id is None:  # Create a new interface
+            payload = construct_payload(meraki)
+            if meraki.check_mode is True:
+                meraki.result['data'] = payload
+                meraki.result['changed'] = True
+                meraki.exit_json(**meraki.result)
+            path = meraki.construct_path('create', custom={'serial': meraki.params['serial']})
+            response = meraki.request(path, method='POST', payload=json.dumps(payload))
+            meraki.result['data'] = response
+            meraki.result['changed'] = True
+            meraki.exit_json(**meraki.result)
+        else:
+            if interfaces is None:
+                path = meraki.construct_path('get_all', custom={'serial': meraki.params['serial']})
+                interfaces = meraki.request(path, method='GET')
+            payload = construct_payload(meraki)
+            interface = get_interface(interfaces, interface_id)
+            if meraki.is_update_required(interface, payload):
+                if meraki.check_mode is True:
+                    interface.update(payload)
+                    meraki.result['data'] = interface
+                    meraki.result['changed'] = True
+                    meraki.exit_json(**meraki.result)
+                path = meraki.construct_path('update', custom={'serial': meraki.params['serial'],
+                                                               'interface_id': interface_id})
+                response = meraki.request(path, method='PUT', payload=json.dumps(payload))
+                meraki.result['data'] = response
+                meraki.result['changed'] = True
+                meraki.exit_json(**meraki.result)
+            else:
+                meraki.result['data'] = interface
+                meraki.exit_json(**meraki.result)
+    elif meraki.params['state'] == 'absent':
+        if meraki.check_mode is True:
+            meraki.result['data'] = {}
+            meraki.result['changed'] = True
+            meraki.exit_json(**meraki.result)
+        path = meraki.construct_path('delete', custom={'serial': meraki.params['serial'],
+                                                       'interface_id': meraki.params['interface_id']})
+        response = meraki.request(path, method='DELETE')
         meraki.result['data'] = response
         meraki.result['changed'] = True
-        meraki.exit_json(**meraki.result)
-
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results
