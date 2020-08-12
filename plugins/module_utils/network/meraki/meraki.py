@@ -377,8 +377,12 @@ class MerakiModule(object):
                 self.module.warn("Rate limiter hit, retry {0}".format(self.retry))
                 self.retry += 1
                 if self.retry <= 10:
-                    time.sleep(info['retry-after'])
-                    self.request(path, method=method, payload=payload, params=params)
+                    # retry-after isn't returned for over 10 concurrent connections per IP
+                    try:
+                        time.sleep(info['retry-after'])
+                    except KeyError:
+                        time.sleep(5)
+                    return self._execute_request(path, method=method, payload=payload, params=params)
                 else:
                     self.fail_json(msg="Rate limit retries failed for {url}".format(url=self.url))
             elif self.status == 500:
@@ -387,7 +391,7 @@ class MerakiModule(object):
                 if self.retry <= 10:
                     self.retry_time += self.retry * INTERNAL_ERROR_RETRY_MULTIPLIER
                     time.sleep(self.retry_time)
-                    self.request(path, method=method, payload=payload, params=params)
+                    return self._execute_request(path, method=method, payload=payload, params=params)
                 else:
                     # raise RateLimitException(e)
                     self.fail_json(msg="Rate limit retries failed for {url}".format(url=self.url))
