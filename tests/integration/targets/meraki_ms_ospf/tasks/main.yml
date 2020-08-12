@@ -1,0 +1,136 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2018, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Create network with type switch
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkSwitch
+      type: switch
+      timezone: America/Chicago
+    delegate_to: localhost
+    register: create_net_switch
+
+  - name: Claim a device into a network
+    meraki_device:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkSwitch
+      serial: '{{serial_switch_l3}}'
+      state: present
+    delegate_to: localhost
+
+  - name: Query OSPF settings
+    meraki_ms_ospf:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkSwitch
+      state: query
+    delegate_to: localhost
+    register: query_all
+
+
+  - assert:
+      that:
+        - query_all.data is defined
+
+  - name: Enable OSPF with check mode
+    meraki_ms_ospf:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkSwitch
+      state: present
+      enabled: true
+      hello_timer: 20
+      dead_timer: 60
+      areas:
+        - area_id: 0
+          area_name: Backbone
+          area_type: normal
+        - area_id: 1
+          area_name: Office
+          area_type: nssa
+      md5_authentication_enabled: true
+      md5_authentication_key:
+        id: 1
+        passphrase: 'secretpass'
+    check_mode: true
+    register: enable_check_mode
+
+  - assert:
+      that:
+        - enable_check_mode.data is defined
+
+  - name: Enable OSPF
+    meraki_ms_ospf:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkSwitch
+      state: present
+      enabled: true
+      hello_timer: 20
+      dead_timer: 60
+      areas:
+        - area_id: 0
+          area_name: Backbone
+          area_type: normal
+        - area_id: 1
+          area_name: Office
+          area_type: nssa
+      md5_authentication_enabled: true
+      md5_authentication_key:
+        id: 1
+        passphrase: 'secretpass'
+    register: enable
+
+  - assert:
+      that:
+        - enable.data is defined
+
+  - name: Enable OSPF with idempotency
+    meraki_ms_ospf:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkSwitch
+      state: present
+      enabled: true
+      hello_timer: 20
+      dead_timer: 60
+      areas:
+        - area_id: 0
+          area_name: Backbone
+          area_type: normal
+        - area_id: 1
+          area_name: Office
+          area_type: nssa
+      md5_authentication_enabled: true
+      md5_authentication_key:
+        id: 1
+        passphrase: 'secretpass'
+    delegate_to: localhost
+    register: enable_ospf_idempotent
+
+  - debug:
+      var: enable_ospf_idempotent
+
+  - assert:
+      that:
+        - enable_ospf_idempotent is not changed
+        - enable_ospf_idempotent.data is defined
+
+#############################################################################
+# Tear down starts here
+#############################################################################
+
+  # always:
+  # - name: Delete network
+  #   meraki_network:
+  #     auth_key: '{{ auth_key }}'
+  #     state: absent
+  #     org_name: '{{test_org_name}}'
+  #     net_name: IntTestNetworkSwitch
+  #   delegate_to: localhost

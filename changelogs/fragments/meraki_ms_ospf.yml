@@ -1,0 +1,5 @@
+major_changes:
+  - meraki_ms_ospf - Configure OSPF.
+
+trivial:
+  - Add serial_switch_l3 option to inventory.networking.template
