@@ -133,7 +133,48 @@ data:
             description:
             - Enable or disable OSPF on the network.
             type: bool
-
+        hello_timer_in_seconds:
+            description:
+            - Time interval, in seconds, at which hello packets will be sent to OSPF neighbors to maintain connectivity.
+            type: int
+        dead_timer_in_seconds:
+            description:
+            - Time interval to determine when the peer will be declared inactive.
+            type: int
+        areas:
+            description:
+            - List of areas in OSPF network.
+            type: complex
+            contains:
+                area_id:
+                    description:
+                    - OSPF area ID
+                    type: int
+                area_name:
+                    description:
+                    - Descriptive name of OSPF area.
+                    type: str
+                area_type:
+                    description:
+                    - OSPF area type.
+                    type: str
+        md5_authentication_enabled:
+            description:
+            - Whether to enable or disable MD5 authentication.
+            type: bool
+        md5_authentication_key:
+            description:
+            - MD5 authentication credentials.
+            type: complex
+            contains:
+                id:
+                    description:
+                    - MD5 key index.
+                    type: int
+                passphrase:
+                    description:
+                    - Passphrase for MD5 key.
+                    type: str
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
