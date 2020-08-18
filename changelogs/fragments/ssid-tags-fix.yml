@@ -1,0 +1,2 @@
+trivial:
+  - meraki_ssid - Change tags from string to list
