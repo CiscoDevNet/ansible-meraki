@@ -181,6 +181,7 @@ def get_all_webhooks(meraki, net_id):
     if meraki.status == 200:
         return response
 
+
 def sanitize_no_log_values(meraki):
     try:
         meraki.result['diff']['before']['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
@@ -191,7 +192,6 @@ def sanitize_no_log_values(meraki):
         meraki.result['data'][0]['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
     except KeyError:
         pass
-
 
 
 def main():
