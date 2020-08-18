@@ -4,6 +4,10 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
 - block:
+
+  - set_fact:
+      wpa_enabled: false
+
   - name: Test an API key is provided
     fail:
       msg: Please define an API key
@@ -268,15 +272,18 @@
       wpa_encryption_mode: WPA3 Transition Mode
     delegate_to: localhost
     register: psk_wpa3_transition_mode
+    when: wpa_enabled == true
 
   - debug:
       msg: '{{ psk_wpa3_transition_mode }}'
+    when: wpa_enabled == True
 
   - assert:
       that:
         - psk_wpa3_transition_mode.data.auth_mode == 'psk'
         - psk_wpa3_transition_mode.data.encryption_mode == 'wpa'
         - psk_wpa3_transition_mode.data.wpa_encryption_mode == 'WPA3 Transition Mode'
+    when: wpa_enabled == True
 
   - name: Set WPA3 Transition Mode with Idempotency
     meraki_ssid:
@@ -291,13 +298,16 @@
       wpa_encryption_mode: WPA3 Transition Mode
     delegate_to: localhost
     register: psk_wpa3_transition_mode_idempotent
+    when: wpa_enabled == True
 
   - debug:
       msg: '{{ psk_wpa3_transition_mode_idempotent }}'
+    when: wpa_enabled == True
 
   - assert:
       that:
         - psk_wpa3_transition_mode_idempotent is not changed
+    when: wpa_enabled == True
 
   - name: Enable click-through splash page
     meraki_ssid:
