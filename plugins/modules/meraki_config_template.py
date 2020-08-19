@@ -17,7 +17,7 @@ DOCUMENTATION = r'''
 ---
 module: meraki_config_template
 short_description: Manage configuration templates in the Meraki cloud
-version_added: "2.7"
+version_added: "1.0.0"
 description:
 - Allows for querying, deleting, binding, and unbinding of configuration templates.
 notes:
