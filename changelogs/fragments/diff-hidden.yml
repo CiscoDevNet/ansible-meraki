@@ -1,2 +1,0 @@
-security_fixes:
-  - meraki_webhook - diff output may show data for values set to not display
