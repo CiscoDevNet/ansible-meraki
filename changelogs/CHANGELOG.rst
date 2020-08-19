@@ -5,6 +5,19 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v1.4.0
+======
+
+Minor Changes
+-------------
+
+- meraki_ssid - Add `WPA3 Only` and `WPA3 Transition Mode`
+
+Security Fixes
+--------------
+
+- meraki_webhook - diff output may show data for values set to not display
+
 v1.3.2
 ======
 

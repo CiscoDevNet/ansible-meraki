@@ -20,3 +20,13 @@ releases:
     - sanity_fixes.yml
     - ssid_tags.yml
     release_date: '2020-07-21'
+  1.4.0:
+    changes:
+      minor_changes:
+      - meraki_ssid - Add `WPA3 Only` and `WPA3 Transition Mode`
+      security_fixes:
+      - meraki_webhook - diff output may show data for values set to not display
+    fragments:
+    - diff-hidden.yml
+    - meraki_wpa3_transition.yml
+    release_date: '2020-08-19'
