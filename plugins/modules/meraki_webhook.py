@@ -182,6 +182,23 @@ def get_all_webhooks(meraki, net_id):
         return response
 
 
+def sanitize_no_log_values(meraki):
+    try:
+        meraki.result['diff']['before']['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
+    except KeyError:
+        pass
+
+    try:
+        meraki.result['data'][0]['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
+    except KeyError:
+        pass
+
+    try:
+        meraki.result['data']['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
+    except (KeyError, TypeError) as e:
+        pass
+
+
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
@@ -249,11 +266,15 @@ def main():
             response = meraki.request(path, method='GET')
             if meraki.status == 200:
                 meraki.result['data'] = response
+                sanitize_no_log_values(meraki)
+                meraki.exit_json(**meraki.result)
         else:
             path = meraki.construct_path('get_all', net_id=net_id)
             response = meraki.request(path, method='GET')
             if meraki.status == 200:
                 meraki.result['data'] = response
+                sanitize_no_log_values(meraki)
+                meraki.exit_json(**meraki.result)
     elif meraki.params['state'] == 'present':
         if meraki.params['test'] == 'test':
             payload = {'url': meraki.params['url']}
@@ -261,6 +282,7 @@ def main():
             response = meraki.request(path, method='POST', payload=json.dumps(payload))
             if meraki.status == 200:
                 meraki.result['data'] = response
+                sanitize_no_log_values(meraki)
                 meraki.exit_json(**meraki.result)
         elif meraki.params['test'] == 'status':
             if meraki.params['test_id'] is None:
@@ -269,18 +291,21 @@ def main():
             response = meraki.request(path, method='GET')
             if meraki.status == 200:
                 meraki.result['data'] = response
+                sanitize_no_log_values(meraki)
                 meraki.exit_json(**meraki.result)
         if webhook_id is None:  # Test to see if it needs to be created
             if meraki.check_mode is True:
                 meraki.result['data'] = payload
                 meraki.result['data']['networkId'] = net_id
                 meraki.result['changed'] = True
+                sanitize_no_log_values(meraki)
                 meraki.exit_json(**meraki.result)
             path = meraki.construct_path('create', net_id=net_id)
             response = meraki.request(path, method='POST', payload=json.dumps(payload))
             if meraki.status == 201:
                 meraki.result['data'] = response
                 meraki.result['changed'] = True
+                sanitize_no_log_values(meraki)
         else:  # Need to update
             path = meraki.construct_path('get_one', net_id=net_id, custom={'hookid': webhook_id})
             original = meraki.request(path, method='GET')
@@ -290,6 +315,7 @@ def main():
                     original.update(payload)
                     meraki.result['data'] = original
                     meraki.result['changed'] = True
+                    sanitize_no_log_values(meraki)
                     meraki.exit_json(**meraki.result)
                 path = meraki.construct_path('update', net_id=net_id, custom={'hookid': webhook_id})
                 response = meraki.request(path, method='PUT', payload=json.dumps(payload))
@@ -297,6 +323,7 @@ def main():
                     meraki.generate_diff(original, response)
                     meraki.result['data'] = response
                     meraki.result['changed'] = True
+                    sanitize_no_log_values(meraki)
             else:
                 meraki.result['data'] = original
     elif meraki.params['state'] == 'absent':
