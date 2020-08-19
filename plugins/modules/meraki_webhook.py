@@ -187,10 +187,13 @@ def sanitize_no_log_values(meraki):
         meraki.result['diff']['before']['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
     except KeyError:
         pass
-
     try:
         meraki.result['data'][0]['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
     except KeyError:
+        pass
+    try:
+        meraki.result['data']['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
+    except (KeyError, TypeError) as e:
         pass
 
 
@@ -221,13 +224,13 @@ def main():
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_url = {'webhooks': '/networks/{net_id}/httpServers'}
-    query_one_url = {'webhooks': '/networks/{net_id}/httpServers/{hookid}'}
-    create_url = {'webhooks': '/networks/{net_id}/httpServers'}
-    update_url = {'webhooks': '/networks/{net_id}/httpServers/{hookid}'}
-    delete_url = {'webhooks': '/networks/{net_id}/httpServers/{hookid}'}
-    test_url = {'webhooks': '/networks/{net_id}/httpServers/webhookTests'}
-    test_status_url = {'webhooks': '/networks/{net_id}/httpServers/webhookTests/{testid}'}
+    query_url = {'webhooks': '/networks/{net_id}/webhooks/httpServers'}
+    query_one_url = {'webhooks': '/networks/{net_id}/webhooks/httpServers/{hookid}'}
+    create_url = {'webhooks': '/networks/{net_id}/webhooks/httpServers'}
+    update_url = {'webhooks': '/networks/{net_id}/webhooks/httpServers/{hookid}'}
+    delete_url = {'webhooks': '/networks/{net_id}/webhooks/httpServers/{hookid}'}
+    test_url = {'webhooks': '/networks/{net_id}/webhooks/webhookTests'}
+    test_status_url = {'webhooks': '/networks/{net_id}/webhooks/webhookTests/{testid}'}
 
     meraki.url_catalog['get_all'].update(query_url)
     meraki.url_catalog['get_one'].update(query_one_url)
