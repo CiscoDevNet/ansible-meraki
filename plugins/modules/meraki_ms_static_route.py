@@ -24,7 +24,7 @@ options:
         description:
         - Create or modify an organization.
         type: str
-        choices: [ present, query ]
+        choices: [ present, query, absent ]
         default: present
     serial:
         description:
@@ -122,7 +122,8 @@ def get_static_route(static_routes, id):
     for route in static_routes:
         if route['staticRouteId'] == id:
             return route
-    return None            
+    return None
+
 
 def get_static_route_id(static_routes, name):
     for route in static_routes:
