@@ -179,12 +179,12 @@ def main():
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'switch_stack': '/networks/{net_id}/switch/switchStacks'}
-    query_url = {'switch_stack': '/networks/{net_id}/switch/switchStacks/{stack_id}'}
-    add_urls = {'switch_stack': '/networks/{net_id}/switch/switchStacks/{stack_id}/add'}
-    remove_urls = {'switch_stack': '/networks/{net_id}/switch/switchStacks/{stack_id}/remove'}
-    create_urls = {'switch_stack': '/networks/{net_id}/switch/switchStacks'}
-    delete_urls = {'switch_stack': '/networks/{net_id}/switch/switchStacks/{stack_id}'}
+    query_urls = {'switch_stack': '/networks/{net_id}/switch/stacks'}
+    query_url = {'switch_stack': '/networks/{net_id}/switch/stacks/{stack_id}'}
+    add_urls = {'switch_stack': '/networks/{net_id}/switch/stacks/{stack_id}/add'}
+    remove_urls = {'switch_stack': '/networks/{net_id}/switch/stacks/{stack_id}/remove'}
+    create_urls = {'switch_stack': '/networks/{net_id}/switch/stacks'}
+    delete_urls = {'switch_stack': '/networks/{net_id}/switch/stacks/{stack_id}'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['get_one'].update(query_url)
