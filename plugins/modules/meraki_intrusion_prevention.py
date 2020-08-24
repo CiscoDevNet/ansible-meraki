@@ -46,9 +46,9 @@ options:
         - Ruleset complexity setting.
         choices: [ connectivity, balanced, security ]
         type: str
-    whitelisted_rules:
+    allowed_rules:
         description:
-        - List of IDs related to rules which are whitelisted for the organization.
+        - List of IDs related to rules which are allowed for the organization.
         type: list
         elements: dict
         suboptions:
@@ -92,7 +92,7 @@ EXAMPLES = r'''
     auth_key: '{{auth_key}}'
     state: present
     org_id: '{{test_org_id}}'
-    whitelisted_rules:
+    allowed_rules:
       - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
         message: Test rule
   delegate_to: localhost
@@ -126,7 +126,7 @@ EXAMPLES = r'''
     auth_key: '{{auth_key}}'
     state: absent
     org_name: '{{test_org_name}}'
-    whitelisted_rules: []
+    allowed_rules: []
   delegate_to: localhost
 '''
 
@@ -187,7 +187,7 @@ data:
 from ansible.module_utils.basic import AnsibleModule, json
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 
-param_map = {'whitelisted_rules': 'whitelistedRules',
+param_map = {'allowed_rules': 'allowedrules',
              'rule_id': 'ruleId',
              'message': 'message',
              'mode': 'mode',
@@ -202,9 +202,9 @@ def main():
     # define the available arguments/parameters that a user can pass to
     # the module
 
-    whitelist_arg_spec = dict(rule_id=dict(type='str'),
-                              message=dict(type='str'),
-                              )
+    allowedrules_arg_spec = dict(rule_id=dict(type='str'),
+                                 message=dict(type='str'),
+                                 )
 
     protected_nets_arg_spec = dict(use_default=dict(type='bool'),
                                    included_cidr=dict(type='list', elements='str'),
@@ -216,7 +216,7 @@ def main():
         net_id=dict(type='str'),
         net_name=dict(type='str', aliases=['name', 'network']),
         state=dict(type='str', choices=['absent', 'present', 'query'], default='present'),
-        whitelisted_rules=dict(type='list', default=None, elements='dict', options=whitelist_arg_spec),
+        allowed_rules=dict(type='list', default=None, elements='dict', options=allowedrules_arg_spec),
         mode=dict(type='str', choices=['detection', 'disabled', 'prevention']),
         ids_rulesets=dict(type='str', choices=['connectivity', 'balanced', 'security']),
         protected_networks=dict(type='dict', default=None, options=protected_nets_arg_spec),
@@ -249,8 +249,8 @@ def main():
         meraki.fail_json(msg='net_name and net_id are mutually exclusive')
     if meraki.params['net_name'] is None and meraki.params['net_id'] is None:  # Organization param check
         if meraki.params['state'] == 'present':
-            if meraki.params['whitelisted_rules'] is None:
-                meraki.fail_json(msg='whitelisted_rules is required when state is present and no network is specified.')
+            if meraki.params['allowed_rules'] is None:
+                meraki.fail_json(msg='allowed_rules is required when state is present and no network is specified.')
     if meraki.params['net_name'] or meraki.params['net_id']:  # Network param check
         if meraki.params['state'] == 'present':
             if meraki.params['protected_networks'] is not None:
@@ -271,11 +271,11 @@ def main():
     if meraki.params['state'] == 'present':
         if net_id is None:  # Create payload for organization
             rules = []
-            for rule in meraki.params['whitelisted_rules']:
+            for rule in meraki.params['allowed_rules']:
                 rules.append({'ruleId': rule['rule_id'],
                               'message': rule['message'],
                               })
-            payload = {'whitelistedRules': rules}
+            payload = {'allowedRules': rules}
         else:  # Create payload for network
             payload = dict()
             if meraki.params['mode']:
@@ -292,7 +292,7 @@ def main():
                     payload['protectedNetworks'].update({'excludedCidr': meraki.params['protected_networks']['excluded_cidr']})
     elif meraki.params['state'] == 'absent':
         if net_id is None:  # Create payload for organization
-            payload = {'whitelistedRules': []}
+            payload = {'allowedRules': []}
 
     if meraki.params['state'] == 'query':
         if net_id is None:  # Query settings for organization

@@ -21,12 +21,12 @@
   - debug:
       var: net
 
-  - name: Set whitelist for organization in check mode
+  - name: Set allowed rules for organization in check mode
     meraki_intrusion_prevention:
       auth_key: '{{auth_key}}'
       state: present
       org_name: '{{test_org_name}}'
-      whitelisted_rules:
+      allowed_rules:
         - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
           message: Test rule
     check_mode: yes
@@ -37,12 +37,12 @@
         - create_org_check is changed
         - create_org_check.data is defined
 
-  - name: Set whitelist for organization
+  - name: Set allowed rules for organization
     meraki_intrusion_prevention:
       auth_key: '{{auth_key}}'
       state: present
       org_id: '{{test_org_id}}'
-      whitelisted_rules:
+      allowed_rules:
         - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
           message: Test rule
     register: create_org
@@ -51,14 +51,14 @@
       that:
         - create_org is changed
         - create_org.data is defined
-        - create_org.data.whitelisted_rules | length == 1
+        - create_org.data.allowed_rules | length == 1
 
-  - name: Set whitelist for organization with idempotency
+  - name: Set allowed rules for organization with idempotency
     meraki_intrusion_prevention:
       auth_key: '{{auth_key}}'
       state: present
       org_id: '{{test_org_id}}'
-      whitelisted_rules:
+      allowed_rules:
         - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
           message: Test rule
     register: create_org_idempotent
@@ -77,7 +77,7 @@
 
   - assert:
       that:
-        - query_org.data.whitelisted_rules is defined
+        - query_org.data.allowed_rules is defined
 
   - name: Set mode to prevention with check mode
     meraki_intrusion_prevention:
@@ -276,7 +276,7 @@
       auth_key: '{{auth_key}}'
       state: absent
       org_name: '{{test_org_name}}'
-      whitelisted_rules: []
+      allowed_rules: []
     check_mode: yes
     register: cleared
 
@@ -290,13 +290,13 @@
       auth_key: '{{auth_key}}'
       state: absent
       org_name: '{{test_org_name}}'
-      whitelisted_rules: []
+      allowed_rules: []
   - name: Clear rules from organization with idempotency
     meraki_intrusion_prevention:
       auth_key: '{{auth_key}}'
       state: absent
       org_name: '{{test_org_name}}'
-      whitelisted_rules: []
+      allowed_rules: []
     register: del_idempotent
 
   - assert:
