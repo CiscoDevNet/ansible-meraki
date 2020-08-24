@@ -1,2 +1,6 @@
 trivial:
   - meraki_mx_l7_firewall - Update URLs for MX layer 7 firewall endpoints
+
+breaking_changes:
+  - meraki_mx_l7_firewall - Rename whitelisted_countries to allowed_countries
+  - meraki_mx_l7_firewall - Rename blacklisted_countries to blocked_countries
