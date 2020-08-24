@@ -339,7 +339,7 @@ def main():
         if meraki.status == 200:
             meraki.result['data'] = response
     elif meraki.params['state'] == 'present':
-        path = meraki.construct_path('get_one', net_id=net_id, custom={'serial': meraki.params['serial']})
+        path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial']})
         original = meraki.request(path, method='GET')
         if meraki.is_update_required(original, payload):
             if meraki.check_mode is True:
