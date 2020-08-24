@@ -144,7 +144,7 @@
   - assert:
       that:
         - '"400" in create_tags_invalid.msg'
-        - '"Invalid permission type" in create_tags_invalid.msg'
+        - '"must be one of" in create_tags_invalid.msg'
 
   - name: Create administrator with invalid tag permission
     meraki_admin:
@@ -166,7 +166,7 @@
   - assert:
       that:
         - '"400" in create_tags_invalid_permission.msg'
-        - '"Invalid permission type" in create_tags_invalid_permission.msg'
+        - '"must be one of" in create_tags_invalid_permission.msg'
 
   - name: Make sure TestNet and TestNet2 are created
     meraki_network:
