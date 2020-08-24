@@ -291,7 +291,7 @@ def main():
     meraki.params['follow_redirects'] = 'all'
 
     query_urls = {'device': '/networks/{net_id}/devices'}
-    query_org_urls = {'device': '/organizations/{org_id}/inventory'}
+    query_org_urls = {'device': '/organizations/{org_id}/devices'}
     query_device_urls = {'device': '/networks/{net_id}/devices/{serial}'}
     query_device_uplink_urls = {'device': '/networks/{net_id}/devices/{serial}/uplink'}
     query_device_lldp_urls = {'device': '/networks/{net_id}/devices/{serial}/lldp_cdp'}
