@@ -309,56 +309,56 @@
       that:
         - port_rule is changed
 
-  - name: Create firewall rule for blacklisted countries
+  - name: Create firewall rule for denied countries
     meraki_mx_l7_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
       net_name: TestNetAppliance
       state: present
       rules:
-        - type: blacklisted_countries
+        - type: blocked_countries
           countries:
             - CA
             - AX
-    register: blacklist_countries
+    register: blocked_countries
 
   - assert:
       that:
-        - blacklist_countries is changed
+        - blocked_countries is changed
 
-  - name: Create firewall rule for whitelisted countries
+  - name: Create firewall rule for allowed countries
     meraki_mx_l7_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
       net_name: TestNetAppliance
       state: present
       rules:
-        - type: whitelisted_countries
+        - type: blocked_countries
           countries:
             - US
             - FR
-    register: whitelist_countries
+    register: allowed_countries
 
   - assert:
       that:
-        - whitelist_countries is changed
+        - allowed_countries is changed
 
-  - name: Create firewall rule for whitelisted countries with idempotency
+  - name: Create firewall rule for allowed countries with idempotency
     meraki_mx_l7_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
       net_name: TestNetAppliance
       state: present
       rules:
-        - type: whitelisted_countries
+        - type: blocked_countries
           countries:
             - US
             - FR
-    register: whitelist_countries_idempotent
+    register: allowed_countries_idempotent
 
   - assert:
       that:
-        - whitelist_countries_idempotent is not changed
+        - allowed_countries_idempotent is not changed
 
   - name: Create multiple firewall rules
     meraki_mx_l7_firewall:
@@ -370,7 +370,7 @@
         - type: application_category
           application:
             id: meraki:layer7/category/27
-        - type: blacklisted_countries
+        - type: blocked_countries
           countries:
             - CN
         - policy: deny
@@ -390,35 +390,35 @@
   ##  Tests for argument completeness    ##
   #########################################
 
-  - name: Test whitelisted_countries incomplete arguments
+  - name: Test blocked_countries incomplete arguments
     meraki_mx_l7_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
       net_name: TestNetAppliance
       state: present
       rules:
-        - type: whitelisted_countries
-    register: error_whitelist
+        - type: blocked_countries
+    register: error_allowed
     ignore_errors: yes
 
   - assert:
       that:
-        - 'error_whitelist.msg == "countries argument is required when type is whitelisted_countries."'
+        - 'error_allowed.msg == "countries argument is required when type is blocked_countries."'
 
-  - name: Test blacklisted_countries incomplete arguments
+  - name: Test blocked_countries incomplete arguments
     meraki_mx_l7_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
       net_name: TestNetAppliance
       state: present
       rules:
-        - type: blacklisted_countries
-    register: error_blacklist
+        - type: blocked_countries
+    register: error_denied
     ignore_errors: yes
 
   - assert:
       that:
-        - 'error_blacklist.msg == "countries argument is required when type is blacklisted_countries."'
+        - 'error_denied.msg == "countries argument is required when type is blocked_countries."'
 
   - name: Test application_category incomplete arguments
     meraki_mx_l7_firewall:
