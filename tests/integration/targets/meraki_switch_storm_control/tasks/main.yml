@@ -18,6 +18,15 @@
   - set_fact:
       net_id: '{{net.data.id}}'
 
+  - name: Add device to network
+    meraki_device:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: Home - Switch
+      serial: '{{serial_switch_l3}}'
+    delegate_to: localhost
+
   - name: Reset data
     meraki_switch_storm_control:
       auth_key: '{{auth_key}}'
