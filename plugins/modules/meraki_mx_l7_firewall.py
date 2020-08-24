@@ -452,8 +452,8 @@ def main():
             if meraki.module.check_mode is True:
                 response = restructure_response(payload)
                 meraki.generate_diff(restructure_response(rules), response)
-                merakimeraki.result['data'] = response
-                .result['changed'] = True
+                meraki.result['data'] = response
+                meraki.result['changed'] = True
                 meraki.exit_json(**meraki.result)
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             response = restructure_response(response)
