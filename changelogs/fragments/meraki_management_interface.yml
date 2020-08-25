@@ -1,2 +1,5 @@
 trivial:
   - meraki_management_interface - Update URLs for management interface endpoints
+
+minor_changes:
+  - meraki_management_interface - Rename to meraki_mx_management_interface
