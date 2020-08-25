@@ -15,7 +15,7 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r'''
 ---
-module: meraki_mx_management_interface
+module: meraki_management_interface
 short_description: Configure Meraki management interfaces
 version_added: "1.1.0"
 description:
