@@ -374,13 +374,14 @@ class MerakiModule(object):
             self.status = info['status']
 
             if self.status == 429:
-                self.module.warn("Rate limiter hit, retry {0}".format(self.retry))
                 self.retry += 1
                 if self.retry <= 10:
                     # retry-after isn't returned for over 10 concurrent connections per IP
                     try:
-                        time.sleep(info['retry-after'])
+                        self.module.warn("Rate limiter hit, retry {0}...pausing for {1} seconds".format(self.retry, info['Retry-After']))
+                        time.sleep(info['Retry-After'])
                     except KeyError:
+                        self.module.warn("Rate limiter hit, retry {0}...pausing for 5 seconds".format(self.retry))
                         time.sleep(5)
                     return self._execute_request(path, method=method, payload=payload, params=params)
                 else:
