@@ -1,5 +1,0 @@
-trivial:
-  - meraki_switch_stack - Update URLs to stack endpoints
-
-bugfixes:
-  - meraki_switch_stack - Fix situation where module may crash due to switch being in or not in a stack already

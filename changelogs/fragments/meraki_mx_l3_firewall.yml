@@ -1,5 +1,0 @@
-trivial:
-  - meraki_mx_l3_firewall - Update URLs for MX l3 firewall endpoints
-
-breaking_changes:
-  - meraki_mx_l3_firewall - Rule responses are now in a `rules` list

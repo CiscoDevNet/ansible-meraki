@@ -1,8 +1,0 @@
-trivial:
-  - meraki_intrusion_prevention - Update URLs to intrusion prevention endpoints
-
-minor_changes:
-  - meraki_intrusion_prevention - Change documentation to show proper way to clear rules
-
-breaking_changes:
-  - meraki_intrusion_prevention - Rename whitedlisted_rules to allowed_rules
