@@ -57,7 +57,7 @@ options:
       description:
       - Indicates whether to test or query status.
       type: str
-      choices: [test, status]
+      choices: [test]
     test_id:
       description:
       - ID of webhook test query.
@@ -182,6 +182,21 @@ def get_all_webhooks(meraki, net_id):
         return response
 
 
+def sanitize_no_log_values(meraki):
+    try:
+        meraki.result['diff']['before']['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
+    except KeyError:
+        pass
+    try:
+        meraki.result['data'][0]['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
+    except KeyError:
+        pass
+    try:
+        meraki.result['data']['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
+    except (KeyError, TypeError) as e:
+        pass
+
+
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
@@ -194,7 +209,7 @@ def main():
                          url=dict(type='str'),
                          shared_secret=dict(type='str', no_log=True),
                          webhook_id=dict(type='str'),
-                         test=dict(type='str', choices=['test', 'status']),
+                         test=dict(type='str', choices=['test']),
                          test_id=dict(type='str'),
                          )
 
@@ -209,13 +224,13 @@ def main():
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_url = {'webhooks': '/networks/{net_id}/httpServers'}
-    query_one_url = {'webhooks': '/networks/{net_id}/httpServers/{hookid}'}
-    create_url = {'webhooks': '/networks/{net_id}/httpServers'}
-    update_url = {'webhooks': '/networks/{net_id}/httpServers/{hookid}'}
-    delete_url = {'webhooks': '/networks/{net_id}/httpServers/{hookid}'}
-    test_url = {'webhooks': '/networks/{net_id}/httpServers/webhookTests'}
-    test_status_url = {'webhooks': '/networks/{net_id}/httpServers/webhookTests/{testid}'}
+    query_url = {'webhooks': '/networks/{net_id}/webhooks/httpServers'}
+    query_one_url = {'webhooks': '/networks/{net_id}/webhooks/httpServers/{hookid}'}
+    create_url = {'webhooks': '/networks/{net_id}/webhooks/httpServers'}
+    update_url = {'webhooks': '/networks/{net_id}/webhooks/httpServers/{hookid}'}
+    delete_url = {'webhooks': '/networks/{net_id}/webhooks/httpServers/{hookid}'}
+    test_url = {'webhooks': '/networks/{net_id}/webhooks/webhookTests'}
+    test_status_url = {'webhooks': '/networks/{net_id}/webhooks/webhookTests/{testid}'}
 
     meraki.url_catalog['get_all'].update(query_url)
     meraki.url_catalog['get_one'].update(query_one_url)
@@ -233,6 +248,7 @@ def main():
         nets = meraki.get_nets(org_id=org_id)
         net_id = meraki.get_net_id(net_name=meraki.params['net_name'], data=nets)
     webhook_id = meraki.params['webhook_id']
+    webhooks = None
     if webhook_id is None and meraki.params['name']:
         webhooks = get_all_webhooks(meraki, net_id)
         webhook_id = get_webhook_id(meraki.params['name'], webhooks)
@@ -248,32 +264,32 @@ def main():
             response = meraki.request(path, method='GET')
             if meraki.status == 200:
                 meraki.result['data'] = response
+                sanitize_no_log_values(meraki)
+                meraki.exit_json(**meraki.result)
+        elif meraki.params['test_id'] is not None:
+            path = meraki.construct_path('test_status', net_id=net_id, custom={'testid': meraki.params['test_id']})
+            response = meraki.request(path, method='GET')
+            if meraki.status == 200:
+                meraki.result['data'] = response
+                sanitize_no_log_values(meraki)
+                meraki.exit_json(**meraki.result)
         else:
             path = meraki.construct_path('get_all', net_id=net_id)
             response = meraki.request(path, method='GET')
             if meraki.status == 200:
                 meraki.result['data'] = response
+                # meraki.fail_json(msg=meraki.result)
+                sanitize_no_log_values(meraki)
+                meraki.exit_json(**meraki.result)
     elif meraki.params['state'] == 'present':
         if meraki.params['test'] == 'test':
             payload = {'url': meraki.params['url']}
             path = meraki.construct_path('test', net_id=net_id)
             response = meraki.request(path, method='POST', payload=json.dumps(payload))
-            if meraki.status == 200:
+            if meraki.status == 201:
                 meraki.result['data'] = response
                 meraki.exit_json(**meraki.result)
-        elif meraki.params['test'] == 'status':
-            if meraki.params['test_id'] is None:
-                meraki.fail_json("test_id is required when querying test status.")
-            path = meraki.construct_path('test_status', net_id=net_id, custom={'testid': meraki.params['test_id']})
-            response = meraki.request(path, method='GET')
-            if meraki.status == 200:
-                meraki.result['data'] = response
-                meraki.exit_json(**meraki.result)
-        if webhook_id is None:  # Make sure it is downloaded
-            if webhooks is None:
-                webhooks = get_all_webhooks(meraki, net_id)
-            webhook_id = get_webhook_id(meraki.params['name'], webhooks)
-        if webhook_id is None:  # Test to see if it needs to be created
+        if webhook_id is None:  # New webhook needs to be created
             if meraki.check_mode is True:
                 meraki.result['data'] = payload
                 meraki.result['data']['networkId'] = net_id
@@ -290,6 +306,7 @@ def main():
             if meraki.is_update_required(original, payload):
                 if meraki.check_mode is True:
                     meraki.generate_diff(original, payload)
+                    sanitize_no_log_values(meraki)
                     original.update(payload)
                     meraki.result['data'] = original
                     meraki.result['changed'] = True
@@ -298,6 +315,7 @@ def main():
                 response = meraki.request(path, method='PUT', payload=json.dumps(payload))
                 if meraki.status == 200:
                     meraki.generate_diff(original, response)
+                    sanitize_no_log_values(meraki)
                     meraki.result['data'] = response
                     meraki.result['changed'] = True
             else:

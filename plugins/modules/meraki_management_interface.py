@@ -291,7 +291,7 @@ def main():
     meraki = MerakiModule(module, function='management_interface')
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'management_interface': '/networks/{net_id}/devices/{serial}/managementInterfaceSettings'}
+    query_urls = {'management_interface': '/devices/{serial}/managementInterface'}
 
     meraki.url_catalog['get_one'].update(query_urls)
 
@@ -339,8 +339,7 @@ def main():
         if meraki.status == 200:
             meraki.result['data'] = response
     elif meraki.params['state'] == 'present':
-        path = meraki.construct_path('get_one', net_id=net_id, custom={'serial': meraki.params['serial']})
-        # meraki.fail_json(path)
+        path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial']})
         original = meraki.request(path, method='GET')
         if meraki.is_update_required(original, payload):
             if meraki.check_mode is True:

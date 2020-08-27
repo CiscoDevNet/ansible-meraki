@@ -59,54 +59,54 @@
   - set_fact:
       webhook_id: '{{create_one.data.id}}'
 
-  - name: Query one webhook
-    meraki_webhook:
-      auth_key: '{{auth_key}}'
-      state: query
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      name: Test_Hook
-    register: query_one
+  # - name: Query one webhook
+  #   meraki_webhook:
+  #     auth_key: '{{auth_key}}'
+  #     state: query
+  #     org_name: '{{test_org_name}}'
+  #     net_name: '{{test_net_name}}'
+  #     name: Test_Hook
+  #   register: query_one
 
-  - debug:
-      var: query_one
+  # - debug:
+  #     var: query_one
 
-  - assert:
-      that:
-        - query_one.data is defined
+  # - assert:
+  #     that:
+  #       - query_one.data is defined
 
-  - name: Query one webhook with id
-    meraki_webhook:
-      auth_key: '{{auth_key}}'
-      state: query
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      webhook_id: '{{webhook_id}}'
-    register: query_one_id
+  # - name: Query one webhook with id
+  #   meraki_webhook:
+  #     auth_key: '{{auth_key}}'
+  #     state: query
+  #     org_name: '{{test_org_name}}'
+  #     net_name: '{{test_net_name}}'
+  #     webhook_id: '{{webhook_id}}'
+  #   register: query_one_id
 
-  - debug:
-      var: query_one_id
+  # - debug:
+  #     var: query_one_id
 
-  - assert:
-      that:
-        - query_one_id.data is defined
+  # - assert:
+  #     that:
+  #       - query_one_id.data is defined
 
-  - name: Update webhook with check mode
-    meraki_webhook:
-      auth_key: '{{auth_key}}'
-      state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      name: Test_Hook
-      url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
-      shared_secret: shhhdonttellanyonehere
-    check_mode: yes
-    register: update_check
+  # - name: Update webhook with check mode
+  #   meraki_webhook:
+  #     auth_key: '{{auth_key}}'
+  #     state: present
+  #     org_name: '{{test_org_name}}'
+  #     net_name: '{{test_net_name}}'
+  #     name: Test_Hook
+  #     url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
+  #     shared_secret: shhhdonttellanyonehere
+  #   check_mode: yes
+  #   register: update_check
 
-  - assert:
-      that:
-        - update_check is changed
-        - update_check.data is defined
+  # - assert:
+  #     that:
+  #       - update_check is changed
+  #       - update_check.data is defined
 
   - name: Update webhook
     meraki_webhook:
@@ -126,6 +126,7 @@
       that:
         - update is changed
         - update.data is defined
+        - update.diff.before.shared_secret == 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
 
   - name: Update webhook with idempotency
     meraki_webhook:
@@ -166,29 +167,29 @@
         - update_id is changed
         - update_id.data is defined
 
-  - name: Test webhook
+  - name: Create test webhook
     meraki_webhook:
       auth_key: '{{auth_key}}'
       state: present
       org_name: '{{test_org_name}}'
       net_name: '{{test_net_name}}'
+      name: Test_Hook
       test: test
       url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
     register: webhook_test
 
-  - debug:
-      var: webhook_test
-
   - set_fact:
       test_id: '{{webhook_test.data.id}}'
+
+  - debug:
+      var: test_id
 
   - name: Get webhook status
     meraki_webhook:
       auth_key: '{{auth_key}}'
-      state: present
+      state: query
       org_name: '{{test_org_name}}'
       net_name: '{{test_net_name}}'
-      test: status
       test_id: '{{test_id}}'
     register: webhook_test_status
 
@@ -261,10 +262,10 @@
       that:
         - delete is changed
 
-  always:
   #############################################################################
   # Tear down starts here
   #############################################################################
+  always:
   - name: Delete test network
     meraki_network:
       auth_key: '{{auth_key}}'

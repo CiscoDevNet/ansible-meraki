@@ -1,0 +1,102 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2020, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Create network with type wireless
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      type: wireless
+      timezone: America/Chicago
+    delegate_to: localhost
+
+  - name: Query all settings
+    meraki_mr_settings:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: query
+    delegate_to: localhost
+    register: query_all
+
+  - debug:
+      var: query_all
+
+  - assert:
+      that:
+        - query_all.data is defined
+
+  - name: Configure settings with check mode
+    meraki_mr_settings:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      upgrade_strategy: minimize_upgrade_time
+      ipv6_bridge_enabled: false
+      led_lights_on: true
+      location_analytics_enabled: true
+      meshing_enabled: true
+    delegate_to: localhost
+    register: settings_check
+    check_mode: true
+
+  - assert:
+      that:
+        - settings_check.data is defined
+        - settings_check is changed
+
+  - name: Configure settings
+    meraki_mr_settings:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      upgrade_strategy: minimize_upgrade_time
+      ipv6_bridge_enabled: false
+      led_lights_on: true
+      location_analytics_enabled: true
+      meshing_enabled: true
+    delegate_to: localhost
+    register: settings
+
+  - assert:
+      that:
+        - settings.data is defined
+        - settings is changed
+
+  - name: Configure settings with idempotency
+    meraki_mr_settings:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      upgrade_strategy: minimize_upgrade_time
+      ipv6_bridge_enabled: false
+      led_lights_on: true
+      location_analytics_enabled: true
+      meshing_enabled: true
+    delegate_to: localhost
+    register: settings_idempotent
+
+  - assert:
+      that:
+        - settings_idempotent.data is defined
+        - settings_idempotent is not changed
+
+#############################################################################
+# Tear down starts here
+#############################################################################
+
+  always:
+  - name: Delete network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+    delegate_to: localhost

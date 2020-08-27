@@ -112,8 +112,9 @@
       auth_key: '{{auth_key}}'
       org_name: '{{test_org_name}}'
       net_name: '{{test_net_name}}'
-      serial_uplink: '{{serial}}'
+      serial: '{{serial}}'
       state: query
+      query: uplink
     delegate_to: localhost
     register: query_serial_uplink
 
@@ -125,9 +126,10 @@
       auth_key: '{{auth_key}}'
       org_name: '{{test_org_name}}'
       net_name: '{{test_net_name}}'
-      serial_lldp_cdp: '{{serial}}'
+      serial: '{{serial}}'
       lldp_cdp_timespan: 6000
       state: query
+      query: lldp_cdp
     delegate_to: localhost
     register: query_serial_lldp_cdp
 

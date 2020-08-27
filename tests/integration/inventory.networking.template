@@ -19,11 +19,16 @@ test_org_id=12345
 test_org_name=YourOrg
 test_net_name=YourNet
 test_net_id=54321
+test_switch_net_name=Switch Net
+test_wireless_net_name=Wireless Net
 test_template_name=YourTemplate
 test_template_id=L_12345
 email_prefix=YourEmail
 email_domain=YourDomain
 serial=YourSerial
+serial_switch=YourSwitchSerial
+serial_switch_l3=YourL3SwitchSerial
+
 
 ###
 # Example

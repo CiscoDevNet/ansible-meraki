@@ -17,7 +17,7 @@ DOCUMENTATION = r'''
 ---
 module: meraki_admin
 short_description: Manage administrators in the Meraki cloud
-version_added: '2.6'
+version_added: '1.0.0'
 description:
 - Allows for creation, management, and visibility into administrators within Meraki.
 options:
@@ -316,7 +316,7 @@ def delete_admin(meraki, org_id, admin_id):
 def network_factory(meraki, networks, nets):
     networks_new = []
     for n in networks:
-        if 'network' in n:
+        if 'network' in n and n['network'] is not None:
             networks_new.append({'id': meraki.get_net_id(org_name=meraki.params['org_name'],
                                                          net_name=n['network'],
                                                          data=nets),

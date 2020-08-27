@@ -1,0 +1,271 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2020, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Create network with type wireless
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      type: wireless
+      timezone: America/Chicago
+    delegate_to: localhost
+
+  - name: Create RF profile in check mode
+    meraki_mr_rf_profile:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      name: Test Profile
+      band_selection_type: ap
+      client_balancing_enabled: True
+      ap_band_settings:
+          mode: dual
+          band_steering_enabled: true
+      five_ghz_settings:
+        max_power: 10
+        min_bitrate: 12
+        min_power: 8
+        rxsop: -65
+        channel_width: 20
+        valid_auto_channels:
+          - 36
+          - 40
+          - 44
+      two_four_ghz_settings:
+        max_power: 10
+        min_bitrate: 12
+        min_power: 8
+        rxsop: -65
+        ax_enabled: false
+        valid_auto_channels:
+          - 1
+    delegate_to: localhost
+    register: create_check
+    check_mode: true
+
+  - assert:
+      that:
+        - create_check.data is defined
+        - create_check is changed
+
+  - name: Create RF profile
+    meraki_mr_rf_profile:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      name: Test Profile
+      band_selection_type: ap
+      client_balancing_enabled: True
+      ap_band_settings:
+          mode: dual
+          band_steering_enabled: true
+      five_ghz_settings:
+        max_power: 10
+        min_bitrate: 12
+        min_power: 8
+        rxsop: -65
+        channel_width: 20
+        valid_auto_channels:
+          - 36
+          - 40
+          - 44
+      two_four_ghz_settings:
+        max_power: 10
+        min_bitrate: 12
+        min_power: 8
+        rxsop: -65
+        ax_enabled: false
+        valid_auto_channels:
+          - 1
+    delegate_to: localhost
+    register: create
+
+  - set_fact:
+      profile_id: '{{ create.data.id }}'
+
+  - name: Query all RF profiles
+    meraki_mr_rf_profile:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: query
+    delegate_to: localhost
+    register: query_one
+
+  - assert:
+      that:
+        - query_one.data is defined
+
+  - name: Update profile with check mode
+    meraki_mr_rf_profile:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      profile_id: '{{ profile_id }}'
+      band_selection_type: ap
+      client_balancing_enabled: True
+      ap_band_settings:
+          mode: dual
+          band_steering_enabled: true
+      five_ghz_settings:
+        max_power: 10
+        min_bitrate: 12
+        min_power: 8
+        rxsop: -65
+        channel_width: 20
+        valid_auto_channels:
+          - 36
+          - 44
+      two_four_ghz_settings:
+        max_power: 10
+        min_bitrate: 12
+        min_power: 8
+        rxsop: -75
+        ax_enabled: false
+        valid_auto_channels:
+          - 1
+    delegate_to: localhost
+    register: update_check
+    check_mode: true
+
+  - assert:
+      that:
+        - update_check.data is defined
+        - update_check is changed
+
+  - name: Update profile
+    meraki_mr_rf_profile:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      profile_id: '{{ profile_id }}'
+      band_selection_type: ap
+      client_balancing_enabled: True
+      ap_band_settings:
+          mode: dual
+          band_steering_enabled: true
+      five_ghz_settings:
+        max_power: 10
+        min_bitrate: 12
+        min_power: 8
+        rxsop: -65
+        channel_width: 20
+        valid_auto_channels:
+          - 36
+          - 44
+      two_four_ghz_settings:
+        max_power: 10
+        min_bitrate: 12
+        min_power: 8
+        rxsop: -75
+        ax_enabled: false
+        valid_auto_channels:
+          - 1
+    delegate_to: localhost
+    register: update
+
+  - assert:
+      that:
+        - update.data is defined
+        - update is changed
+
+  - name: Update profile with idempotency
+    meraki_mr_rf_profile:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      profile_id: '{{ profile_id }}'
+      band_selection_type: ap
+      client_balancing_enabled: True
+      ap_band_settings:
+          mode: dual
+          band_steering_enabled: true
+      five_ghz_settings:
+        max_power: 10
+        min_bitrate: 12
+        min_power: 8
+        rxsop: -65
+        channel_width: 20
+        valid_auto_channels:
+          - 36
+          - 44
+      two_four_ghz_settings:
+        max_power: 10
+        min_bitrate: 12
+        min_power: 8
+        rxsop: -75
+        ax_enabled: false
+        valid_auto_channels:
+          - 1
+    delegate_to: localhost
+    register: update_idempotent
+
+  - assert:
+      that:
+        - update_idempotent.data is defined
+        - update_idempotent is not changed
+
+  - name: Query one RF profile by ID
+    meraki_mr_rf_profile:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: query
+      profile_id: '{{ profile_id }}'
+    delegate_to: localhost
+    register: query_one_id
+
+  - assert:
+      that:
+        - query_one_id.data is defined
+
+  - name: Query one RF profile by name
+    meraki_mr_rf_profile:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: query
+      name: Test Profile
+    delegate_to: localhost
+    register: query_one_name
+
+  - assert:
+      that:
+        - query_one_name.data is defined
+
+  - name: Delete RF profile
+    meraki_mr_rf_profile:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: absent
+      profile_id: '{{ profile_id }}'
+    delegate_to: localhost
+    register: delete
+
+  - assert:
+      that:
+        - delete.data is defined
+        - delete is changed
+
+#############################################################################
+# Tear down starts here
+#############################################################################
+
+  always:
+  - name: Delete network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+    delegate_to: localhost

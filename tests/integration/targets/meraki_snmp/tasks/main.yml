@@ -163,7 +163,9 @@
       v3_auth_pass: ansiblepass
       v3_priv_mode: AES128
       v3_priv_pass: ansiblepass
-      peer_ips: 1.1.1.1;2.2.2.2
+      peer_ips: 
+        - 1.1.1.1
+        - 2.2.2.2
     delegate_to: localhost
     register: peers
 
@@ -173,20 +175,6 @@
   - assert:
       that:
         - peers.data.peer_ips is defined
-
-  - name: Add invalid peer IPs
-    meraki_snmp:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      state: present
-      peer_ips: 1.1.1.1 2.2.2.2
-    delegate_to: localhost
-    register: invalid_peers
-    ignore_errors: yes
-
-  - assert:
-      that:
-        '"Peer IP addresses are semi-colon delimited." in invalid_peers.msg'
 
   - name: Set short password
     meraki_snmp:
@@ -198,13 +186,9 @@
       v3_auth_pass: ansible
       v3_priv_mode: AES128
       v3_priv_pass: ansible
-      peer_ips: 1.1.1.1;2.2.2.2
     delegate_to: localhost
     register: short_password
     ignore_errors: yes
-
-  - debug:
-      msg: '{{short_password}}'
 
   - assert:
       that:

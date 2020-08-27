@@ -54,11 +54,11 @@ options:
                 - Type of policy to apply.
                 choices: [application,
                           application_category,
-                          blacklisted_countries,
+                          blocked_countries,
                           host,
                           ip_range,
                           port,
-                          whitelisted_countries]
+                          allowed_countries]
                 type: str
             application:
                 description:
@@ -126,11 +126,11 @@ EXAMPLES = r'''
     net_name: YourNet
     state: present
     rules:
-      - type: whitelisted_countries
+      - type: allowed_countries
         countries:
           - US
           - FR
-      - type: blacklisted_countries
+      - type: blocked_countries
         countries:
           - CN
       - policy: deny
@@ -208,12 +208,12 @@ data:
                     returned: success
                     type: str
                     sample: 1.1.1.0/23
-                whitelistedCountries:
-                    description: Countries to be whitelisted.
+                allowedCountries:
+                    description: Countries to be allowed.
                     returned: success
                     type: str
                     sample: CA
-                blacklistedCountries:
+                blockedCountries:
                     description: Countries to be blacklisted.
                     returned: success
                     type: str
@@ -299,14 +299,14 @@ def assemble_payload(meraki, net_id, rule):
         new_rule = {'policy': rule['policy'],
                     'type': rule['type'],
                     'value': rule['port']}
-    elif rule['type'] == 'blacklisted_countries':
+    elif rule['type'] == 'blocked_countries':
         new_rule = {'policy': rule['policy'],
-                    'type': 'blacklistedCountries',
+                    'type': 'blockedCountries',
                     'value': rule['countries']
                     }
-    elif rule['type'] == 'whitelisted_countries':
+    elif rule['type'] == 'allowed_countries':
         new_rule = {'policy': rule['policy'],
-                    'type': 'whitelistedCountries',
+                    'type': 'allowedCountries',
                     'value': rule['countries']
                     }
     return new_rule
@@ -352,11 +352,11 @@ def main():
     rule_arg_spec = dict(policy=dict(type='str', choices=['deny'], default='deny'),
                          type=dict(type='str', choices=['application',
                                                         'application_category',
-                                                        'blacklisted_countries',
+                                                        'blocked_countries',
                                                         'host',
                                                         'ip_range',
                                                         'port',
-                                                        'whitelisted_countries']),
+                                                        'allowed_countries']),
                          ip_range=dict(type='str'),
                          application=dict(type='dict', default=None, options=application_arg_spec),
                          host=dict(type='str'),
@@ -388,20 +388,20 @@ def main():
                 meraki.fail_json(msg="application argument is required when type is application.")
             elif rule['type'] == 'application_category' and rule['application'] is None:
                 meraki.fail_json(msg="application argument is required when type is application_category.")
-            elif rule['type'] == 'blacklisted_countries' and rule['countries'] is None:
-                meraki.fail_json(msg="countries argument is required when type is blacklisted_countries.")
+            elif rule['type'] == 'blocked_countries' and rule['countries'] is None:
+                meraki.fail_json(msg="countries argument is required when type is blocked_countries.")
             elif rule['type'] == 'host' and rule['host'] is None:
                 meraki.fail_json(msg="host argument is required when type is host.")
             elif rule['type'] == 'port' and rule['port'] is None:
                 meraki.fail_json(msg="port argument is required when type is port.")
-            elif rule['type'] == 'whitelisted_countries' and rule['countries'] is None:
-                meraki.fail_json(msg="countries argument is required when type is whitelisted_countries.")
+            elif rule['type'] == 'allowed_countries' and rule['countries'] is None:
+                meraki.fail_json(msg="countries argument is required when type is allowed_countries.")
 
     meraki.params['follow_redirects'] = 'all'
 
-    query_urls = {'mx_l7_firewall': '/networks/{net_id}/l7FirewallRules/'}
-    query_category_urls = {'mx_l7_firewall': '/networks/{net_id}/l7FirewallRules/applicationCategories'}
-    update_urls = {'mx_l7_firewall': '/networks/{net_id}/l7FirewallRules/'}
+    query_urls = {'mx_l7_firewall': '/networks/{net_id}/appliance/firewall/l7FirewallRules/'}
+    query_category_urls = {'mx_l7_firewall': '/networks/{net_id}/appliance/firewall/l7FirewallRules/applicationCategories'}
+    update_urls = {'mx_l7_firewall': '/networks/{net_id}/appliance/firewall/l7FirewallRules/'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['get_categories'] = (query_category_urls)

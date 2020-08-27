@@ -62,23 +62,15 @@ options:
         - Boolean value specifying whether VLANs should be supported on a network.
         - Requires C(net_name) or C(net_id) to be specified.
         type: bool
-    disable_my_meraki:
-        description: >
-            - Disables the local device status pages (U[my.meraki.com](my.meraki.com), U[ap.meraki.com](ap.meraki.com), U[switch.meraki.com](switch.meraki.com),
-            U[wired.meraki.com](wired.meraki.com)).
-            - Mutually exclusive of C(enable_my_meraki).
-            - Will be deprecated in Ansible 2.13 in favor of C(enable_my_meraki).
-        type: bool
-    enable_my_meraki:
+    local_status_page_enabled:
         description: >
             - Enables the local device status pages (U[my.meraki.com](my.meraki.com), U[ap.meraki.com](ap.meraki.com), U[switch.meraki.com](switch.meraki.com),
             U[wired.meraki.com](wired.meraki.com)).
-            - Ansible 2.7 had this parameter as C(disable_my_meraki).
         type: bool
-    enable_remote_status_page:
+    remote_status_page_enabled:
         description:
             - Enables access to the device status page (U(http://device LAN IP)).
-            - Can only be set if C(enable_my_meraki:) is set to C(yes).
+            - Can only be set if C(local_status_page_enabled:) is set to C(yes).
         type: bool
 
 author:
@@ -153,8 +145,8 @@ data:
       tags:
         description: Space delimited tags assigned to network.
         returned: success
-        type: str
-        sample: " production wireless "
+        type: list
+        sample: ['production']
       time_zone:
         description: Timezone where network resides.
         returned: success
@@ -163,15 +155,15 @@ data:
       type:
         description: Functional type of network.
         returned: success
-        type: str
-        sample: switch
-      disable_my_meraki_com:
-        description: States whether U(my.meraki.com) and other device portals should be disabled.
+        type: list
+        sample: ['switch']
+      local_status_page_enabled:
+        description: States whether U(my.meraki.com) and other device portals should be enabled.
         returned: success
         type: bool
         sample: true
-      disableRemoteStatusPage:
-        description: Disables access to the device status page.
+      remote_status_page_enabled:
+        description: Enables access to the device status page.
         returned: success
         type: bool
         sample: true
@@ -194,21 +186,6 @@ def is_net_valid(data, net_name=None, net_id=None):
     return False
 
 
-def construct_tags(tags):
-    formatted_tags = ' '.join(tags)
-    return ' {0} '.format(formatted_tags)  # Meraki needs space padding
-
-
-def list_to_string(data):
-    new_string = str()
-    for i, item in enumerate(data):
-        if i == len(new_string) - 1:
-            new_string += i
-        else:
-            new_string = "{0}{1} ".format(new_string, item)
-    return new_string.strip()
-
-
 def main():
 
     # define the available arguments/parameters that a user can pass to
@@ -223,9 +200,8 @@ def main():
         net_name=dict(type='str', aliases=['name', 'network']),
         state=dict(type='str', choices=['present', 'query', 'absent'], default='present'),
         enable_vlans=dict(type='bool'),
-        disable_my_meraki=dict(type='bool'),
-        enable_my_meraki=dict(type='bool'),
-        enable_remote_status_page=dict(type='bool'),
+        local_status_page_enabled=dict(type='bool'),
+        remote_status_page_enabled=dict(type='bool'),
     )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -234,8 +210,6 @@ def main():
     # supports check mode
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=True,
-                           mutually_exclusive=[('disable_my_meraki', 'enable_my_meraki'),
-                                               ]
                            )
 
     meraki = MerakiModule(module, function='network')
@@ -245,10 +219,14 @@ def main():
     create_urls = {'network': '/organizations/{org_id}/networks'}
     update_urls = {'network': '/networks/{net_id}'}
     delete_urls = {'network': '/networks/{net_id}'}
-    enable_vlans_urls = {'network': '/networks/{net_id}/vlansEnabledState'}
-    get_vlan_status_urls = {'network': '/networks/{net_id}/vlansEnabledState'}
+    update_settings_urls = {'network': '/networks/{net_id}/settings'}
+    get_settings_urls = {'network': '/networks/{net_id}/settings'}
+    enable_vlans_urls = {'network': '/networks/{net_id}/appliance/vlans/settings'}
+    get_vlan_status_urls = {'network': '/networks/{net_id}/appliance/vlans/settings'}
     meraki.url_catalog['create'] = create_urls
     meraki.url_catalog['update'] = update_urls
+    meraki.url_catalog['update_settings'] = update_settings_urls
+    meraki.url_catalog['get_settings'] = get_settings_urls
     meraki.url_catalog['delete'] = delete_urls
     meraki.url_catalog['enable_vlans'] = enable_vlans_urls
     meraki.url_catalog['status_vlans'] = get_vlan_status_urls
@@ -263,8 +241,8 @@ def main():
     if not meraki.params['net_name'] and not meraki.params['net_id']:
         if meraki.params['enable_vlans']:
             meraki.fail_json(msg="The parameter 'enable_vlans' requires 'net_name' or 'net_id' to be specified")
-    if meraki.params['enable_my_meraki'] is True and meraki.params['enable_remote_status_page'] is False:
-        meraki.fail_json(msg='enable_my_meraki must be true when setting enable_remote_status_page')
+    if meraki.params['local_status_page_enabled'] is True and meraki.params['remote_status_page_enabled'] is False:
+        meraki.fail_json(msg='local_status_page_enabled must be true when setting remote_status_page_enabled')
 
     # Construct payload
     if meraki.params['state'] == 'present':
@@ -272,24 +250,15 @@ def main():
         if meraki.params['net_name']:
             payload['name'] = meraki.params['net_name']
         if meraki.params['type']:
-            payload['type'] = list_to_string(meraki.params['type'])
+            payload['productTypes'] = meraki.params['type']
         if meraki.params['tags']:
-            payload['tags'] = construct_tags(meraki.params['tags'])
+            payload['tags'] = meraki.params['tags']
         if meraki.params['timezone']:
             payload['timeZone'] = meraki.params['timezone']
-        if meraki.params['enable_my_meraki'] is not None:
-            if meraki.params['enable_my_meraki'] is True:
-                payload['disableMyMerakiCom'] = False
-            else:
-                payload['disableMyMerakiCom'] = True
-        elif meraki.params['disable_my_meraki'] is not None:
-            payload['disableMyMerakiCom'] = meraki.params['disable_my_meraki']
-        if meraki.params['enable_remote_status_page'] is not None:
-            if meraki.params['enable_remote_status_page'] is True:
-                payload['disableRemoteStatusPage'] = False
-                # meraki.fail_json(msg="Debug", payload=payload)
-            else:
-                payload['disableRemoteStatusPage'] = True
+        if meraki.params['local_status_page_enabled'] is not None:
+            payload['localStatusPageEnabled'] = meraki.params['local_status_page_enabled']
+        if meraki.params['remote_status_page_enabled'] is not None:
+            payload['remoteStatusPageEnabled'] = meraki.params['remote_status_page_enabled']
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
@@ -344,10 +313,10 @@ def main():
             if meraki.params['enable_vlans'] is not None:  # Modify VLANs configuration
                 status_path = meraki.construct_path('status_vlans', net_id=net_id)
                 status = meraki.request(status_path, method='GET')
-                payload = {'enabled': meraki.params['enable_vlans']}
+                payload = {'vlansEnabled': meraki.params['enable_vlans']}
                 if meraki.is_update_required(status, payload):
                     if meraki.check_mode is True:
-                        data = {'enabled': meraki.params['enable_vlans'],
+                        data = {'vlansEnabled': meraki.params['enable_vlans'],
                                 'network_id': net_id,
                                 }
                         meraki.result['data'] = data
@@ -372,8 +341,11 @@ def main():
                     meraki.result['data'] = net
                     meraki.result['changed'] = True
                     meraki.exit_json(**meraki.result)
-                path = meraki.construct_path('update', net_id=net_id)
-                # meraki.fail_json(msg="Payload", path=path, payload=payload)
+                if meraki.params['local_status_page_enabled'] is not None or \
+                   meraki.params['remote_status_page_enabled'] is not None:
+                    path = meraki.construct_path('update_settings', net_id=net_id)
+                else:
+                    path = meraki.construct_path('update', net_id=net_id)
                 r = meraki.request(path,
                                    method='PUT',
                                    payload=json.dumps(payload))

@@ -46,7 +46,7 @@
         - set_bw_check.diff is defined
 
   - name: Set MX uplink settings
-    meraki_mx_uplink:
+    meraki_mx_uplink_bandwidth:
       auth_key: '{{auth_key}}'
       state: present
       org_name: '{{test_org_name}}'
@@ -71,7 +71,7 @@
         - set_bw.data is defined
 
   - name: Set MX uplink settings with idempotency
-    meraki_mx_uplink:
+    meraki_mx_uplink_bandwidth:
       auth_key: '{{auth_key}}'
       state: present
       org_name: '{{test_org_name}}'

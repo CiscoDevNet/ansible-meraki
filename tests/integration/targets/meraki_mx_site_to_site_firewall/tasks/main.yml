@@ -55,10 +55,10 @@
 
   - assert:
       that:
-        - create_one_check.data|length == 2
-        - create_one_check.data.0.dest_cidr == '192.0.1.1/32'
-        - create_one_check.data.0.protocol == 'tcp'
-        - create_one_check.data.0.policy == 'deny'
+        - create_one_check.data.rules|length == 2
+        - create_one_check.data.rules.0.dest_cidr == '192.0.1.1/32'
+        - create_one_check.data.rules.0.protocol == 'tcp'
+        - create_one_check.data.rules.0.policy == 'deny'
         - create_one_check is changed
         - create_one_check.data is defined
 
@@ -83,10 +83,10 @@
 
   - assert:
       that:
-        - create_one.data|length == 2
-        - create_one.data.0.dest_cidr == '192.0.1.1/32'
-        - create_one.data.0.protocol == 'tcp'
-        - create_one.data.0.policy == 'deny'
+        - create_one.data.rules|length == 2
+        - create_one.data.rules.0.dest_cidr == '192.0.1.1/32'
+        - create_one.data.rules.0.protocol == 'tcp'
+        - create_one.data.rules.0.policy == 'deny'
         - create_one.changed == True
         - create_one.data is defined
 
@@ -176,8 +176,7 @@
   - assert:
       that:
         - default_syslog_check.data is defined
-        - default_syslog_check.data.1.syslog_enabled == True
-
+        - default_syslog_check.data.rules.1.syslog_enabled == True
 
   - name: Enable syslog for default rule
     meraki_mx_site_to_site_firewall:
@@ -212,11 +211,11 @@
     register: query
 
   - debug:
-      msg: '{{query.data.1}}'
+      msg: '{{query.data.rules.1}}'
 
   - assert:
       that:
-        - query.data.1.syslog_enabled == True
+        - query.data.rules.1.syslog_enabled == True
         - default_syslog.changed == True
 
   - name: Disable syslog for default rule
@@ -269,7 +268,7 @@
 
   - assert:
       that:
-        - enable_syslog_only_check.data.1.syslog_enabled == True
+        - enable_syslog_only_check.data.rules.1.syslog_enabled == True
         - enable_syslog_only_check is changed
 
   - name: Query firewall rules
@@ -281,11 +280,11 @@
     register: query
 
   - debug:
-      msg: '{{query.data.1}}'
+      msg: '{{query.data.rules.1}}'
 
   - assert:
       that:
-        - query.data.1.syslog_enabled == False
+        - query.data.rules.1.syslog_enabled == False
         - disable_syslog.changed == True
 
   always:
