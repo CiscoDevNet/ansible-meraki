@@ -1,7 +1,0 @@
-breaking_changes:
-  - meraki_switchport - `tags` is now a list and not a string
-  - meraki_switchport - `access_policy_number` is now an int and not a string
-trivial:
-  - meraki_switchport - Updated URLs for API v1
-minor_changes:
-  - meraki_switchport - Add support for `access_policy_type` parameter

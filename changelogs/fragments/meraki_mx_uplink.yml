@@ -1,5 +1,0 @@
-trivial:
-  - meraki_mx_uplink - Update URLs to MX uplink endpoints
-
-minor_changes:
-  - meraki_mx_uplink - Renamed to meraki_mx_uplink_bandwidth
