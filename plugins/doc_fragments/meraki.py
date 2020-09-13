@@ -15,6 +15,8 @@ notes:
 - Some of the options are likely only used for developers within Meraki.
 - As of Ansible 2.9, Meraki modules output keys as snake case. To use camel case, set the C(ANSIBLE_MERAKI_FORMAT) environment variable to C(camelcase).
 - Ansible's Meraki modules will stop supporting camel case output in Ansible 2.13. Please update your playbooks.
+- Check Mode downloads the current configuration from the dashboard, then compares changes against this download. Check Mode will report changed if
+    there are differences in the configurations, but does not submit changes to the API for validation of change.
 options:
     auth_key:
         description:
