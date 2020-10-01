@@ -178,6 +178,7 @@
       net_name: IntTestNetworkWireless
       type: wireless
       timezone: America/Chicago
+      local_status_page_enabled: no
     delegate_to: localhost
     register: create_net_wireless_idempotent
 
@@ -250,12 +251,28 @@
       net_name: IntTestNetworkCombined
       remote_status_page_enabled: yes
     delegate_to: localhost
-    register: disable_remote_status
-
+    register: enable_remote_status
 
   - assert:
       that:
-        - disable_remote_status.data.remote_status_page_enabled == True
+        - enable_remote_status.data.remote_status_page_enabled == True
+        - enable_remote_status is changed
+
+  - name: Enable remote status page with idempotency
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkCombined
+      remote_status_page_enabled: yes
+    delegate_to: localhost
+    register: enable_remote_status_idempotent
+
+  - assert:
+      that:
+        - enable_remote_status_idempotent.data.remote_status_page_enabled == True
+        - enable_remote_status is not changed
+
 
   - name: Disable remote status page
     meraki_network:
