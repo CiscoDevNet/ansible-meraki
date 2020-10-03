@@ -160,7 +160,6 @@ class MerakiModule(object):
 
     def is_update_required(self, original, proposed, optional_ignore=None, debug=False):
         ''' Compare two data-structures '''
-        self.module.warn(str(debug))
         self.ignored_keys.append('net_id')
         if optional_ignore is not None:
             # self.fail_json(msg="Keys", ignored_keys=self.ignored_keys, optional=optional_ignore)

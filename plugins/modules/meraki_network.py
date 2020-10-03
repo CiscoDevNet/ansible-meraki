@@ -66,11 +66,13 @@ options:
         description: >
             - Enables the local device status pages (U[my.meraki.com](my.meraki.com), U[ap.meraki.com](ap.meraki.com), U[switch.meraki.com](switch.meraki.com),
             U[wired.meraki.com](wired.meraki.com)).
+            - Only can be specified on its own or with C(remote_status_page_enabled).
         type: bool
     remote_status_page_enabled:
         description:
             - Enables access to the device status page (U(http://device LAN IP)).
             - Can only be set if C(local_status_page_enabled:) is set to C(yes).
+            - Only can be specified on its own or with C(local_status_page_enabled).
         type: bool
 
 author:
@@ -119,6 +121,13 @@ EXAMPLES = r'''
         org_name: YourOrg
         net_name: MyNet
         enable_vlans: yes
+    - name: Modify local status page enabled state
+      meraki_network:
+        auth_key: abc12345
+        state: query
+        org_name: YourOrg
+        net_name: MyNet
+        local_status_page_enabled: yes
 '''
 
 RETURN = r'''
@@ -184,6 +193,11 @@ def is_net_valid(data, net_name=None, net_id=None):
             if n['id'] == net_id:
                 return True
     return False
+
+def get_network_settings(meraki, net_id):
+    path = meraki.construct_path('get_settings', net_id=net_id)
+    response = meraki.request(path, method='GET')
+    return response
 
 
 def main():
@@ -284,10 +298,16 @@ def main():
         if not meraki.params['net_name'] and not meraki.params['net_id']:
             meraki.result['data'] = nets
         elif meraki.params['net_name'] or meraki.params['net_id'] is not None:
-            meraki.result['data'] = meraki.get_net(meraki.params['org_name'],
-                                                   meraki.params['net_name'],
-                                                   data=nets
-                                                   )
+            if meraki.params['local_status_page_enabled'] is not None or \
+               meraki.params['remote_status_page_enabled'] is not None:
+                meraki.result['data'] = get_network_settings(meraki, net_id)
+                meraki.exit_json(**meraki.result)
+            else:
+                meraki.result['data'] = meraki.get_net(meraki.params['org_name'],
+                                                       meraki.params['net_name'],
+                                                       data=nets
+                                                       )
+                meraki.exit_json(**meraki.result)
     elif meraki.params['state'] == 'present':
         if net_exists is False:  # Network needs to be created
             if 'type' not in meraki.params or meraki.params['type'] is None:
@@ -333,6 +353,29 @@ def main():
                 else:
                     meraki.result['data'] = status
                     meraki.exit_json(**meraki.result)
+            elif meraki.params['local_status_page_enabled'] is not None or \
+                 meraki.params['remote_status_page_enabled'] is not None:
+                path = meraki.construct_path('get_settings', net_id=net_id)
+                original = meraki.request(path, method='GET')
+                payload = {}
+                if meraki.params['local_status_page_enabled'] is not None:
+                    payload['localStatusPageEnabled'] = meraki.params['local_status_page_enabled']
+                if meraki.params['remote_status_page_enabled'] is not None:
+                    payload['remoteStatusPageEnabled'] = meraki.params['remote_status_page_enabled']
+                if meraki.is_update_required(original, payload):
+                    if meraki.check_mode is True:
+                        original.update(payload)
+                        meraki.result['data'] = original
+                        meraki.result['changed'] = True
+                        meraki.exit_json(**meraki.result)
+                    path = meraki.construct_path('update_settings', net_id=net_id)
+                    response = meraki.request(path, method='PUT', payload=json.dumps(payload))
+                    meraki.result['data'] = response
+                    meraki.result['changed'] = True
+                    meraki.exit_json(**meraki.result)
+                else:
+                    meraki.result['data'] = original
+                    meraki.exit_json(**meraki.result)
             net = meraki.get_net(meraki.params['org_name'], net_id=net_id, data=nets)
             if meraki.is_update_required(net, payload):
                 if meraki.check_mode is True:
@@ -341,11 +384,7 @@ def main():
                     meraki.result['data'] = net
                     meraki.result['changed'] = True
                     meraki.exit_json(**meraki.result)
-                if meraki.params['local_status_page_enabled'] is not None or \
-                   meraki.params['remote_status_page_enabled'] is not None:
-                    path = meraki.construct_path('update_settings', net_id=net_id)
-                else:
-                    path = meraki.construct_path('update', net_id=net_id)
+                path = meraki.construct_path('update', net_id=net_id)
                 r = meraki.request(path,
                                    method='PUT',
                                    payload=json.dumps(payload))
