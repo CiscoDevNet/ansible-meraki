@@ -158,35 +158,41 @@ class MerakiModule(object):
         elif isinstance(data, int) or isinstance(data, str) or isinstance(data, float):
             return data
 
-    def is_update_required(self, original, proposed, optional_ignore=None):
+    def is_update_required(self, original, proposed, optional_ignore=None, debug=False):
         ''' Compare two data-structures '''
+        self.module.warn(str(debug))
         self.ignored_keys.append('net_id')
         if optional_ignore is not None:
+            # self.fail_json(msg="Keys", ignored_keys=self.ignored_keys, optional=optional_ignore)
             self.ignored_keys = self.ignored_keys + optional_ignore
 
         if isinstance(original, list):
             if len(original) != len(proposed):
-                # self.fail_json(msg="Length of lists don't match")
+                if debug is True:
+                    self.fail_json(msg="Length of lists don't match")
                 return True
             for a, b in zip(original, proposed):
-                if self.is_update_required(a, b):
-                    # self.fail_json(msg="List doesn't match", a=a, b=b)
+                if self.is_update_required(a, b, debug=debug):
+                    if debug is True:
+                        self.fail_json(msg="List doesn't match", a=a, b=b)
                     return True
         elif isinstance(original, dict):
             try:
                 for k, v in proposed.items():
                     if k not in self.ignored_keys:
                         if k in original:
-                            if self.is_update_required(original[k], proposed[k]):
+                            if self.is_update_required(original[k], proposed[k], debug=debug):
                                 return True
                         else:
-                            # self.fail_json(msg="Key not in original", k=k)
+                            if debug is True:
+                                self.fail_json(msg="Key not in original", k=k)
                             return True
             except AttributeError:
                 return True
         else:
             if original != proposed:
-                # self.fail_json(msg="Fallback", original=original, proposed=proposed)
+                if debug is True:
+                    self.fail_json(msg="Fallback", original=original, proposed=proposed)
                 return True
         return False
 
