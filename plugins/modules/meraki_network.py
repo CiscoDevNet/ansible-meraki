@@ -194,6 +194,7 @@ def is_net_valid(data, net_name=None, net_id=None):
                 return True
     return False
 
+
 def get_network_settings(meraki, net_id):
     path = meraki.construct_path('get_settings', net_id=net_id)
     response = meraki.request(path, method='GET')
@@ -353,8 +354,8 @@ def main():
                 else:
                     meraki.result['data'] = status
                     meraki.exit_json(**meraki.result)
-            elif meraki.params['local_status_page_enabled'] is not None or \
-                 meraki.params['remote_status_page_enabled'] is not None:
+            elif (meraki.params['local_status_page_enabled'] is not None or
+                  meraki.params['remote_status_page_enabled'] is not None):
                 path = meraki.construct_path('get_settings', net_id=net_id)
                 original = meraki.request(path, method='GET')
                 payload = {}
