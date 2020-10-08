@@ -118,7 +118,7 @@ EXAMPLES = r'''
       - 'youremail@yourcorp'
       - 'youremail2@yourcorp'
       all_admins: yes
-      snmp: no 
+      snmp: no
     alerts:
       - type: "gatewayDown"
         enabled: yes
