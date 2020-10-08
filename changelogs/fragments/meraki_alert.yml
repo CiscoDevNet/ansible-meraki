@@ -1,0 +1,6 @@
+---
+minor_changes:
+- meraki_alert - Manage network wide alert settings.
+
+trivial:
+- utils - Add convert_snake_to_camel() method.
