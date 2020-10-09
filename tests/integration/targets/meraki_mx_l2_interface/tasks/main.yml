@@ -1,0 +1,61 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2018, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Create network with type appliance
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_appliance_net_name}}'
+      type: appliance
+      timezone: America/Chicago
+    delegate_to: localhost
+    register: create_net
+
+  - name: Claim a device into a network
+    meraki_device:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_appliance_net_name}}'
+      serial: '{{serial_appliance}}'
+      state: present
+    delegate_to: localhost
+
+  - name: Query layer 2 interface settings
+    meraki_mx_l2_interface:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_appliance_net_name}}'
+      state: query
+    delegate_to: localhost
+    register: query_all
+
+  - assert:
+      that:
+        - query_all.data is defined
+
+
+#############################################################################
+# Tear down starts here
+#############################################################################
+
+  always:
+  - name: Remove device from network
+    meraki_device:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_appliance_net_name}}'
+      serial: '{{serial_appliance}}'
+      state: absent
+    delegate_to: localhost
+
+  - name: Delete network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_appliance_net_name}}'
+    delegate_to: localhost
