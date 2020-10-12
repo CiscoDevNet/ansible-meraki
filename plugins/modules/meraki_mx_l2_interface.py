@@ -141,7 +141,7 @@ data:
             type: str
             returned: success
             sample: 1,5,10
-        port_type:
+        type:
             description:
             - Type of port.
             type: str
@@ -223,7 +223,7 @@ def main():
 
     if meraki.params['net_name'] and meraki.params['net_id']:
         meraki.fail_json(msg='net_name and net_id are mutually exclusive.')
-    if meraki.params['type'] == 'access':
+    if meraki.params['port_type'] == 'access':
         if meraki.params['allowed_vlans'] is not None:
             meraki.meraki.fail_json(msg='allowed_vlans is mutually exclusive with port type trunk.')
 

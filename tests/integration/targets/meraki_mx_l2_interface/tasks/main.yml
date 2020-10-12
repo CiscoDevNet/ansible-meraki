@@ -79,7 +79,7 @@
       net_name: '{{test_appliance_net_name}}'
       state: present
       number: 2
-      type: access
+      port_type: access
       vlan: 10
     delegate_to: localhost
     register: update_check
@@ -101,7 +101,7 @@
       net_name: '{{test_appliance_net_name}}'
       state: present
       number: 2
-      type: access
+      port_type: access
       vlan: 10
     delegate_to: localhost
     register: update
@@ -120,7 +120,7 @@
       net_name: '{{test_appliance_net_name}}'
       state: present
       number: 2
-      type: access
+      port_type: access
       vlan: 10
     delegate_to: localhost
     register: update_idempotent
