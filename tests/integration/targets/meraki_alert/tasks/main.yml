@@ -1,0 +1,174 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2020, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Create network with type wireless
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      type: wireless
+      timezone: America/Chicago
+    delegate_to: localhost
+
+  - name: Update settings with check mode
+    meraki_alert:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      default_destinations:
+        emails:
+        - '{{ email_prefix }}@{{ email_domain }}'
+        - '{{ email_prefix }}2@{{ email_domain }}'
+        all_admins: no
+        snmp: no 
+      alerts:
+        - alert_type: "gatewayDown"
+          enabled: yes
+          filters:
+            timeout: 60
+          alert_destinations:
+            emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+            all_admins: no
+            snmp: no
+        - alert_type: "usageAlert"
+          enabled: yes
+          filters:
+            period: 1200
+            threshold: 104857600
+          alert_destinations:
+            emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+            all_admins: yes
+            snmp: no
+    delegate_to: localhost
+    register: update_check
+    check_mode: yes
+ 
+  - assert:
+      that:
+        - update_check.data is defined
+        - update_check.diff is defined
+        - update_check is changed
+
+  - name: Update settings
+    meraki_alert:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      default_destinations:
+        emails:
+        - '{{ email_prefix }}@{{ email_domain }}'
+        - '{{ email_prefix }}2@{{ email_domain }}'
+        all_admins: no
+        snmp: no 
+      alerts:
+        - alert_type: "gatewayDown"
+          enabled: yes
+          filters:
+            timeout: 60
+          alert_destinations:
+            emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+            all_admins: no
+            snmp: no
+        - alert_type: "usageAlert"
+          enabled: yes
+          filters:
+            period: 1200
+            threshold: 104857600
+          alert_destinations:
+            emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+            all_admins: yes
+            snmp: no
+    delegate_to: localhost
+    register: update
+ 
+  - assert:
+      that:
+        - update.data is defined
+        - update.diff is defined
+        - update is changed
+
+  - name: Update settings idempotent
+    meraki_alert:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: present
+      default_destinations:
+        emails:
+        - '{{ email_prefix }}@{{ email_domain }}'
+        - '{{ email_prefix }}2@{{ email_domain }}'
+        all_admins: no
+        snmp: no 
+      alerts:
+        - alert_type: "gatewayDown"
+          enabled: yes
+          filters:
+            timeout: 60
+          alert_destinations:
+            emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+            all_admins: no
+            snmp: no
+        - alert_type: "usageAlert"
+          enabled: yes
+          filters:
+            period: 1200
+            threshold: 104857600
+          alert_destinations:
+            emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+            all_admins: yes
+            snmp: no
+    delegate_to: localhost
+    register: update_idempotent
+
+  - assert:
+      that:
+        - update_idempotent.data is defined
+        - update_idempotent is not changed
+
+  - name: Query all settings
+    meraki_alert:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+      state: query
+    delegate_to: localhost
+    register: query_all
+
+  - debug:
+      var: query_all
+
+  - assert:
+      that:
+        - query_all.data is defined
+
+
+#############################################################################
+# Tear down starts here
+#############################################################################
+
+  always:
+  - name: Delete network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkWireless
+    delegate_to: localhost
