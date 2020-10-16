@@ -16,6 +16,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = r'''
 ---
 module: meraki_alert
+version_added: "2.1.0"
 short_description: Manage alerts in the Meraki cloud
 description:
 - Allows for creation, management, and visibility into alert settings within Meraki.

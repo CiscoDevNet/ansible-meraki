@@ -13,6 +13,11 @@ plugins:
       name: meraki_admin
       namespace: ''
       version_added: 1.0.0
+    meraki_alert:
+      description: Manage alerts in the Meraki cloud
+      name: meraki_alert
+      namespace: ''
+      version_added: 2.1.0
     meraki_config_template:
       description: Manage configuration templates in the Meraki cloud
       name: meraki_config_template
@@ -98,6 +103,11 @@ plugins:
       name: meraki_mx_intrusion_prevention
       namespace: ''
       version_added: null
+    meraki_mx_l2_interface:
+      description: Configure MX layer 2 interfaces
+      name: meraki_mx_l2_interface
+      namespace: ''
+      version_added: 2.1.0
     meraki_mx_l3_firewall:
       description: Manage MX appliance layer 3 firewalls in the Meraki cloud
       name: meraki_mx_l3_firewall
@@ -172,4 +182,4 @@ plugins:
   shell: {}
   strategy: {}
   vars: {}
-version: 2.0.0
+version: 2.1.0
