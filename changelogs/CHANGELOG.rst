@@ -5,6 +5,15 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.1.0
+======
+
+New Modules
+-----------
+
+- meraki_alert - Manage alerts in the Meraki cloud
+- meraki_mx_l2_interface - Configure MX layer 2 interfaces
+
 v2.0.0
 ======
 
@@ -20,9 +29,13 @@ Major Changes
 Minor Changes
 -------------
 
+- meraki - Add optional debugging for is_update_required() method.
 - meraki_admin - Update endpoints for API v1
+- meraki_alert - Manage network wide alert settings.
 - meraki_device - Added query parameter
 - meraki_intrusion_prevention - Change documentation to show proper way to clear rules
+- meraki_malware - Update documentation to show how to allow multiple URLs at once.
+- meraki_mx_l2_interface - Configure physical interfaces on MX appliances.
 - meraki_mx_uplink - Renamed to meraki_mx_uplink_bandwidth
 - meraki_ssid - Add `WPA3 Only` and `WPA3 Transition Mode`
 - meraki_switchport - Add support for `access_policy_type` parameter
