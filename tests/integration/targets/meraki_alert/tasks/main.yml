@@ -24,10 +24,10 @@
         emails:
         - '{{ email_prefix }}@{{ email_domain }}'
         - '{{ email_prefix }}2@{{ email_domain }}'
-        all_admins: yes
+        all_admins: no
         snmp: no 
       alerts:
-        - type: "gatewayDown"
+        - alert_type: "gatewayDown"
           enabled: yes
           filters:
             timeout: 60
@@ -35,9 +35,9 @@
             emails:
             - '{{ email_prefix }}@{{ email_domain }}'
             - '{{ email_prefix }}2@{{ email_domain }}'
-            all_admins: yes
+            all_admins: no
             snmp: no
-        - type: "usageAlert"
+        - alert_type: "usageAlert"
           enabled: yes
           filters:
             period: 1200
@@ -68,10 +68,10 @@
         emails:
         - '{{ email_prefix }}@{{ email_domain }}'
         - '{{ email_prefix }}2@{{ email_domain }}'
-        all_admins: yes
+        all_admins: no
         snmp: no 
       alerts:
-        - type: "gatewayDown"
+        - alert_type: "gatewayDown"
           enabled: yes
           filters:
             timeout: 60
@@ -79,9 +79,9 @@
             emails:
             - '{{ email_prefix }}@{{ email_domain }}'
             - '{{ email_prefix }}2@{{ email_domain }}'
-            all_admins: yes
+            all_admins: no
             snmp: no
-        - type: "usageAlert"
+        - alert_type: "usageAlert"
           enabled: yes
           filters:
             period: 1200
@@ -111,10 +111,10 @@
         emails:
         - '{{ email_prefix }}@{{ email_domain }}'
         - '{{ email_prefix }}2@{{ email_domain }}'
-        all_admins: yes
+        all_admins: no
         snmp: no 
       alerts:
-        - type: "gatewayDown"
+        - alert_type: "gatewayDown"
           enabled: yes
           filters:
             timeout: 60
@@ -122,9 +122,9 @@
             emails:
             - '{{ email_prefix }}@{{ email_domain }}'
             - '{{ email_prefix }}2@{{ email_domain }}'
-            all_admins: yes
+            all_admins: no
             snmp: no
-        - type: "usageAlert"
+        - alert_type: "usageAlert"
           enabled: yes
           filters:
             period: 1200

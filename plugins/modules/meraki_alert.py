@@ -229,6 +229,7 @@ def construct_payload(meraki, original):
     payload = copy.deepcopy(original)
     if meraki.params['default_destinations'] is not None:
         payload['defaultDestinations'].update(meraki.params['default_destinations'])
+        payload['defaultDestinations']['allAdmins'] = meraki.params['default_destinations']['all_admins']
         del payload['defaultDestinations']['all_admins']
         del payload['defaultDestinations']['http_server_ids']
     if meraki.params['alerts'] is not None:
@@ -237,8 +238,10 @@ def construct_payload(meraki, original):
             del alert['alert_destinations']
         for alert_want in meraki.params['alerts']:
             for alert_have in payload['alerts']:
-                if alert_want['type'] == alert_have['type']:
+                if alert_want['alert_type'] == alert_have['type']:
                     alert_have.update(alert_want)
+                    del alert_have['alert_type']
+                    del alert_have['alertType']
     return payload
 
 
@@ -253,7 +256,7 @@ def main():
                                  http_server_ids=dict(type='list', elements='str', default=[]),
                                  )
 
-    alerts_arg_spec = dict(type=dict(type='str'),
+    alerts_arg_spec = dict(alert_type=dict(type='str'),
                            enabled=dict(type='bool'),
                            alert_destinations=dict(type='dict', default=None, options=destinations_arg_spec),
                            filters=dict(type='raw', default={}),
@@ -306,6 +309,7 @@ def main():
         original = meraki.request(path, method='GET')
         payload = construct_payload(meraki, original)
         # meraki.fail_json(msg="Compare", original=original, payload=payload)
+        # meraki.fail_json(msg=payload)
         if meraki.is_update_required(original, payload):
             if meraki.check_mode is True:
                 meraki.generate_diff(original, payload)
