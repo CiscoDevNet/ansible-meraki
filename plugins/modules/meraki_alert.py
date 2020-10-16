@@ -64,7 +64,7 @@ options:
         type: list
         elements: dict
         suboptions:
-            type:
+            alert_type:
                 description:
                 - The type of alert.
                 type: str
