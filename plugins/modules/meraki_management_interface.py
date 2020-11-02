@@ -19,10 +19,10 @@ module: meraki_management_interface
 short_description: Configure Meraki management interfaces
 version_added: "1.1.0"
 description:
-- Allows for configuration of management interfaces on Meraki devices.
+- Allows for configuration of management interfaces on Meraki MX, MS, and MR devices.
 notes:
 - C(WAN2) parameter is only valid for MX appliances.
-- C(enabled) can only be set to C(not configured) for MS switches.
+- C(wan_enabled) should not be provided for non-MX devies.
 options:
     state:
         description:
@@ -60,6 +60,7 @@ options:
             wan_enabled:
                 description:
                 - States whether the management interface is enabled.
+                - Only valid for MX devices.
                 type: str
                 choices: [disabled, enabled, not configured]
             using_static_ip:
@@ -100,6 +101,7 @@ options:
             wan_enabled:
                 description:
                 - States whether the management interface is enabled.
+                - Only valid for MX devices.
                 type: str
                 choices: [disabled, enabled, not configured]
             using_static_ip:
@@ -311,9 +313,11 @@ def main():
         interfaces = ('wan1', 'wan2')
         for interface in interfaces:
             if meraki.params[interface] is not None:
-                wan_int = {'wanEnabled': meraki.params[interface]['wan_enabled'],
-                           'usingStaticIp': meraki.params[interface]['using_static_ip'],
-                           }
+                wan_int = dict()
+                if meraki.params[interface]['wan_enabled'] is not None:
+                    wan_int['wanEnabled'] = meraki.params[interface]['wan_enabled']
+                if meraki.params[interface]['using_static_ip'] is not None:
+                    wan_int['usingStaticIp'] = meraki.params[interface]['using_static_ip']
                 if meraki.params[interface]['vlan'] is not None:
                     wan_int['vlan'] = meraki.params[interface]['vlan']
                 if meraki.params[interface]['using_static_ip'] is True:
@@ -341,7 +345,18 @@ def main():
     elif meraki.params['state'] == 'present':
         path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial']})
         original = meraki.request(path, method='GET')
-        if meraki.is_update_required(original, payload):
+        update_required = False
+        if 'wan1' in original:
+            if 'wanEnabled' in original['wan1']:
+                update_required = meraki.is_update_required(original, payload)
+            else:
+                update_required = meraki.is_update_required(original, payload, optional_ignore=['wanEnabled'])
+        if 'wan2' in original and update_required is False:
+            if 'wanEnabled' in original['wan2']:
+                update_required = meraki.is_update_required(original, payload)
+            else:
+                update_required = meraki.is_update_required(original, payload, optional_ignore=['wanEnabled'])
+        if update_required is True:
             if meraki.check_mode is True:
                 diff = recursive_diff(original, payload)
                 original.update(payload)
