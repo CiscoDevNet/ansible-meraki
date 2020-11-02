@@ -12,7 +12,7 @@
   - set_fact:
       net_name: TestNet - Appliance
 
-  - name: Create test network
+  - name: 'Create test network {{net_name}}'
     meraki_network:
       auth_key: '{{auth_key}}'
       state: present
@@ -24,6 +24,83 @@
 
   - set_fact:
       net_id: '{{net.data.id}}'
+
+  - name: Test providing wan_enabled to an MS network
+    meraki_management_interface:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_id: '{{test_org_id}}'
+      net_id: '{{test_switch_net_name}}'
+      serial: '{{serial_switch}}'
+      wan1:
+        wan_enabled: enabled
+        using_static_ip: false
+    delegate_to: localhost
+    register: ms_not_configured
+
+  - debug:
+      var: ms_not_configured
+
+  - assert:
+      that:
+        - ms_not_configured.data is defined
+
+  - name: Set management interface on switch
+    meraki_management_interface:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_id: '{{test_org_id}}'
+      net_id: '{{test_switch_net_name}}'
+      serial: '{{serial_switch}}'
+      wan1:
+        using_static_ip: no
+        vlan: 3
+    delegate_to: localhost
+    register: set_switch_mgmt
+
+  - debug:
+      var: set_switch_mgmt
+
+  - assert:
+      that:
+        - set_switch_mgmt.data is defined
+
+  - name: Query non-MX network
+    meraki_management_interface:
+      auth_key: '{{auth_key}}'
+      state: query
+      org_id: '{{test_org_id}}'
+      net_id: '{{test_switch_net_name}}'
+      serial: '{{serial_switch}}'
+    delegate_to: localhost
+    register: non_mx_network
+
+  - debug:
+      var: non_mx_network
+
+  - assert:
+      that:
+        - non_mx_network.data is defined
+
+  - name: Reset management interface on switch
+    meraki_management_interface:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_id: '{{test_org_id}}'
+      net_id: '{{test_switch_net_name}}'
+      serial: '{{serial_switch}}'
+      wan1:
+        using_static_ip: no
+        vlan: 1
+    delegate_to: localhost
+    register: reset_switch_mgmt
+
+  - debug:
+      var: reset_switch_mgmt
+
+  - assert:
+      that:
+        - reset_switch_mgmt.data is defined
 
   - name: Set WAN1 as DHCP in check mode
     meraki_management_interface:
