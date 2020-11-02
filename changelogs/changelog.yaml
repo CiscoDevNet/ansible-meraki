@@ -99,3 +99,11 @@ releases:
       name: meraki_mx_l2_interface
       namespace: ''
     release_date: '2020-10-16'
+  2.1.1:
+    changes:
+      bugfixes:
+      - meraki_management_interface - Fix crash when modifying a non-MX management
+        interface.
+    fragments:
+    - management_ms_fix.yml
+    release_date: '2020-11-02'
