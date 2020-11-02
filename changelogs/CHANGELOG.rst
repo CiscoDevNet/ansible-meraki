@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.1.1
+======
+
+Bugfixes
+--------
+
+- meraki_management_interface - Fix crash when modifying a non-MX management interface.
+
 v2.1.0
 ======
 

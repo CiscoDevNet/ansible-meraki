@@ -1,3 +1,0 @@
----
-bugfixes:
-  - meraki_management_interface - Fix crash when modifying a non-MX management interface.
