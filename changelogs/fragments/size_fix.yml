@@ -1,0 +1,2 @@
+bugfixes:
+  - Remove test output as it made the collection, and Ansible, huge.
