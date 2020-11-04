@@ -107,3 +107,10 @@ releases:
     fragments:
     - management_ms_fix.yml
     release_date: '2020-11-02'
+  2.1.2:
+    changes:
+      bugfixes:
+      - Remove test output as it made the collection, and Ansible, huge.
+    fragments:
+    - size_fix.yml
+    release_date: '2020-11-04'

@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.1.2
+======
+
+Bugfixes
+--------
+
+- Remove test output as it made the collection, and Ansible, huge.
+
 v2.1.1
 ======
 
