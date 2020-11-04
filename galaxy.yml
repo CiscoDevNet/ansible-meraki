@@ -27,3 +27,4 @@ build_ignore:
 - '.gitignore'
 - '.env'
 - '.github'
+- 'tests/output/'
