@@ -33,6 +33,7 @@ options:
         description:
         - If C(no), it will not use a proxy, even if one is defined in an environment variable on the target hosts.
         type: bool
+        default: False
     use_https:
         description:
         - If C(no), it will use HTTP. Otherwise it will use HTTPS.

@@ -82,13 +82,13 @@ options:
                 - Whether to log hints against the firewall rule.
                 - Only applicable if a syslog server is specified against the network.
                 type: bool
+                default: False
     syslog_default_rule:
         description:
         - Whether to log hits against the default firewall rule.
         - Only applicable if a syslog server is specified against the network.
         - This is not shown in response from Meraki. Instead, refer to the C(syslog_enabled) value in the default rule.
         type: bool
-        default: no
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
