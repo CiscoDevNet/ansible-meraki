@@ -82,6 +82,7 @@ options:
                 - Whether to log hints against the firewall rule.
                 - Only applicable if a syslog server is specified against the network.
                 type: bool
+                default: False
     syslog_default_rule:
         description:
         - Whether to log hits against the default firewall rule.
