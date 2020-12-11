@@ -367,8 +367,8 @@ def main():
                 request = meraki.request(path, method='GET')
                 meraki.result['data'] = request
         else:
-            path = meraki.construct_path('get_all_org', org_id=org_id)
-            devices = meraki.request(path, method='GET')
+            path = meraki.construct_path('get_all_org', org_id=org_id, params={'perPage': '1000'})
+            devices = meraki.request(path, method='GET', pagination_items=1000)
             if meraki.params['serial']:
                 for device in devices:
                     if device['serial'] == meraki.params['serial']:
