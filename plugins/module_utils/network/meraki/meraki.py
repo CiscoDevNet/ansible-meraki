@@ -34,6 +34,7 @@ def meraki_argument_spec():
                 internal_error_retry_time=dict(type='int', default=60)
                 )
 
+
 class RateLimitException(Exception):
     def __init__(self, *args, **kwargs):
         Exception.__init__(self, *args, **kwargs)
@@ -388,7 +389,7 @@ class MerakiModule(object):
                 }
         for rel in link.split(','):
             kv = rel.split('rel=')
-            rels[kv[1]] = kv[0].split('<')[1].split('>')[0].strip() # This should return just the URL for <url>
+            rels[kv[1]] = kv[0].split('<')[1].split('>')[0].strip()  # This should return just the URL for <url>
         return rels
 
     def _execute_request(self, path, method=None, payload=None, params=None):
@@ -438,7 +439,7 @@ class MerakiModule(object):
                 self.fail_json(msg="HTTP error {0} - {1} - {2}".format(self.status, self.url, json.loads(info['body'])['errors'][0]))
             except json.decoder.JSONDecodeError:
                 self.fail_json(msg="HTTP error {0} - {1}".format(self.status, self.url))
-        self.retry = 0  # Needs to reset in case of future retries            
+        self.retry = 0  # Needs to reset in case of future retries
         return resp, info
 
     def request(self, path, method=None, payload=None, params=None, pagination_items=None):
@@ -466,7 +467,7 @@ class MerakiModule(object):
                     # Gather the body (resp) and header (info)
                     resp, info = self._execute_request(header_link['next'], method=method, payload=payload, params=params)
                 except HTTPError:
-                    self.fail_json(msg="HTTP request to {url} failed with error code {code}".format(url=self.url, code=self.status))                
+                    self.fail_json(msg="HTTP request to {url} failed with error code {code}".format(url=self.url, code=self.status))
                 header_link = self._parse_pagination_header(info['link'])
                 data.extend(json.loads(to_native(resp.read())))
             return data
