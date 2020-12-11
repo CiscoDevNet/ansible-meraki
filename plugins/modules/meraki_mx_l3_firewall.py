@@ -89,7 +89,7 @@ options:
         - Only applicable if a syslog server is specified against the network.
         - This is not shown in response from Meraki. Instead, refer to the C(syslog_enabled) value in the default rule.
         type: bool
-        default: no
+        default: False
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
