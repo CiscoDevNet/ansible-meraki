@@ -267,8 +267,6 @@ def main():
     if not org_id:
         org_id = meraki.get_org_id(meraki.params['org_name'])
     nets = meraki.get_nets(org_id=org_id)
-
-    # check if network is created
     net_id = meraki.params['net_id']
     net_exists = False
     if net_id is not None:
