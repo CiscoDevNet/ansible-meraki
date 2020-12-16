@@ -114,3 +114,13 @@ releases:
     fragments:
     - size_fix.yml
     release_date: '2020-11-04'
+  2.1.3:
+    changes:
+      bugfixes:
+      - meraki_device - Support pagination. This allows for more than 1,000 devices
+        to be listed at a time.
+      - meraki_network - Support pagination. This allows for more than 1,000 networks
+        to be listed at a time.
+    fragments:
+    - pagination.yml
+    release_date: '2020-12-16'

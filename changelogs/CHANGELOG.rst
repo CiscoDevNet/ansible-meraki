@@ -5,6 +5,15 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.1.3
+======
+
+Bugfixes
+--------
+
+- meraki_device - Support pagination. This allows for more than 1,000 devices to be listed at a time.
+- meraki_network - Support pagination. This allows for more than 1,000 networks to be listed at a time.
+
 v2.1.2
 ======
 
