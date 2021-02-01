@@ -124,3 +124,15 @@ releases:
     fragments:
     - pagination.yml
     release_date: '2020-12-16'
+  2.2.0:
+    changes:
+      bugfixes:
+      - meraki_network - Fix bug where local or remote settings always show changed.
+      minor_changes:
+      - meraki_network - Update documentation to show querying of local or remote
+        settings.
+      - meraki_ssid - Add Cisco ISE as a splash page option.
+    fragments:
+    - network_settings_changed.yml
+    - ssid_ise.yml
+    release_date: '2021-02-01'
