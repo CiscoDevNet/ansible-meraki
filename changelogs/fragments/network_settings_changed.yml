@@ -1,6 +1,0 @@
----
-bugfixes:
-- meraki_network - Fix bug where local or remote settings always show changed.
-
-minor_changes:
-- meraki_network - Update documentation to show querying of local or remote settings.

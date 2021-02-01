@@ -5,6 +5,20 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.2.0
+======
+
+Minor Changes
+-------------
+
+- meraki_network - Update documentation to show querying of local or remote settings.
+- meraki_ssid - Add Cisco ISE as a splash page option.
+
+Bugfixes
+--------
+
+- meraki_network - Fix bug where local or remote settings always show changed.
+
 v2.1.3
 ======
 
