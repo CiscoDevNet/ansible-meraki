@@ -84,7 +84,8 @@ options:
                   'Systems Manager Sentry',
                   'Facebook Wi-Fi',
                   'Google OAuth',
-                  'Sponsored guest']
+                  'Sponsored guest',
+                  'Cisco ISE']
     radius_servers:
         description:
         - List of RADIUS servers.
@@ -469,7 +470,9 @@ def main():
                                                                'Systems Manager Sentry',
                                                                'Facebook Wi-Fi',
                                                                'Google OAuth',
-                                                               'Sponsored guest']),
+                                                               'Sponsored guest',
+                                                               'Cisco ISE',
+                                                               ]),
                          radius_servers=dict(type='list', default=None, elements='dict', options=radius_arg_spec),
                          radius_coa_enabled=dict(type='bool'),
                          radius_failover_policy=dict(type='str', choices=['Deny access', 'Allow access']),
