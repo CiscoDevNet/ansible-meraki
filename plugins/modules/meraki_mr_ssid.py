@@ -85,7 +85,7 @@ options:
                   'Facebook Wi-Fi',
                   'Google OAuth',
                   'Sponsored guest',
-                  'Cisco ISE"]
+                  'Cisco ISE']
     radius_servers:
         description:
         - List of RADIUS servers.
