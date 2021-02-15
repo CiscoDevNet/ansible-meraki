@@ -155,7 +155,7 @@ data:
 
 from ansible.module_utils.basic import AnsibleModule, json
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
-
+from copy import deepcopy
 
 def get_category_dict(meraki, full_list, category):
     for i in full_list['categories']:
@@ -254,7 +254,15 @@ def main():
         current = meraki.request(path, method='GET')
         proposed = current.copy()
         proposed.update(payload)
-        if meraki.is_update_required(current, payload) is True:
+        temp_current = deepcopy(current)
+        temp_blocked = []
+        for blocked_category in current['blockedUrlCategories']:
+            temp_blocked.append(blocked_category['id'])
+        temp_current.pop('blockedUrlCategories')
+        if 'blockedUrlCategories' in payload:
+            payload['blockedUrlCategories'].sort()
+        temp_current['blockedUrlCategories'] = temp_blocked
+        if meraki.is_update_required(temp_current, payload) is True:
             if module.check_mode:
                 meraki.generate_diff(current, payload)
                 current.update(payload)
