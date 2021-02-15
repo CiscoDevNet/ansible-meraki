@@ -123,7 +123,7 @@ EXAMPLES = r'''
         dest_cidr: 192.0.2.0/24
         dest_port: any
         protocol: any
-        policy: permit
+        policy: allow
   delegate_to: localhost
 
 - name: Set one firewall rule and enable logging of the default rule
