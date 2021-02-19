@@ -36,6 +36,60 @@
       that:
         - 'net_exclusive.msg == "net_name and net_id are mutually exclusive"'
 
+  - name: Set blocked URL categories for idempotency test
+    meraki_content_filtering:
+      state: present
+      auth_key: "{{ auth_key }}"
+      org_name: "{{ test_org_name }}"
+      net_name: "{{ test_net_name }}"
+      category_list_size: full list
+      blocked_categories:
+        - "Abused Drugs"
+        - "Adult and Pornography"
+        - "Alcohol and Tobacco"
+        - "Bot Nets"
+        - "Confirmed SPAM Sources"
+        - "Gambling"
+        - "Hacking"
+        - "Hate and Racism"
+        - "Illegal"
+        - "Malware Sites"
+        - "Open HTTP Proxies"
+        - "Peer to Peer"
+        - "Phishing and Other Frauds"
+        - "Proxy Avoidance and Anonymizers"
+    delegate_to: localhost
+
+  - name: Set blocked URL categories with idempotency
+    meraki_content_filtering:
+      state: present
+      auth_key: "{{ auth_key }}"
+      org_name: "{{ test_org_name }}"
+      net_name: "{{ test_net_name }}"
+      category_list_size: full list
+      blocked_categories:
+        - "Abused Drugs"
+        - "Adult and Pornography"
+        - "Alcohol and Tobacco"
+        - "Bot Nets"
+        - "Confirmed SPAM Sources"
+        - "Gambling"
+        - "Hacking"
+        - "Hate and Racism"
+        - "Illegal"
+        - "Malware Sites"
+        - "Open HTTP Proxies"
+        - "Peer to Peer"
+        - "Phishing and Other Frauds"
+        - "Proxy Avoidance and Anonymizers"
+    delegate_to: localhost
+    register: category_idempotent
+
+  - assert:
+      that:
+        - category_idempotent is not changed
+        - category_idempotent.data is defined
+
   - name: Set single allowed URL pattern with check mode
     meraki_content_filtering:
       auth_key: '{{auth_key}}'
