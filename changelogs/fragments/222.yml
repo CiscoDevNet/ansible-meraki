@@ -1,3 +1,2 @@
----
 bugfixes:
-  - meraki_mx_content_filtering: Fix crash with idempotent condition due to improper sorting
+  - meraki_mx_content_filtering - Fix crash with idempotent condition due to improper sorting
