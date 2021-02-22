@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.2.1
+======
+
+Bugfixes
+--------
+
+- meraki_mx_content_filtering - Fix crash with idempotent condition due to improper sorting
+
 v2.2.0
 ======
 
