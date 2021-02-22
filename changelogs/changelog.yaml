@@ -136,3 +136,11 @@ releases:
     - network_settings_changed.yml
     - ssid_ise.yml
     release_date: '2021-02-01'
+  2.2.1:
+    changes:
+      bugfixes:
+      - meraki_mx_content_filtering - Fix crash with idempotent condition due to improper
+        sorting
+    fragments:
+    - 222.yml
+    release_date: '2021-02-22'
