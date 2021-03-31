@@ -416,8 +416,8 @@ def main():
                         # Need to exit allow_list must be greater than or equal to list_limit.
                         meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List.')
                     else:
-                        payload['sticky_mac_allow_list_limit'] == meraki.params["sticky_mac_allow_list_limit"]
-                        payload['sticky_mac_allow_list'] == meraki.params["sticky_mac_allow_list"]
+                        payload['sticky_mac_allow_list_limit'] = meraki.params["sticky_mac_allow_list_limit"]
+                        payload['sticky_mac_allow_list'] = meraki.params["sticky_mac_allow_list"]
                 else:
                     # Need to exit sticky_mac_allow_list requires a limit.
                     meraki.fail_json(msg='Stick MAC Allow List requires a limit be specified. Please use sticky_mac_allow_list_limit.')
