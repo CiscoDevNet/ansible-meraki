@@ -442,7 +442,7 @@ def main():
                                                            'number': meraki.params['number'],
                                                            })
             # meraki.fail_json(msg=payload)
-            response = meraki.request(path, method='PUT', payload=json.dumps(payload))
+            response = meraki.request(path, method='PATCH', payload=json.dumps(payload))
             meraki.result['data'] = response
             meraki.result['changed'] = True
         else:
