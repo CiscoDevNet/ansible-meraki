@@ -109,7 +109,22 @@ options:
         - VLAN number assigned to a port for voice traffic.
         - Only applicable to access port type.
         type: int
-
+    mac_allow_list:
+        description:
+        - MAC addresses list that are white listed(allowed) on a port.
+        - Only applicable to access port type. 
+        - Only applicable to access_policy_type "MAC whitelist". 
+    sticky_mac_allow_list:
+        description:
+        - MAC addresses list that are white listed(allowed) on a port.
+        - Only applicable to access port type.
+        - Only applicable to access_policy_type "Sticky MAC whitelist".
+    sticky_mac_allow_list_limit:
+        description:
+        - The number of MAC addresses allowed in the sticky port allow list.
+        - Only applicable to access port type.
+        - Only applicable to access_policy_type "Sticky MAC whitelist".
+        - Requires a value, and value must be equal or greater to list size of sticky_mac_allow_list.
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
@@ -331,6 +346,9 @@ def main():
                          link_negotiation=dict(type='str',
                                                choices=['Auto negotiate', '100Megabit (auto)', '100 Megabit full duplex (forced)'],
                                                default='Auto negotiate'),
+                         mac_allow_list=dict(type='list', elements='str'),
+                         sticky_mac_allow_list=dict(type='list', elements='str'),
+                         sticky_mac_allow_list_limit=dict(type='int'),
                          )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -356,6 +374,14 @@ def main():
     meraki.url_catalog['update'] = update_url
 
     # execute checks for argument completeness
+    if meraki.params.get('sticky_mac_allow_list') or meraki.params.get('sticky_mac_allow_list_limit'):
+        if meraki.params.get('sticky_mac_allow_list') and meraki.params.get('sticky_mac_allow_list_limit'):
+            if len(meraki.params['sticky_mac_allow_list']) < meraki.params['sticky_mac_allow_list_limit']:
+                # Need to exit allow_list must be greater than or equal to list_limit.
+                meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Stick MAC Allow List.')
+        else:
+            # Need to exit sticky_mac_allow_list requires a limit.
+            meraki.fail_json(msg='Stick MAC Allow List requires a limit be specified. Please use sticky_mac_allow_list_limit.')
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
