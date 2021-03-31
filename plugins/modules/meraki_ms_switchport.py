@@ -431,7 +431,7 @@ def main():
         original = meraki.request(query_path, method='GET')
         if meraki.params['type'] == 'trunk':
             proposed['voiceVlan'] = original['voiceVlan']  # API shouldn't include voice VLAN on a trunk port
-        # meraki.fail_json(msg='Compare', original=original, payload=payload)
+        meraki.fail_json(msg='Compare', original=original, payload=payload)
         if meraki.is_update_required(original, proposed, optional_ignore=['number']):
             if meraki.check_mode is True:
                 original.update(proposed)
