@@ -7,7 +7,7 @@ homepage: ''
 issues: https://github.com/CiscoDevNet/ansible-meraki/issues
 license:
 - GPL-3.0-only
-name: meraki-jeff
+name: jmeraki
 namespace: cisco
 readme: README.md
 repository: https://github.com/jeffkala/ansible-meraki
