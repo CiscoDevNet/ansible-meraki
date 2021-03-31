@@ -421,8 +421,11 @@ def main():
                 else:
                     # Need to exit sticky_mac_allow_list requires a limit.
                     meraki.fail_json(msg='Stick MAC Allow List requires a limit be specified. Please use sticky_mac_allow_list_limit.')
-        # For testing
-        meraki.fail_json(msg=payload)
+            if meraki.params.get("mac_allow_list"):
+                # Check for correct policy?
+                payload['mac_allow_list'] = meraki.params["mac_allow_list"]
+        # For testing Remove before PR.
+        # meraki.fail_json(msg=payload)
         proposed = payload.copy()
         query_path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
                                                               'number': meraki.params['number'],
