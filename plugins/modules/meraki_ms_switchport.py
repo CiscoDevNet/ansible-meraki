@@ -424,8 +424,6 @@ def main():
             if meraki.params.get("mac_allow_list"):
                 # Check for correct policy?
                 payload['mac_allow_list'] = meraki.params["mac_allow_list"]
-        # For testing Remove before PR.
-        # meraki.fail_json(msg=payload)
         proposed = payload.copy()
         query_path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
                                                               'number': meraki.params['number'],
@@ -433,8 +431,9 @@ def main():
         original = meraki.request(query_path, method='GET')
         if meraki.params['type'] == 'trunk':
             proposed['voiceVlan'] = original['voiceVlan']  # API shouldn't include voice VLAN on a trunk port
-        meraki.fail_json(msg='Compare', original=original, payload=payload)
+        # meraki.fail_json(msg='Compare', original=original, payload=payload)
         if meraki.is_update_required(original, proposed, optional_ignore=['number']):
+            meraki.fail_json(msg='update is required)'
             if meraki.check_mode is True:
                 original.update(proposed)
                 meraki.result['data'] = original
