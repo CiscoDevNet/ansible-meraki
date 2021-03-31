@@ -374,14 +374,6 @@ def main():
     meraki.url_catalog['update'] = update_url
 
     # execute checks for argument completeness
-    if meraki.params.get('sticky_mac_allow_list') or meraki.params.get('sticky_mac_allow_list_limit'):
-        if meraki.params.get('sticky_mac_allow_list') and meraki.params.get('sticky_mac_allow_list_limit'):
-            if len(meraki.params['sticky_mac_allow_list']) < meraki.params['sticky_mac_allow_list_limit']:
-                # Need to exit allow_list must be greater than or equal to list_limit.
-                meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Stick MAC Allow List.')
-        else:
-            # Need to exit sticky_mac_allow_list requires a limit.
-            meraki.fail_json(msg='Stick MAC Allow List requires a limit be specified. Please use sticky_mac_allow_list_limit.')
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
@@ -416,7 +408,21 @@ def main():
         if meraki.params['type'] == 'access':
             if not meraki.params['vlan']:  # VLAN needs to be specified in access ports, but can't default to it
                 payload['vlan'] = 1
-
+            if meraki.params.get('sticky_mac_allow_list') or meraki.params.get('sticky_mac_allow_list_limit'):
+                if meraki.params.get('access_policy_type') is not "Sticky MAC whitelist":
+                    meraki.fail_json(msg='sticky_mac_allow_list and sticky_mac_allow_list_limit only valid for Sticky MAC whitelist access_policy_type.')
+                if meraki.params.get('sticky_mac_allow_list') and meraki.params.get('sticky_mac_allow_list_limit'):
+                    if len(meraki.params['sticky_mac_allow_list']) > meraki.params['sticky_mac_allow_list_limit']:
+                        # Need to exit allow_list must be greater than or equal to list_limit.
+                        meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List.')
+                    else:
+                        payload['sticky_mac_allow_list_limit'] == meraki.params["sticky_mac_allow_list_limit"]
+                        payload['sticky_mac_allow_list'] == meraki.params["sticky_mac_allow_list"]
+                else:
+                    # Need to exit sticky_mac_allow_list requires a limit.
+                    meraki.fail_json(msg='Stick MAC Allow List requires a limit be specified. Please use sticky_mac_allow_list_limit.')
+        # For testing
+        meraki.fail_json(msg=payload)
         proposed = payload.copy()
         query_path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
                                                               'number': meraki.params['number'],
