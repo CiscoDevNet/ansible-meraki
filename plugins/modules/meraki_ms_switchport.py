@@ -473,7 +473,10 @@ def main():
             proposed['sticky_mac_allow_list_limit'] = meraki.params["sticky_mac_allow_list_limit"]
         if meraki.params['type'] == 'trunk':
             proposed['voiceVlan'] = original['voiceVlan']  # API shouldn't include voice VLAN on a trunk port
-        meraki.fail_json(msg='Compare', original=original, payload=payload)
+        # meraki.fail_json(msg='Compare', original=original, payload=payload)
+
+        #Jeff testing
+        meraki.fail_json(msg='Compare', original=original, payload=proposed)
         if meraki.is_update_required(original, proposed, optional_ignore=['number']):
             if meraki.check_mode is True:
                 original.update(proposed)
