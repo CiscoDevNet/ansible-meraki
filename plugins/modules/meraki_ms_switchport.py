@@ -463,7 +463,6 @@ def main():
             proposed['macAllowList'] = macs
         if meraki.params.get('sticky_mac_allow_list'):
             macs = get_mac_list(original['stickyMacAllowList'], meraki.params["sticky_mac_allow_list"]["macs"], meraki.params["sticky_mac_allow_list"]["state"])
-            meraki.fail_json(msg="macs", macs=macs)
             if meraki.params.get('sticky_mac_allow_list_limit'):
                 if meraki.params['sticky_mac_allow_list_limit'] < len(macs):
                     meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List.')
