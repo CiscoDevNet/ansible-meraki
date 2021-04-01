@@ -359,7 +359,8 @@ def get_mac_list(original_allowed, new_mac_list, state):
         return [entry for entry in original_allowed if entry not in new_mac_list]
         #return original_allowed - new_mac_list
     if state == "merged":
-        return original_allowed + new_mac_list
+        #return original_allowed + new_mac_list
+        return original_allowed + list(set(new_mac_list) - set(original_allowed))
     return new_mac_list
 
 def main():
