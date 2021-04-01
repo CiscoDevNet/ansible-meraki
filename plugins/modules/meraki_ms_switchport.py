@@ -458,6 +458,7 @@ def main():
                                                               'number': meraki.params['number'],
                                                               })
         original = meraki.request(query_path, method='GET')
+        meraki.fail_json(msg='Compare', original=original)
         if meraki.params.get('mac_allow_list'):
             macs = get_mac_list(original.get('macAllowList'), meraki.params["mac_allow_list"].get("macs"), meraki.params["mac_allow_list"].get("state"))
             proposed['macAllowList'] = macs
