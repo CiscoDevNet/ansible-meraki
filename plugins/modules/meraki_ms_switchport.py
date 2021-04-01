@@ -452,7 +452,6 @@ def main():
         if meraki.params['type'] == 'access':
             if not meraki.params['vlan']:  # VLAN needs to be specified in access ports, but can't default to it
                 payload['vlan'] = 1
-        meraki.fail_json(msg="jeff test", data=meraki.params)
         proposed = payload.copy()
         query_path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
                                                               'number': meraki.params['number'],
@@ -462,7 +461,10 @@ def main():
             macs = get_mac_list(original.get('macAllowList'), meraki.params["mac_allow_list"].get("macs"), meraki.params["mac_allow_list"].get("state"))
             proposed['macAllowList'] = macs
         # Evaluate Sticky Limit whether it was passed in or what was returned in GET call.
-        sticky_mac_limit = meraki.params.get('sticky_mac_allow_list_limit', original.get('stickyMacAllowListLimit'))
+        if meraki.params.get('sticky_mac_allow_list_limit'):
+            sticky_mac_limit = meraki.params.get('sticky_mac_allow_list_limit')
+        else:
+            sticky_mac_limit = original.get('stickyMacAllowListLimit')
         meraki.fail_json(msg='jeff sticky mac test', limit=sticky_mac_limit)
         if meraki.params.get('sticky_mac_allow_list'):
             macs = get_mac_list(original.get('stickyMacAllowList'), meraki.params["sticky_mac_allow_list"].get("macs"), meraki.params["sticky_mac_allow_list"].get("state"))
