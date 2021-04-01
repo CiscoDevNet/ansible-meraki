@@ -452,14 +452,14 @@ def main():
         if meraki.params['type'] == 'access':
             if not meraki.params['vlan']:  # VLAN needs to be specified in access ports, but can't default to it
                 payload['vlan'] = 1
-        proposed = payload.copy()
+        #proposed = payload.copy()
         query_path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
                                                               'number': meraki.params['number'],
                                                               })
         original = meraki.request(query_path, method='GET')
         if meraki.params.get('mac_allow_list'):
             macs = get_mac_list(original.get('macAllowList'), meraki.params["mac_allow_list"].get("macs"), meraki.params["mac_allow_list"].get("state"))
-            proposed['macAllowList'] = macs
+            payload['macAllowList'] = macs
         # Evaluate Sticky Limit whether it was passed in or what was returned in GET call.
         if meraki.params.get('sticky_mac_allow_list_limit'):
             sticky_mac_limit = meraki.params.get('sticky_mac_allow_list_limit')
@@ -469,12 +469,13 @@ def main():
             macs = get_mac_list(original.get('stickyMacAllowList'), meraki.params["sticky_mac_allow_list"].get("macs"), meraki.params["sticky_mac_allow_list"].get("state"))
             if int(sticky_mac_limit) < len(macs):
                 meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List.')
-            proposed['stickyMacAllowList'] = macs
-            proposed['stickyMacAllowListLimit'] = sticky_mac_limit
+            payload['stickyMacAllowList'] = macs
+            payload['stickyMacAllowListLimit'] = sticky_mac_limit
+        proposed = payload.copy()
         if meraki.params['type'] == 'trunk':
             proposed['voiceVlan'] = original['voiceVlan']  # API shouldn't include voice VLAN on a trunk port
         # meraki.fail_json(msg='Compare', original=original, payload=payload)
-        meraki.fail_json(msg='Compare', original=original, proposed=proposed)
+        # meraki.fail_json(msg='Jeff Test', original=original, proposed=proposed)
         if meraki.is_update_required(original, proposed, optional_ignore=['number']):
             if meraki.check_mode is True:
                 original.update(proposed)
