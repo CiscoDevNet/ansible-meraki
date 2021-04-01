@@ -464,6 +464,7 @@ def main():
             proposed['macAllowList'] = macs
         # Evaluate Sticky Limit whether it was passed in or what was returned in GET call.
         sticky_mac_limit = meraki.params.get('sticky_mac_allow_list_limit', original.get('stickyMacAllowListLimit'))
+        meraki.fail_json(msg='jeff sticky mac test', limit=sticky_mac_limit)
         if meraki.params.get('sticky_mac_allow_list'):
             macs = get_mac_list(original.get('stickyMacAllowList'), meraki.params["sticky_mac_allow_list"].get("macs"), meraki.params["sticky_mac_allow_list"].get("state"))
             if int(sticky_mac_limit) < len(macs):
