@@ -470,7 +470,7 @@ def main():
                 if original['stickyMacAllowListLimit'] < len(macs):
                     meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List.')
             proposed['stickyMacAllowList'] = macs
-            proposed['sticky_mac_allow_list_limit'] = meraki.params["sticky_mac_allow_list_limit"]
+            proposed['stickyMacAllowListLimit'] = meraki.params["sticky_mac_allow_list_limit"]
         if meraki.params['type'] == 'trunk':
             proposed['voiceVlan'] = original['voiceVlan']  # API shouldn't include voice VLAN on a trunk port
         # meraki.fail_json(msg='Compare', original=original, payload=payload)
