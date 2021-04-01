@@ -109,22 +109,31 @@ options:
         - VLAN number assigned to a port for voice traffic.
         - Only applicable to access port type.
         type: int
-    mac_allow_list:
-        description:
-        - MAC addresses list that are white listed(allowed) on a port.
-        - Only applicable to access port type. 
-        - Only applicable to access_policy_type "MAC whitelist". 
-    sticky_mac_allow_list:
+    sticky_mac_policy:
         description:
         - MAC addresses list that are white listed(allowed) on a port.
         - Only applicable to access port type.
         - Only applicable to access_policy_type "Sticky MAC whitelist".
-    sticky_mac_allow_list_limit:
-        description:
-        - The number of MAC addresses allowed in the sticky port allow list.
-        - Only applicable to access port type.
-        - Only applicable to access_policy_type "Sticky MAC whitelist".
-        - Requires a value, and value must be equal or greater to list size of sticky_mac_allow_list.
+        type: dict
+        suboptions:
+            limit:
+                description:
+                - The number of MAC addresses allowed in the sticky port allow list.
+                - Requires a value, and value must be equal or greater to list size of sticky_mac_allow_list.
+                type: int
+            state:
+                description:
+                - The state the configuration should be left in.
+                - Merged, MAC addresses provided with what exist in current allow list.
+                - Replaced, update MAC addresses to only the MAC addresses provided.
+                - Deleted, Remove the MAC addresses provided from the current allow list.
+                type: str
+                choices: [merged, replaced, deleted]
+                default: replaced
+            macs:
+                description:
+                - List of MAC addresses to update with based on state option.
+                type: list
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
@@ -327,6 +336,11 @@ def main():
     # define the available arguments/parameters that a user can pass to
     # the module
     argument_spec = meraki_argument_spec()
+    sticky_policy_arg_spec = dict(limit=dict(type='int'),
+                         macs=dict(type='list'),
+                         state=dict(type='str', choices=['merged', 'replaced', 'deleted'], default='replaced'),
+                         )
+
     argument_spec.update(state=dict(type='str', choices=['present', 'query'], default='query'),
                          serial=dict(type='str', required=True),
                          number=dict(type='str'),
@@ -346,9 +360,7 @@ def main():
                          link_negotiation=dict(type='str',
                                                choices=['Auto negotiate', '100Megabit (auto)', '100 Megabit full duplex (forced)'],
                                                default='Auto negotiate'),
-                         mac_allow_list=dict(type='list', elements='str'),
-                         sticky_mac_allow_list=dict(type='list', elements='str'),
-                         sticky_mac_allow_list_limit=dict(type='int'),
+                         sticky_mac_policy=dict(type='dict', default=None, options=sticky_policy_arg_spec),
                          )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -408,27 +420,34 @@ def main():
         if meraki.params['type'] == 'access':
             if not meraki.params['vlan']:  # VLAN needs to be specified in access ports, but can't default to it
                 payload['vlan'] = 1
-            if meraki.params.get('sticky_mac_allow_list') or meraki.params.get('sticky_mac_allow_list_limit'):
-                # if meraki.params.get('access_policy_type') is not "Sticky MAC whitelist":
-                #     meraki.fail_json(msg='sticky_mac_allow_list and sticky_mac_allow_list_limit only valid for Sticky MAC whitelist access_policy_type.')
-                if meraki.params.get('sticky_mac_allow_list') and meraki.params.get('sticky_mac_allow_list_limit'):
-                    if len(meraki.params['sticky_mac_allow_list']) > meraki.params['sticky_mac_allow_list_limit']:
-                        # Need to exit allow_list must be greater than or equal to list_limit.
-                        meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List.')
+            if meraki.params.get('sticky_mac_policy'):
+                if meraki.params['sticky_mac_policy'].get('macs') or meraki.params['sticky_mac_policy'].get('limit'):
+                    if meraki.params['sticky_mac_policy'].get('macs') and meraki.params['sticky_mac_policy'].get('limit'):
+                        if len(meraki.params['sticky_mac_policy']['macs']) > meraki.params['sticky_mac_policy']['limit']:
+                            # Need to exit allow_list must be greater than or equal to list_limit.
+                            meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List.')
                     else:
-                        payload['stickyMacAllowListLimit'] = meraki.params["sticky_mac_allow_list_limit"]
-                        payload['stickyMacAllowList'] = meraki.params["sticky_mac_allow_list"]
-                else:
-                    # Need to exit sticky_mac_allow_list requires a limit.
-                    meraki.fail_json(msg='Stick MAC Allow List requires a limit be specified. Please use sticky_mac_allow_list_limit.')
-            if meraki.params.get("mac_allow_list"):
-                # Check for correct policy?
-                payload['macAllowList'] = meraki.params["mac_allow_list"]
+                        # Need to exit sticky_mac_allow_list requires a limit.
+                        meraki.fail_json(msg='Stick MAC Allow List requires a limit be specified. Please use sticky_mac_allow_list_limit.')
+
         proposed = payload.copy()
         query_path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
                                                               'number': meraki.params['number'],
                                                               })
         original = meraki.request(query_path, method='GET')
+        # Update Sticky Access Policy MAC addresses based on state.
+        # {"accessPolicyType": "Sticky MAC allow list", "allowedVlans": "all", "enabled": true, "isolationEnabled": false, "linkNegotiation": "Auto negotiate", "name": null, "poeEnabled": true, "portId": "5", "portScheduleId": null, "rstpEnabled": true, "stickyMacAllowList": ["11:aa:bb:bb:cc:cc", "22:bb:dd:dd:aa:aa", "22:bb:dd:dd:aa:aa"], "stickyMacAllowListLimit": 4, "stpGuard": "disabled", "tags": [], "type": "access", "udld": "Alert only", "vlan": 1, "voiceVlan": null}
+        # TODO: the limit might not be provided need to verify the original vs the new list length.
+        if meraki.params.get('sticky_mac_policy'):
+            if meraki.params['sticky_mac_policy']['state'] == "merged":
+                pass
+            elif meraki.params['sticky_mac_policy']['state'] == "deleted":
+                pass
+            else:
+                payload['stickyMacAllowListLimit'] = meraki.params['sticky_mac_policy']['limit']
+                payload['stickyMacAllowList'] = meraki.params['sticky_mac_policy']['macs']
+        meraki.fail_json(msg='original_data', original=original)
+
         if meraki.params['type'] == 'trunk':
             proposed['voiceVlan'] = original['voiceVlan']  # API shouldn't include voice VLAN on a trunk port
         # meraki.fail_json(msg='Compare', original=original, payload=payload)
