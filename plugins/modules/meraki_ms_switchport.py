@@ -452,7 +452,7 @@ def main():
         if meraki.params['type'] == 'access':
             if not meraki.params['vlan']:  # VLAN needs to be specified in access ports, but can't default to it
                 payload['vlan'] = 1
-
+        meraki.fail_json(msg="jeff test", data=meraki.params)
         proposed = payload.copy()
         query_path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
                                                               'number': meraki.params['number'],
