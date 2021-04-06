@@ -154,7 +154,7 @@ options:
         - The number of MAC addresses allowed in the sticky port allow list.
         - Only applicable to access port type.
         - Only applicable to access_policy_type "Sticky MAC whitelist".
-        - Requires a value, and value must be equal or greater to list size of sticky_mac_allow_list.
+        - The value must be equal to or greater then the list size of sticky_mac_allow_list. Value will be checked for validity, during processing.
         type: int
 author:
 - Kevin Breit (@kbreit)
