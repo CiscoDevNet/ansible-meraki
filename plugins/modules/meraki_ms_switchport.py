@@ -109,7 +109,7 @@ options:
         - VLAN number assigned to a port for voice traffic.
         - Only applicable to access port type.
         type: int
-    sticky_mac_policy:
+    mac_allow_list:
         description:
         - MAC addresses list that are white listed(allowed) on a port.
         - Only applicable to access port type. 
@@ -245,7 +245,7 @@ EXAMPLES = r'''
         state: replaced
     delegate_to: localhost
 
-- name: Delete a existing MAC address from with sticky mac allow list.
+- name: Delete an existing MAC address from the sticky mac allow list.
   meraki_switchport:
     auth_key: abc12345
     state: present
