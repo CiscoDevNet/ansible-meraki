@@ -541,6 +541,7 @@ def main():
             path = meraki.construct_path('update', custom={'serial': meraki.params['serial'],
                                                            'number': meraki.params['number'],
                                                            })
+            # meraki.fail_json(msg=payload)
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             meraki.result['data'] = response
             meraki.result['changed'] = True
