@@ -425,7 +425,7 @@ def main():
     argument_spec = meraki_argument_spec()
 
     policy_data_arg_spec = dict(
-        macs=dict(type='list'),
+        macs=dict(type='list', elements='str'),
         state=dict(type='str', choices=['merged', 'replaced', 'deleted'], default='replaced'),
     )
 
