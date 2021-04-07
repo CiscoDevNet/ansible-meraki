@@ -112,8 +112,8 @@ options:
     mac_allow_list:
         description:
         - MAC addresses list that are white listed(allowed) on a port.
-        - Only applicable to access port type. 
-        - Only applicable to access_policy_type "MAC whitelist". 
+        - Only applicable to access port type.
+        - Only applicable to access_policy_type "MAC whitelist".
         type: dict
         suboptions:
             state:
@@ -347,7 +347,7 @@ data:
             type: int
             sample: 6
         sticky_mac_allow_list:
-            description: List of MAC addresses currently allowed on a sticky port. Used with access_policy_type of Sticky MAC whitelist. 
+            description: List of MAC addresses currently allowed on a sticky port. Used with access_policy_type of Sticky MAC whitelist.
             returned: success
             type: list
             sample: ["11:aa:bb:bb:cc:cc", "22:aa:bb:bb:cc:cc", "33:aa:bb:bb:cc:cc"]
@@ -418,14 +418,16 @@ def get_mac_list(original_allowed, new_mac_list, state):
         return original_allowed + list(set(new_mac_list) - set(original_allowed))
     return new_mac_list
 
+
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
     argument_spec = meraki_argument_spec()
 
-    policy_data_arg_spec = dict(macs=dict(type='list'),
-                         state=dict(type='str', choices=['merged', 'replaced', 'deleted'], default='replaced'),
-                         )
+    policy_data_arg_spec = dict(
+        macs=dict(type='list'),
+        state=dict(type='str', choices=['merged', 'replaced', 'deleted'], default='replaced'),
+    )
 
     argument_spec.update(state=dict(type='str', choices=['present', 'query'], default='query'),
                          serial=dict(type='str', required=True),
@@ -521,7 +523,9 @@ def main():
         else:
             sticky_mac_limit = original.get('stickyMacAllowListLimit')
         if meraki.params.get('sticky_mac_allow_list'):
-            macs = get_mac_list(original.get('stickyMacAllowList'), meraki.params["sticky_mac_allow_list"].get("macs"), meraki.params["sticky_mac_allow_list"].get("state"))
+            macs = get_mac_list(
+                original.get('stickyMacAllowList'), meraki.params["sticky_mac_allow_list"].get("macs"), meraki.params["sticky_mac_allow_list"].get("state")
+                )
             if int(sticky_mac_limit) < len(macs):
                 meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List.')
             payload['stickyMacAllowList'] = macs
