@@ -30,7 +30,7 @@ options:
         description:
         - Type of access policy to apply to port.
         type: str
-        choices: [Open, Custom access policy, MAC whitelist, Sticky MAC whitelist]
+        choices: [Open, Custom access policy, MAC allow list, Sticky MAC allow list]
     access_policy_number:
         description:
         - Number of the access policy to apply.
@@ -376,6 +376,9 @@ param_map = {'access_policy_number': 'accessPolicyNumber',
              'type': 'type',
              'vlan': 'vlan',
              'voice_vlan': 'voiceVlan',
+             'mac_allow_list': 'macAllowList',
+             'sticky_mac_allow_list': 'stickyMacAllowList',
+             'sticky_mac_allow_list_limit': 'stickyMacAllowListLimit',
              }
 
 
@@ -440,7 +443,7 @@ def main():
                          isolation_enabled=dict(type='bool', default=False),
                          rstp_enabled=dict(type='bool', default=True),
                          stp_guard=dict(type='str', choices=['disabled', 'root guard', 'bpdu guard', 'loop guard'], default='disabled'),
-                         access_policy_type=dict(type='str', choices=['Open', 'Custom access policy', 'MAC whitelist', 'Sticky MAC whitelist']),
+                         access_policy_type=dict(type='str', choices=['Open', 'Custom access policy', 'MAC allow list', 'Sticky MAC allow list']),
                          access_policy_number=dict(type='int'),
                          link_negotiation=dict(type='str',
                                                choices=['Auto negotiate', '100Megabit (auto)', '100 Megabit full duplex (forced)'],
