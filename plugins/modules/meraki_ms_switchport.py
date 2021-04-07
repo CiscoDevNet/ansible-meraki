@@ -129,6 +129,7 @@ options:
                 description:
                 - List of MAC addresses to update with based on state option.
                 type: list
+                elements: str
     sticky_mac_allow_list:
         description:
         - MAC addresses list that are white listed(allowed) on a port.
@@ -149,6 +150,7 @@ options:
                 description:
                 - List of MAC addresses to update with based on state option.
                 type: list
+                elements: str
     sticky_mac_allow_list_limit:
         description:
         - The number of MAC addresses allowed in the sticky port allow list.
@@ -525,7 +527,7 @@ def main():
         if meraki.params.get('sticky_mac_allow_list'):
             macs = get_mac_list(
                 original.get('stickyMacAllowList'), meraki.params["sticky_mac_allow_list"].get("macs"), meraki.params["sticky_mac_allow_list"].get("state")
-                )
+            )
             if int(sticky_mac_limit) < len(macs):
                 meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List.')
             payload['stickyMacAllowList'] = macs
