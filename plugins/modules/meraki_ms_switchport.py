@@ -111,9 +111,9 @@ options:
         type: int
     mac_allow_list:
         description:
-        - MAC addresses list that are white listed(allowed) on a port.
+        - MAC addresses list that are allowed on a port.
         - Only applicable to access port type.
-        - Only applicable to access_policy_type "MAC whitelist".
+        - Only applicable to access_policy_type "MAC allow list".
         type: dict
         suboptions:
             state:
@@ -132,9 +132,9 @@ options:
                 elements: str
     sticky_mac_allow_list:
         description:
-        - MAC addresses list that are white listed(allowed) on a port.
+        - MAC addresses list that are allowed on a port.
         - Only applicable to access port type.
-        - Only applicable to access_policy_type "Sticky MAC whitelist".
+        - Only applicable to access_policy_type "Sticky MAC allow list".
         type: dict
         suboptions:
             state:
@@ -155,7 +155,7 @@ options:
         description:
         - The number of MAC addresses allowed in the sticky port allow list.
         - Only applicable to access port type.
-        - Only applicable to access_policy_type "Sticky MAC whitelist".
+        - Only applicable to access_policy_type "Sticky MAC allow list".
         - The value must be equal to or greater then the list size of sticky_mac_allow_list. Value will be checked for validity, during processing.
         type: int
 author:
@@ -232,7 +232,7 @@ EXAMPLES = r'''
       - 20
   delegate_to: localhost
 
-- name: Configure access port with sticky mac allow list and limit.
+- name: Configure access port with sticky MAC allow list and limit.
   meraki_switchport:
     auth_key: abc12345
     state: present
@@ -247,7 +247,7 @@ EXAMPLES = r'''
         state: replaced
     delegate_to: localhost
 
-- name: Delete an existing MAC address from the sticky mac allow list.
+- name: Delete an existing MAC address from the sticky MAC allow list.
   meraki_switchport:
     auth_key: abc12345
     state: present
@@ -259,7 +259,7 @@ EXAMPLES = r'''
         state: deleted
     delegate_to: localhost
 
-- name: Add a MAC address to sticky mac allow list.
+- name: Add a MAC address to sticky MAC allow list.
   meraki_switchport:
     auth_key: abc12345
     state: present
@@ -349,12 +349,12 @@ data:
             type: int
             sample: 6
         sticky_mac_allow_list:
-            description: List of MAC addresses currently allowed on a sticky port. Used with access_policy_type of Sticky MAC whitelist.
+            description: List of MAC addresses currently allowed on a sticky port. Used with access_policy_type of Sticky MAC allow list.
             returned: success
             type: list
             sample: ["11:aa:bb:bb:cc:cc", "22:aa:bb:bb:cc:cc", "33:aa:bb:bb:cc:cc"]
         mac_allow_list:
-            description: List of MAC addresses currently allowed on a non-sticky port. Used with access_policy_type of MAC whitelist.
+            description: List of MAC addresses currently allowed on a non-sticky port. Used with access_policy_type of MAC allow list.
             returned: success
             type: list
             sample: ["11:aa:bb:bb:cc:cc", "22:aa:bb:bb:cc:cc", "33:aa:bb:bb:cc:cc"]
