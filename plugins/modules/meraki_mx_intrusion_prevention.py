@@ -56,11 +56,14 @@ options:
                 description:
                 - ID of rule as defined by Snort.
                 type: str
-            message:
+            rule_message:
                 description:
                 - Description of rule.
                 - This is overwritten by the API.
+                - Formerly C(message) which was deprecated but still maintained as an alias.
                 type: str
+                aliases: [ message ]
+                version_added: "2.3.0"
     protected_networks:
         description:
         - Set included/excluded networks for Intrusion Prevention.
@@ -94,7 +97,7 @@ EXAMPLES = r'''
     org_id: '{{test_org_id}}'
     allowed_rules:
       - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
-        message: Test rule
+        rule_message: Test rule
   delegate_to: localhost
 
 - name: Query IPS info for organization
@@ -146,7 +149,7 @@ data:
           returned: success, when organization is queried or modified
           type: str
           sample: "meraki:intrusion/snort/GID/01/SID/5805"
-        message:
+        rule_message:
           description: Description of rule.
           returned: success, when organization is queried or modified
           type: str
@@ -189,7 +192,7 @@ from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki
 
 param_map = {'allowed_rules': 'allowedrules',
              'rule_id': 'ruleId',
-             'message': 'message',
+             'rule_message': 'message',
              'mode': 'mode',
              'protected_networks': 'protectedNetworks',
              'use_default': 'useDefault',
@@ -203,7 +206,9 @@ def main():
     # the module
 
     allowedrules_arg_spec = dict(rule_id=dict(type='str'),
-                                 message=dict(type='str'),
+                                 rule_message=dict(type='str',
+                                                   aliases=['message'],
+                                                   deprecated_aliases=[dict(name='message', version='3.0.0', collection_name='cisco.meraki')]),
                                  )
 
     protected_nets_arg_spec = dict(use_default=dict(type='bool'),
@@ -273,7 +278,7 @@ def main():
             rules = []
             for rule in meraki.params['allowed_rules']:
                 rules.append({'ruleId': rule['rule_id'],
-                              'message': rule['message'],
+                              'message': rule['rule_message'],
                               })
             payload = {'allowedRules': rules}
         else:  # Create payload for network

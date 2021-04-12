@@ -243,7 +243,7 @@ def main():
                          dead_timer=dict(type='int'),
                          areas=dict(type='list', default=None, elements='dict', options=areas_arg_spec),
                          md5_authentication_enabled=dict(type='bool'),
-                         md5_authentication_key=dict(type='dict', default=None, options=md5_auth_arg_spec),
+                         md5_authentication_key=dict(type='dict', default=None, options=md5_auth_arg_spec, no_log=True),
                          )
 
     # the AnsibleModule object will be our abstraction working with Ansible
