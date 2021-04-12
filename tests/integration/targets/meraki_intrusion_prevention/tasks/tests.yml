@@ -28,7 +28,7 @@
       org_name: '{{test_org_name}}'
       allowed_rules:
         - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
-          message: Test rule
+          rule_message: Test rule
     check_mode: yes
     register: create_org_check
 
@@ -44,7 +44,7 @@
       org_id: '{{test_org_id}}'
       allowed_rules:
         - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
-          message: Test rule
+          rule_message: Test rule
     register: create_org
 
   - assert:
@@ -60,7 +60,7 @@
       org_id: '{{test_org_id}}'
       allowed_rules:
         - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
-          message: Test rule
+          rule_message: Test rule
     register: create_org_idempotent
 
   - assert:
