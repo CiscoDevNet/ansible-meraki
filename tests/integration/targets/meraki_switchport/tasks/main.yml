@@ -352,3 +352,294 @@
     that:
       - update_trunk_idempotent.changed == False
       - update_trunk_idempotent.data is defined
+
+- name: Enable Sticky MAC Using Replace
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "Sticky MAC allow list"
+    sticky_mac_allow_list:
+      macs:
+        - "aa:aa:bb:bb:cc:cc"
+      state: replaced
+    sticky_mac_allow_list_limit: 1
+  delegate_to: localhost
+  register: sticky_mac_allow_replace
+
+- debug:
+    msg: '{{sticky_mac_allow_replace}}'
+
+- assert:
+    that:
+      - sticky_mac_allow_replace.data.sticky_mac_allow_list_limit == 1
+      - sticky_mac_allow_replace.data.sticky_mac_allow_list == ["aa:aa:bb:bb:cc:cc"]
+
+- name: Enable Sticky MAC Using Replace Idempotent
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "Sticky MAC allow list"
+    sticky_mac_allow_list:
+      macs:
+        - "aa:aa:bb:bb:cc:cc"
+      state: replaced
+    sticky_mac_allow_list_limit: 1
+  delegate_to: localhost
+  register: idempotent_sticky_mac_allow_replace
+
+- debug:
+    msg: '{{idempotent_sticky_mac_allow_replace}}'
+
+- assert:
+    that:
+      - idempotent_sticky_mac_allow_replace.changed == False
+      - idempotent_sticky_mac_allow_replace.data is defined
+
+- name: Enable Sticky MAC Using Merge
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "Sticky MAC allow list"
+    sticky_mac_allow_list:
+      macs:
+        - "11:aa:bb:bb:cc:cc"
+      state: merged
+    sticky_mac_allow_list_limit: 2
+  delegate_to: localhost
+  register: sticky_mac_allow_merge
+
+- debug:
+    msg: '{{sticky_mac_allow_merge}}'
+
+- assert:
+    that:
+      - sticky_mac_allow_merge.data.sticky_mac_allow_list_limit == 2
+      - sticky_mac_allow_merge.data.sticky_mac_allow_list == ["aa:aa:bb:bb:cc:cc", "11:aa:bb:bb:cc:cc"]
+
+- name: Enable Sticky MAC Using Merge Idempotent
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "Sticky MAC allow list"
+    sticky_mac_allow_list:
+      macs:
+        - "11:aa:bb:bb:cc:cc"
+      state: merged
+    sticky_mac_allow_list_limit: 2
+  delegate_to: localhost
+  register: idempotent_sticky_mac_allow_merge
+
+- debug:
+    msg: '{{idempotent_sticky_mac_allow_merge}}'
+
+- assert:
+    that:
+      - idempotent_sticky_mac_allow_merge.changed == False
+      - idempotent_sticky_mac_allow_merge.data is defined
+
+- name: Delete Sticky MAC From Allow List
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "Sticky MAC allow list"
+    sticky_mac_allow_list:
+      macs:
+        - "11:aa:bb:bb:cc:cc"
+      state: deleted
+    sticky_mac_allow_list_limit: 2
+  delegate_to: localhost
+  register: delete_sticky_mac
+
+- debug:
+    msg: '{{delete_sticky_mac}}'
+
+- assert:
+    that:
+      - delete_sticky_mac.data.sticky_mac_allow_list_limit == 2
+      - delete_sticky_mac.data.sticky_mac_allow_list == ["aa:aa:bb:bb:cc:cc"]
+
+- name: Delete Sticky MAC Idempotent
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "Sticky MAC allow list"
+    sticky_mac_allow_list:
+      macs:
+        - "11:aa:bb:bb:cc:cc"
+      state: deleted
+    sticky_mac_allow_list_limit: 2
+  delegate_to: localhost
+  register: idempotent_delete_sticky_mac
+
+- debug:
+    msg: '{{idempotent_delete_sticky_mac}}'
+
+- assert:
+    that:
+      - idempotent_delete_sticky_mac.changed == False
+      - idempotent_delete_sticky_mac.data is defined
+
+- name: Enable MAC Allow Using Replace
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "MAC allow list"
+    mac_allow_list:
+      macs:
+        - "aa:aa:bb:bb:cc:cc"
+      state: replaced
+  delegate_to: localhost
+  register: mac_allow_replace
+
+- debug:
+    msg: '{{mac_allow_replace}}'
+
+- assert:
+    that:
+      - mac_allow_replace.data.mac_allow_list == ["aa:aa:bb:bb:cc:cc"]
+
+- name: Enable MAC Allow Using Replace Idempotent
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "MAC allow list"
+    mac_allow_list:
+      macs:
+        - "aa:aa:bb:bb:cc:cc"
+      state: replaced
+  delegate_to: localhost
+  register: idempotent_mac_allow_replace
+
+- debug:
+    msg: '{{idempotent_mac_allow_replace}}'
+
+- assert:
+    that:
+      - idempotent_mac_allow_replace.changed == False
+      - idempotent_mac_allow_replace.data is defined
+
+- name: Enable MAC Allow Using Merge
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "MAC allow list"
+    mac_allow_list:
+      macs:
+        - "11:aa:bb:bb:cc:cc"
+      state: merged
+  delegate_to: localhost
+  register: mac_allow_merge
+
+- debug:
+    msg: '{{mac_allow_merge}}'
+
+- assert:
+    that:
+      - mac_allow_merge.data.mac_allow_list == ["aa:aa:bb:bb:cc:cc", "11:aa:bb:bb:cc:cc"]
+
+- name: Enable MAC Allow Using Merge Idempotent
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "MAC allow list"
+    mac_allow_list:
+      macs:
+        - "11:aa:bb:bb:cc:cc"
+      state: merged
+  delegate_to: localhost
+  register: idempotent_mac_allow_merge
+
+- debug:
+    msg: '{{idempotent_mac_allow_merge}}'
+
+- assert:
+    that:
+      - idempotent_mac_allow_merge.changed == False
+      - idempotent_mac_allow_merge.data is defined
+
+- name: Delete MAC From Allow List
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "MAC allow list"
+    mac_allow_list:
+      macs:
+        - "11:aa:bb:bb:cc:cc"
+      state: deleted
+  delegate_to: localhost
+  register: delete_mac
+
+- debug:
+    msg: '{{delete_mac}}'
+
+- assert:
+    that:
+      - delete_mac.data.mac_allow_list == ["aa:aa:bb:bb:cc:cc"]
+
+- name: Delete MAC Idempotent
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    type: access
+    access_policy_type: "MAC allow list"
+    mac_allow_list:
+      macs:
+        - "11:aa:bb:bb:cc:cc"
+      state: deleted
+  delegate_to: localhost
+  register: idempotent_delete_mac
+
+- debug:
+    msg: '{{idempotent_delete_mac}}'
+
+- assert:
+    that:
+      - idempotent_delete_mac.changed == False
+      - idempotent_delete_mac.data is defined

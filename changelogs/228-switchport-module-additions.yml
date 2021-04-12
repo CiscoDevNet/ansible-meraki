@@ -1,0 +1,9 @@
+---
+bugfixes:
+- meraki_ms_switchport - access_policy_types choices are incorrect causing failures.
+  (https://github.com/CiscoDevNet/ansible-meraki/issues/227).
+
+minor_changes:
+- meraki_ms_switchport - Adding additional functionality to support the access_policy_types
+  "MAC allow list" and "Sticky MAC allow list" port security configuration options.
+  (https://github.com/CiscoDevNet/ansible-meraki/issues/227).
