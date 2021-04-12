@@ -1,0 +1,2 @@
+plugins/modules/meraki_mx_intrusion_prevention.py validate-modules:invalid-argument-name
+plugins/modules/meraki_intrusion_prevention.py validate-modules:invalid-argument-name
