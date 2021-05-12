@@ -5,6 +5,20 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.3.0
+======
+
+Minor Changes
+-------------
+
+- meraki_ms_switchport - Adding additional functionality to support the access_policy_types "MAC allow list" and "Sticky MAC allow list" port security configuration options. (https://github.com/CiscoDevNet/ansible-meraki/issues/227).
+- meraki_mx_intrusion_prevention - Rename message to rule_message to avoid conflicts with internal Ansible variables.
+
+Bugfixes
+--------
+
+- meraki_ms_switchport - access_policy_types choices are incorrect causing failures. (https://github.com/CiscoDevNet/ansible-meraki/issues/227).
+
 v2.2.1
 ======
 

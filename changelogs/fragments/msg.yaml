@@ -1,3 +1,0 @@
----
-minor_changes:
-- meraki_mx_intrusion_prevention - Rename message to rule_message to avoid conflicts with internal Ansible variables.

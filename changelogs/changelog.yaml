@@ -144,3 +144,18 @@ releases:
     fragments:
     - 222.yml
     release_date: '2021-02-22'
+  2.3.0:
+    changes:
+      bugfixes:
+      - meraki_ms_switchport - access_policy_types choices are incorrect causing failures.
+        (https://github.com/CiscoDevNet/ansible-meraki/issues/227).
+      minor_changes:
+      - meraki_ms_switchport - Adding additional functionality to support the access_policy_types
+        "MAC allow list" and "Sticky MAC allow list" port security configuration options.
+        (https://github.com/CiscoDevNet/ansible-meraki/issues/227).
+      - meraki_mx_intrusion_prevention - Rename message to rule_message to avoid conflicts
+        with internal Ansible variables.
+    fragments:
+    - 228-switchport-module-additions.yml
+    - msg.yaml
+    release_date: '2021-05-12'
