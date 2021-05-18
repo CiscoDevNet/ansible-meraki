@@ -56,7 +56,7 @@ options:
         description:
         - Link speed for the switchport.
         default: Auto negotiate
-        choices: [Auto negotiate, 100Megabit (auto), 100 Megabit full duplex (forced)]
+        choices: [Auto negotiate, 100 Megabit (auto), 100 Megabit full duplex (forced)]
         type: str
     name:
         description:
@@ -448,7 +448,7 @@ def main():
                          access_policy_type=dict(type='str', choices=['Open', 'Custom access policy', 'MAC allow list', 'Sticky MAC allow list']),
                          access_policy_number=dict(type='int'),
                          link_negotiation=dict(type='str',
-                                               choices=['Auto negotiate', '100Megabit (auto)', '100 Megabit full duplex (forced)'],
+                                               choices=['Auto negotiate', '100 Megabit (auto)', '100 Megabit full duplex (forced)'],
                                                default='Auto negotiate'),
                          mac_allow_list=dict(type='dict', options=policy_data_arg_spec),
                          sticky_mac_allow_list=dict(type='dict', options=policy_data_arg_spec),
