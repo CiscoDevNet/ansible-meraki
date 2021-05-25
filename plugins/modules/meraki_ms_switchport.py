@@ -497,7 +497,7 @@ def main():
             meraki.result['data'] = response
     elif meraki.params['state'] == 'present':
         payload = assemble_payload(meraki)
-        meraki.fail_json(msg='payload', payload=payload)
+        # meraki.fail_json(msg='payload', payload=payload)
         allowed = set()  # Use a set to remove duplicate items
         if meraki.params['allowed_vlans'][0] == 'all':
             allowed.add('all')
@@ -522,6 +522,7 @@ def main():
         # Check voiceVlan to see if state is absent to remove the vlan.
         if meraki.params.get('voice_vlan'):
             if meraki.params.get('voice_vlan')['state'] == 'absent':
+                meraki.fail_json(msg='got to if', payload=payload)
                 payload['voiceVlan'] = None
         if meraki.params.get('mac_allow_list'):
             macs = get_mac_list(original.get('macAllowList'), meraki.params["mac_allow_list"].get("macs"), meraki.params["mac_allow_list"].get("state"))
