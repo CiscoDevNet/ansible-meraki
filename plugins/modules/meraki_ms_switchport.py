@@ -481,7 +481,7 @@ def main():
     meraki.url_catalog['update'] = update_url
 
     # execute checks for argument completeness
-
+    meraki.fail_json(msg='Compare', payload=meraki.params)
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
     if meraki.params['state'] == 'query':
@@ -523,7 +523,6 @@ def main():
         if meraki.params.get('voice_vlan'):
             if meraki.params.get('voice_vlan')['state'] == 'absent':
                 payload['voiceVlan'] = None
-        meraki.fail_json(msg='Compare', original=original, payload=payload)
         if meraki.params.get('mac_allow_list'):
             macs = get_mac_list(original.get('macAllowList'), meraki.params["mac_allow_list"].get("macs"), meraki.params["mac_allow_list"].get("state"))
             payload['macAllowList'] = macs
