@@ -431,6 +431,11 @@ def main():
         state=dict(type='str', choices=['merged', 'replaced', 'deleted'], default='replaced'),
     )
 
+    voice_vlan_arg_spec = dict(
+        vlan=dict(type='int'),
+        state=dict(type='str', choices=['present', 'absent'], default='present'),
+    )
+
     argument_spec.update(state=dict(type='str', choices=['present', 'query'], default='query'),
                          serial=dict(type='str', required=True),
                          number=dict(type='str'),
@@ -439,10 +444,7 @@ def main():
                          enabled=dict(type='bool', default=True),
                          type=dict(type='str', choices=['access', 'trunk'], default='access'),
                          vlan=dict(type='int'),
-                         voice_vlan=dict(
-                             vlan=dict(type='int'),
-                             state=dict(type='str', choices=['present', 'absent'], default='present'),
-                         ),
+                         voice_vlan=dict(type='dict', options=voice_vlan_arg_spec),
                          allowed_vlans=dict(type='list', elements='str', default='all'),
                          poe_enabled=dict(type='bool', default=True),
                          isolation_enabled=dict(type='bool', default=False),
