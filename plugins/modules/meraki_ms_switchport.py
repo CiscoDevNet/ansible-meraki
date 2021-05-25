@@ -481,7 +481,7 @@ def main():
     meraki.url_catalog['update'] = update_url
 
     # execute checks for argument completeness
-    meraki.fail_json(msg='Compare', payload=meraki.params)
+
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
     if meraki.params['state'] == 'query':
@@ -497,7 +497,7 @@ def main():
             meraki.result['data'] = response
     elif meraki.params['state'] == 'present':
         payload = assemble_payload(meraki)
-        # meraki.fail_json(msg='payload', payload=payload)
+        meraki.fail_json(msg='payload', payload=payload)
         allowed = set()  # Use a set to remove duplicate items
         if meraki.params['allowed_vlans'][0] == 'all':
             allowed.add('all')
