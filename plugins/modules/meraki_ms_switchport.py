@@ -523,6 +523,7 @@ def main():
         if meraki.params.get('voice_vlan'):
             if meraki.params.get('voice_vlan')['state'] == 'absent':
                 payload['voiceVlan'] = None
+        meraki.fail_json(msg='Compare', original=original, payload=payload)
         if meraki.params.get('mac_allow_list'):
             macs = get_mac_list(original.get('macAllowList'), meraki.params["mac_allow_list"].get("macs"), meraki.params["mac_allow_list"].get("state"))
             payload['macAllowList'] = macs
