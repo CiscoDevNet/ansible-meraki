@@ -439,7 +439,10 @@ def main():
                          enabled=dict(type='bool', default=True),
                          type=dict(type='str', choices=['access', 'trunk'], default='access'),
                          vlan=dict(type='int'),
-                         voice_vlan=dict(type='int'),
+                         voice_vlan=dict(
+                             vlan=dict(type='int'),
+                             state=dict(type='str', choices=['present', 'absent'], default='present')
+                         ),
                          allowed_vlans=dict(type='list', elements='str', default='all'),
                          poe_enabled=dict(type='bool', default=True),
                          isolation_enabled=dict(type='bool', default=False),
@@ -516,6 +519,10 @@ def main():
                                                               'number': meraki.params['number'],
                                                               })
         original = meraki.request(query_path, method='GET')
+        # Check voiceVlan to see if state is absent to remove the vlan.
+        if meraki.params.get('voice_vlan'):
+            if meraki.params.get('voice_vlan')['state'] == 'absent':
+                payload['voiceVlan'] = None
         if meraki.params.get('mac_allow_list'):
             macs = get_mac_list(original.get('macAllowList'), meraki.params["mac_allow_list"].get("macs"), meraki.params["mac_allow_list"].get("state"))
             payload['macAllowList'] = macs
