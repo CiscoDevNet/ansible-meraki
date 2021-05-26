@@ -199,7 +199,8 @@
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan: 12
+    voice_vlan:
+      vlan: 12
   delegate_to: localhost
   register: update_port_vvlan
 
@@ -214,7 +215,8 @@
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan: 11
+    voice_vlan:
+      vlan: 11
   delegate_to: localhost
   register: update_port_vvlan
 
@@ -225,6 +227,30 @@
     that:
       - update_port_vvlan.data.voice_vlan == 11
       - update_port_vvlan.changed == True
+
+- name: Configure access port removing voice VLAN
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    name: Test Port
+    tags: desktop
+    type: access
+    vlan: 10
+    voice_vlan:
+      state: absent
+  delegate_to: localhost
+  register: update_port_remove_vvlan
+
+- debug:
+    msg: '{{ update_port_remove_vvlan }}'
+
+- assert:
+    that:
+      - update_port_remove_vvlan.data.voice_vlan == null
+      - update_port_remove_vvlan.changed == True
 
 - name: Check access port for idempotenty
   meraki_switchport:
@@ -237,7 +263,8 @@
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan: 11
+    voice_vlan:
+      vlan: 11
   delegate_to: localhost
   register: update_port_access_idempotent
 
