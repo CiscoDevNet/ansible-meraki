@@ -112,7 +112,7 @@ options:
         suboptions:
             state:
                 description:
-                - Specifies whether a switchport should be queried or modified.
+                - Specifies whether voice vlan configuration should be present or absent.
                 choices: [absent, present]
                 default: present
                 type: str
