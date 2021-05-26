@@ -108,7 +108,18 @@ options:
         description:
         - VLAN number assigned to a port for voice traffic.
         - Only applicable to access port type.
-        type: int
+        type: dict
+        suboptions:
+            state:
+                description:
+                - Specifies whether a switchport should be queried or modified.
+                choices: [absent, present]
+                default: present
+                type: str
+            vlan:
+            - VLAN number assigned to a port for voice traffic.
+            - Only applicable if state is 'present'.
+            type: int
     mac_allow_list:
         description:
         - MAC addresses list that are allowed on a port.
@@ -199,7 +210,8 @@ EXAMPLES = r'''
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan: 11
+    voice_vlan:
+      vlan: 11
   delegate_to: localhost
 
 - name: Check access port for idempotency
@@ -213,7 +225,8 @@ EXAMPLES = r'''
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan: 11
+    voice_vlan:
+      vlan: 11
   delegate_to: localhost
 
 - name: Configure trunk port with specific VLANs
