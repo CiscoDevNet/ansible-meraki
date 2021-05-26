@@ -117,9 +117,10 @@ options:
                 default: present
                 type: str
             vlan:
-            - VLAN number assigned to a port for voice traffic.
-            - Only applicable if state is 'present'.
-            type: int
+                description:
+                - VLAN number assigned to a port for voice traffic.
+                - Only applicable if state is 'present'.
+                type: int
     mac_allow_list:
         description:
         - MAC addresses list that are allowed on a port.
