@@ -536,7 +536,7 @@ def main():
         original = meraki.request(query_path, method='GET')
         # Check voiceVlan to see if state is absent to remove the vlan.
         if meraki.params.get('voice_vlan'):
-            if meraki.params.get('voice_vlan')['state'] == 'absent': 
+            if meraki.params.get('voice_vlan')['state'] == 'absent':
                 payload['voiceVlan'] = None
             else:
                 payload['voiceVlan'] = meraki.params.get('voice_vlan')['vlan']
