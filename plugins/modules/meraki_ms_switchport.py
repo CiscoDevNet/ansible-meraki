@@ -108,19 +108,13 @@ options:
         description:
         - VLAN number assigned to a port for voice traffic.
         - Only applicable to access port type.
-        type: dict
-        suboptions:
-            state:
-                description:
-                - Specifies whether voice vlan configuration should be present or absent.
-                choices: [absent, present]
-                default: present
-                type: str
-            vlan:
-                description:
-                - VLAN number assigned to a port for voice traffic.
-                - Only applicable if state is 'present'.
-                type: int
+        type: int
+    voice_vlan_state:
+        description:
+        - Specifies whether voice vlan configuration should be present or absent.
+        choices: [absent, present]
+        default: present
+        type: str
     mac_allow_list:
         description:
         - MAC addresses list that are allowed on a port.
@@ -211,8 +205,7 @@ EXAMPLES = r'''
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan:
-      vlan: 11
+    voice_vlan: 11
   delegate_to: localhost
 
 - name: Check access port for idempotency
@@ -226,8 +219,7 @@ EXAMPLES = r'''
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan:
-      vlan: 11
+    voice_vlan: 11
   delegate_to: localhost
 
 - name: Configure trunk port with specific VLANs
@@ -445,11 +437,6 @@ def main():
         state=dict(type='str', choices=['merged', 'replaced', 'deleted'], default='replaced'),
     )
 
-    voice_vlan_arg_spec = dict(
-        vlan=dict(type='int'),
-        state=dict(type='str', choices=['present', 'absent'], default='present'),
-    )
-
     argument_spec.update(state=dict(type='str', choices=['present', 'query'], default='query'),
                          serial=dict(type='str', required=True),
                          number=dict(type='str'),
@@ -458,7 +445,8 @@ def main():
                          enabled=dict(type='bool', default=True),
                          type=dict(type='str', choices=['access', 'trunk'], default='access'),
                          vlan=dict(type='int'),
-                         voice_vlan=dict(type='dict', options=voice_vlan_arg_spec),
+                         voice_vlan=dict(type='int'),
+                         voice_vlan_state=dict(type='str', choices=['present', 'absent'], default='present'),
                          allowed_vlans=dict(type='list', elements='str', default='all'),
                          poe_enabled=dict(type='bool', default=True),
                          isolation_enabled=dict(type='bool', default=False),
@@ -536,11 +524,11 @@ def main():
                                                               })
         original = meraki.request(query_path, method='GET')
         # Check voiceVlan to see if state is absent to remove the vlan.
-        if meraki.params.get('voice_vlan'):
-            if meraki.params.get('voice_vlan')['state'] == 'absent':
+        if meraki.params.get('voice_vlan_state'):
+            if meraki.params.get('voice_vlan_state') == 'absent':
                 payload['voiceVlan'] = None
             else:
-                payload['voiceVlan'] = meraki.params.get('voice_vlan')['vlan']
+                payload['voiceVlan'] = meraki.params.get('voice_vlan')
         if meraki.params.get('mac_allow_list'):
             macs = get_mac_list(original.get('macAllowList'), meraki.params["mac_allow_list"].get("macs"), meraki.params["mac_allow_list"].get("state"))
             payload['macAllowList'] = macs

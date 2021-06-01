@@ -199,8 +199,7 @@
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan:
-      vlan: 12
+    voice_vlan: 12
   delegate_to: localhost
   register: update_port_vvlan
 
@@ -215,8 +214,7 @@
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan:
-      vlan: 11
+    voice_vlan: 11
   delegate_to: localhost
   register: update_port_vvlan
 
@@ -239,8 +237,7 @@
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan:
-      state: absent
+    voice_vlan_state: absent
   delegate_to: localhost
   register: update_port_remove_vvlan
 
@@ -263,8 +260,7 @@
     tags: desktop
     type: access
     vlan: 10
-    voice_vlan:
-      vlan: 11
+    voice_vlan: 11
   delegate_to: localhost
   register: update_port_access_idempotent
 

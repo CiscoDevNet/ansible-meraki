@@ -1,5 +1,2 @@
-breaking_changes:
-  - voice_vlan now requires a nested dictionary with vlan and state keys.
-
 bugfixes:
   - Allow a state of absent in voice vlan to allow the value to be nulled out(https://github.com/CiscoDevNet/ansible-meraki/issues/238)
