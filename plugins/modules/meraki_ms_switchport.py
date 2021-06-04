@@ -108,6 +108,7 @@ options:
         description:
         - VLAN number assigned to a port for voice traffic.
         - Only applicable to access port type.
+        - Only applicable if voice_vlan_state is set to present.
         type: int
     voice_vlan_state:
         description:
@@ -471,7 +472,7 @@ def main():
                            )
     meraki = MerakiModule(module, function='switchport')
     if meraki.params.get('voice_vlan_state') == "absent" and meraki.params.get('voice_vlan'):
-        meraki.fail_json(msg='voice_vlan_state cant be "absent" while voice_vlan is also defined.')
+        meraki.fail_json(msg='voice_vlan_state cant be `absent` while voice_vlan is also defined.')
 
     meraki.params['follow_redirects'] = 'all'
 
