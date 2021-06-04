@@ -471,7 +471,7 @@ def main():
                            )
     meraki = MerakiModule(module, function='switchport')
     if meraki.params.get('voice_vlan_state') == "absent" and meraki.params.get('voice_vlan'):
-        meraki.fail_json(msg='Voice Vlan state cant be absent while voice_vlan is also defined.')
+        meraki.fail_json(msg='voice_vlan_state cant be "absent" while voice_vlan is also defined.')
 
     meraki.params['follow_redirects'] = 'all'
 
