@@ -246,7 +246,7 @@
 
 - assert:
     that:
-      - update_port_remove_vvlan.data.voice_vlan == null
+      - update_port_remove_vvlan.data.voice_vlan == None
       - update_port_remove_vvlan.changed == True
 
 - name: Check access port for idempotenty
