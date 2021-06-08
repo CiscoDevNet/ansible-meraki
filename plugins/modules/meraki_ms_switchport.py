@@ -285,6 +285,16 @@ data:
     returned: success
     type: complex
     contains:
+        access_policy_type:
+            description: Type of access policy assigned to port
+            returned: success, when assigned
+            type: str
+            sample: "MAC allow list"
+        allowed_vlans:
+            description: List of VLANs allowed on an access port
+            returned: success, when port is set as access
+            type: str
+            sample: all
         number:
             description: Number of port.
             returned: success
@@ -365,6 +375,16 @@ data:
             returned: success
             type: list
             sample: ["11:aa:bb:bb:cc:cc", "22:aa:bb:bb:cc:cc", "33:aa:bb:bb:cc:cc"]
+        port_schedule_id:
+            description: Unique ID of assigned port schedule
+            returned: success
+            type: str
+            sample: null
+        udld:
+            description: Alert state of UDLD
+            returned: success
+            type: str
+            sample: "Alert only"
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
