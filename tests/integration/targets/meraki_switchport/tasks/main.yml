@@ -249,6 +249,29 @@
       - update_port_access_idempotent.changed == False
       - update_port_access_idempotent.data is defined
 
+- name: Configure access port removing voice VLAN
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 7
+    enabled: true
+    name: Test Port
+    tags: desktop
+    type: access
+    vlan: 10
+    voice_vlan_state: absent
+  delegate_to: localhost
+  register: update_port_remove_vvlan
+
+- debug:
+    msg: '{{ update_port_remove_vvlan }}'
+
+- assert:
+    that:
+      - update_port_remove_vvlan.data.voice_vlan == None
+      - update_port_remove_vvlan.changed == True
+
 - name: Configure trunk port
   meraki_switchport:
     auth_key: '{{auth_key}}'

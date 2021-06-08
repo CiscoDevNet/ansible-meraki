@@ -108,7 +108,14 @@ options:
         description:
         - VLAN number assigned to a port for voice traffic.
         - Only applicable to access port type.
+        - Only applicable if voice_vlan_state is set to present.
         type: int
+    voice_vlan_state:
+        description:
+        - Specifies whether voice vlan configuration should be present or absent.
+        choices: [absent, present]
+        default: present
+        type: str
     mac_allow_list:
         description:
         - MAC addresses list that are allowed on a port.
@@ -440,6 +447,7 @@ def main():
                          type=dict(type='str', choices=['access', 'trunk'], default='access'),
                          vlan=dict(type='int'),
                          voice_vlan=dict(type='int'),
+                         voice_vlan_state=dict(type='str', choices=['present', 'absent'], default='present'),
                          allowed_vlans=dict(type='list', elements='str', default='all'),
                          poe_enabled=dict(type='bool', default=True),
                          isolation_enabled=dict(type='bool', default=False),
@@ -463,6 +471,9 @@ def main():
                            supports_check_mode=True,
                            )
     meraki = MerakiModule(module, function='switchport')
+    if meraki.params.get('voice_vlan_state') == "absent" and meraki.params.get('voice_vlan'):
+        meraki.fail_json(msg='voice_vlan_state cant be `absent` while voice_vlan is also defined.')
+
     meraki.params['follow_redirects'] = 'all'
 
     if meraki.params['type'] == 'trunk':
@@ -516,6 +527,12 @@ def main():
                                                               'number': meraki.params['number'],
                                                               })
         original = meraki.request(query_path, method='GET')
+        # Check voiceVlan to see if state is absent to remove the vlan.
+        if meraki.params.get('voice_vlan_state'):
+            if meraki.params.get('voice_vlan_state') == 'absent':
+                payload['voiceVlan'] = None
+            else:
+                payload['voiceVlan'] = meraki.params.get('voice_vlan')
         if meraki.params.get('mac_allow_list'):
             macs = get_mac_list(original.get('macAllowList'), meraki.params["mac_allow_list"].get("macs"), meraki.params["mac_allow_list"].get("state"))
             payload['macAllowList'] = macs
