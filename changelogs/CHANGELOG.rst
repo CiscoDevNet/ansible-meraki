@@ -5,6 +5,19 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.4.0
+======
+
+Minor Changes
+-------------
+
+- meraki_mx_switchport - Improve documentation for response
+
+Bugfixes
+--------
+
+- Allow a state of absent in voice vlan to allow the value to be nulled out(https://github.com/CiscoDevNet/ansible-meraki/issues/238)
+
 v2.3.1
 ======
 
