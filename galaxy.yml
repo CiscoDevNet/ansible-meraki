@@ -17,7 +17,7 @@ tags:
 - firewall
 - switching
 - cisco
-version: 2.4.0
+version: 2.4.1
 build_ignore:
 - '*tar.gz'
 - '*.DS_Store'

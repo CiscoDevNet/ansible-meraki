@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.4.1
+======
+
+Bugfixes
+--------
+
+- Some text here
+
 v2.4.0
 ======
 
