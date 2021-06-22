@@ -143,7 +143,6 @@ class MerakiModule(object):
             items = {}
             for k, v in data.items():
                 try:
-                    new = {self.key_map[k]: data[k]}
                     items[self.key_map[k]] = self.sanitize_keys(data[k])
                 except KeyError:
                     snake_k = re.sub('([a-z0-9])([A-Z])', r'\1_\2', k).lower()

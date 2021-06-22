@@ -193,7 +193,7 @@ def sanitize_no_log_values(meraki):
         pass
     try:
         meraki.result['data']['shared_secret'] = 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
-    except (KeyError, TypeError) as e:
+    except (KeyError, TypeError):
         pass
 
 

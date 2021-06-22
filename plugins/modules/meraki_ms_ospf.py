@@ -210,11 +210,12 @@ def construct_payload(meraki):
                                              'areaType': area['area_type'],
                                              }
                             payload['areas'].append(area_settings)
-                elif snake == 'md5_authentication_key':
-                    if meraki.params['md5_authentication_key'] is not None:
-                        md5_settings = {'id': meraki.params['md5_authentication_key']['id'],
-                                        'passphrase': meraki.params['md5_authentication_key']['passphrase'],
-                                        }
+                # TODO: Does this code below have a purpose?
+                # elif snake == 'md5_authentication_key':
+                #     if meraki.params['md5_authentication_key'] is not None:
+                #         md5_settings = {'id': meraki.params['md5_authentication_key']['id'],
+                #                         'passphrase': meraki.params['md5_authentication_key']['passphrase'],
+                #                         }
         except KeyError:
             pass
 
