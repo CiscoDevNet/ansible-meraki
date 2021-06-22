@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.4.2
+======
+
+Bugfixes
+--------
+
+- Fix some flake8 sanity errors as reported by Ansible Galaxy. Should be no functional change.
+
 v2.4.0
 ======
 
