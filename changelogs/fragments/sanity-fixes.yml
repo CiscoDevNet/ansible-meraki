@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - Fix some flake8 sanity errors as reported by Ansible Galaxy. Should be no functional change.
