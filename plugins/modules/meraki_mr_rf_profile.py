@@ -411,9 +411,7 @@ data:
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.common.dict_transformations import snake_dict_to_camel_dict
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
-from re import sub
 
 
 def get_profile(meraki, profiles, name):
@@ -602,7 +600,7 @@ def main():
     if profile_id is None:
         path = meraki.construct_path('get_all', net_id=net_id)
         profiles = meraki.request(path, method='GET')
-        profile = get_profile(meraki, profiles, meraki.params['name'])
+        # profile = get_profile(meraki, profiles, meraki.params['name'])
 
     if meraki.params['state'] == 'query':
         if profile_id is not None:

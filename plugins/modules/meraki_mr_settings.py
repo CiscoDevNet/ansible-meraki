@@ -123,7 +123,6 @@ data:
 '''
 
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.common.dict_transformations import snake_dict_to_camel_dict
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
 from re import sub
 
