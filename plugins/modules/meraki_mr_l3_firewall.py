@@ -153,7 +153,7 @@ def get_rules(meraki, net_id, number):
         return normalize_protocol_case(response)
 
 
-def normalisze_protocol_case(rules):
+def normalize_protocol_case(rules):
     try:
         for r in rules['rules']:
             r['protocol'] = r['protocol'].lower()
