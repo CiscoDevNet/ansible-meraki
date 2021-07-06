@@ -30,6 +30,19 @@
   - assert:
       that:
         - query.data|length == 1
+        
+  - name: Check default rule protocol value is lowercase
+    meraki_mx_l3_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: TestNetAppliance
+      state: query
+    delegate_to: localhost
+    register: query
+    
+  - assert:
+      that:
+        - query.data.0.protocol == 'any'
 
   - name: Set one firewall rule with check mode
     meraki_mx_l3_firewall:
