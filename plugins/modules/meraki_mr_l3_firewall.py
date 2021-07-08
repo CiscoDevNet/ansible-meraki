@@ -150,13 +150,16 @@ def get_rules(meraki, net_id, number):
     path = meraki.construct_path('get_all', net_id=net_id, custom={'number': number})
     response = meraki.request(path, method='GET')
     if meraki.status == 200:
-        return normalize_protocol_case(response)
+        return normalize_case(response)
 
 
-def normalize_protocol_case(rules):
+def normalize_case(rules):
+    excluded = ['comment']
     try:
         for r in rules['rules']:
-            r['protocol'] = r['protocol'].lower()
+            for k in r:
+                if k not in excluded:
+                    r[k] = r[k].lower()
     except KeyError:
         return rules
     return rules
