@@ -28,8 +28,8 @@
     
   - assert:
       that:
-        - query.data.0.protocol == 'any'
-        - query.data.1.protocol == 'any'
+        - query.data.rules.0.protocol == 'any'
+        - query.data.rules.1.protocol == 'any'
 
   - name: Create single firewall rule with check mode
     meraki_mr_l3_firewall:
