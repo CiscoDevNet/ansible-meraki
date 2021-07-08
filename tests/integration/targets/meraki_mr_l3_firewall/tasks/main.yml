@@ -17,7 +17,7 @@
   - set_fact:
       net: '{{new_net.data.id}}'
 
-  - name: Check default rules protocol values are lowercase
+  - name: Check rule values are lowercase
     meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
@@ -28,8 +28,16 @@
     
   - assert:
       that:
+        - query.data.rules.0.policy == 'allow'
         - query.data.rules.0.protocol == 'any'
+        - query.data.rules.0.dest_port == 'any'
+        - query.data.rules.0.dest_cidr == 'local lan'
+        - query.data.rules.0.comment == 'Wireless clients accessing LAN'
+        - query.data.rules.1.policy == 'allow'
         - query.data.rules.1.protocol == 'any'
+        - query.data.rules.1.dest_port == 'any'
+        - query.data.rules.1.dest_cidr == 'any'
+        - query.data.rules.1.comment == 'Default rule'
 
   - name: Create single firewall rule with check mode
     meraki_mr_l3_firewall:

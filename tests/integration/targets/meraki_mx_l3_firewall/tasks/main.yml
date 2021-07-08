@@ -31,7 +31,7 @@
       that:
         - query.data|length == 1
         
-  - name: Check default rule protocol value is lowercase
+  - name: Check rule values are lowercase
     meraki_mx_l3_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
@@ -42,7 +42,12 @@
     
   - assert:
       that:
+        - query.data.rules.0.policy == 'allow'
         - query.data.rules.0.protocol == 'any'
+        - query.data.rules.0.src_port == 'any'
+        - query.data.rules.0.src_cidr == 'any'
+        - query.data.rules.0.dest_port == 'any'
+        - query.data.rules.0.dest_cidr == 'any'
 
   - name: Set one firewall rule with check mode
     meraki_mx_l3_firewall:
