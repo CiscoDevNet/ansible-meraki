@@ -42,7 +42,7 @@
     
   - assert:
       that:
-        - query.data.0.protocol == 'any'
+        - query.data.rules.0.protocol == 'any'
 
   - name: Set one firewall rule with check mode
     meraki_mx_l3_firewall:
