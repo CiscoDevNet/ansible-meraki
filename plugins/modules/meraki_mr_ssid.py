@@ -106,6 +106,10 @@ options:
                 - RADIUS password.
                 - Setting password is not idempotent.
                 type: str
+    radius_proxy_enabled:
+        description:
+        - Enable or disable RADIUS Proxy on SSID.
+        type: bool
     radius_coa_enabled:
         description:
         - Enable or disable RADIUS CoA (Change of Authorization) on SSID.
@@ -382,6 +386,7 @@ def construct_payload(meraki):
                  'wpaEncryptionMode': 'wpa_encryption_mode',
                  'splashPage': 'splash_page',
                  'radiusServers': 'radius_servers',
+                 'radiusProxyEnabled': 'radius_proxy_enabled',
                  'radiusCoaEnabled': 'radius_coa_enabled',
                  'radiusFailoverPolicy': 'radius_failover_policy',
                  'radiusLoadBalancingPolicy': 'radius_load_balancing_policy',
@@ -474,6 +479,7 @@ def main():
                                                                'Cisco ISE',
                                                                ]),
                          radius_servers=dict(type='list', default=None, elements='dict', options=radius_arg_spec),
+                         radius_proxy_enabled=dict(type='bool'),
                          radius_coa_enabled=dict(type='bool'),
                          radius_failover_policy=dict(type='str', choices=['Deny access', 'Allow access']),
                          radius_load_balancing_policy=dict(type='str', choices=['Strict priority order', 'Round robin']),
