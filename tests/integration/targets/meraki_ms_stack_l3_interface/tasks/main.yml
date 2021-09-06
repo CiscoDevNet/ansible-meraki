@@ -18,20 +18,6 @@
   - set_fact:
       net_id: '{{create_net_switch.data.id}}'
 
-  # - name: Claim devices into network
-  #   meraki_device:
-  #     auth_key: '{{auth_key}}'
-  #     org_name: '{{test_org_name}}'
-  #     net_id: '{{net_id}}'
-  #     serial: '{{item}}'
-  #     state: present
-  #   delegate_to: localhost
-  #   register: claim_device
-  #   loop:
-  #     - "QBSB-BPR6-PRER"
-  #     - "QBSB-VLNE-E299"
-  #     - "QBSB-D75G-PXCG"
-
   - name: Create new stack
     meraki_switch_stack:
       auth_key: '{{auth_key}}'
@@ -47,41 +33,6 @@
 
   - set_fact:
       stack_id: '{{stack.data.id}}'
-
-  # - name: Query all l3 interfaces
-  #   meraki_ms_stack_l3_interface:
-  #     auth_key: '{{ auth_key }}'
-  #     org_name: '{{test_org_name}}'
-  #     net_id: '{{net_id}}'
-  #     state: query
-  #     stack_id: '{{ stack_id }}'
-  #   delegate_to: localhost
-  #   register: query_l3
-
-  # - debug:
-  #     var: query_l3
-
-  # - set_fact:
-  #     interface_id_1: '{{query_all.data.1.interface_id}}'
-  #   ignore_errors: true
-
-  # - assert:
-  #     that:
-  #       - query_all.data is defined
-  #       - query_all.data | length > 0
-
-  # - name: Query one l3 interface
-  #   meraki_ms_stack_l3_interface:
-  #     auth_key: '{{ auth_key }}'
-  #     state: query
-  #     serial: '{{ serial_switch_l3 }}'
-  #     name: Test L3 interface
-  #   delegate_to: localhost
-  #   register: query_one
-
-  # - assert:
-  #     that:
-  #       - query_one.data is defined
 
   - name: Create l3 interface with check mode
     meraki_ms_stack_l3_interface:
@@ -234,6 +185,44 @@
   - assert:
       that:
         update_idempotent_check is not changed
+
+
+  - name: Query all l3 interfaces
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      state: query
+      stack_id: '{{ stack_id }}'
+    delegate_to: localhost
+    register: query_l3
+
+  - debug:
+      var: query_l3
+
+  - set_fact:
+      interface_id_1: '{{query_l3.data[0].interface_id}}'
+    ignore_errors: true
+
+  - assert:
+      that:
+        - query_l3.data is defined
+        - query_l3.data | length > 0
+
+  - name: Query one l3 interface
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      stack_id: '{{ stack_id }}'
+      name: Test L3 interface
+    delegate_to: localhost
+    register: query_one
+
+  - assert:
+      that:
+        - query_one.data is defined
 
 
 #############################################################################
