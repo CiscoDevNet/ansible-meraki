@@ -253,20 +253,21 @@ def main():
             meraki.result['data'] = {}
             meraki.result['changed'] = True
         else:
-            payload = {'serial': meraki.params['serials'][0]}
-            original = get_stack(stack_id, stacks)
-            comparable = deepcopy(original)
-            comparable.update(payload)
-            if meraki.params['serials'][0] in comparable['serials']:
-                comparable['serials'].remove(meraki.params['serials'][0])
-            if meraki.is_update_required(original, comparable, optional_ignore=['serial']):
-                path = meraki.construct_path('remove', net_id=net_id, custom={'stack_id': stack_id})
-                response = meraki.request(path, method='POST', payload=json.dumps(payload))
-                if meraki.status == 200:
-                    meraki.result['data'] = response
-                    meraki.result['changed'] = True
-            else:
-                meraki.result['data'] = original
+            for serial in meraki.params['serials']:
+                payload = {'serial': serial}
+                original = get_stack(stack_id, stacks)
+                comparable = deepcopy(original)
+                comparable.update(payload)
+                if serial in comparable['serials']:
+                    comparable['serials'].remove(serial)
+                if meraki.is_update_required(original, comparable, optional_ignore=['serial']):
+                    path = meraki.construct_path('remove', net_id=net_id, custom={'stack_id': stack_id})
+                    response = meraki.request(path, method='POST', payload=json.dumps(payload))
+                    if meraki.status == 200:
+                        meraki.result['data'] = response
+                        meraki.result['changed'] = True
+                else:
+                    meraki.result['data'] = original
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results

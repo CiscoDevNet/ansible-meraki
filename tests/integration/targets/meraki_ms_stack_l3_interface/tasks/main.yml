@@ -1,0 +1,281 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2018, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Create network with type switch
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkSwitch
+      type: switch
+      timezone: America/Chicago
+    delegate_to: localhost
+    register: create_net_switch
+
+  - set_fact:
+      net_id: '{{create_net_switch.data.id}}'
+
+  - name: Create new stack
+    meraki_switch_stack:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      name: Test stack
+      serials:
+      - "QBSB-BPR6-PRER"
+      - "QBSB-VLNE-E299"
+      - "QBSB-D75G-PXCG"
+    register: stack
+
+  - set_fact:
+      stack_id: '{{stack.data.id}}'
+
+  - name: Create l3 interface with check mode
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      stack_id: '{{stack_id}}'
+      default_gateway: "192.168.3.1"
+      name: "Test L3 interface 2"
+      subnet: "192.168.3.0/24"
+      interface_ip: "192.168.3.2"
+      multicast_routing: disabled
+      vlan_id: 11
+    delegate_to: localhost
+    register: create_check
+    check_mode: true
+
+  - assert:
+      that:
+        - create_check.data is defined
+        - create_check is changed
+
+  - name: Create l3 interface
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      stack_id: '{{stack_id}}'
+      default_gateway: "192.168.3.1"
+      name: "Test L3 interface 2"
+      subnet: "192.168.3.0/24"
+      interface_ip: "192.168.3.2"
+      multicast_routing: disabled
+      vlan_id: 11
+    delegate_to: localhost
+    register: create
+
+  - assert:
+      that:
+        - create.data is defined
+        - create is changed
+
+  - name: Query all l3 interfaces
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      state: query
+      stack_id: '{{ stack_id }}'
+    delegate_to: localhost
+    register: query_l3
+
+  - set_fact:
+      interface_id_1: '{{create.data.interface_id}}'
+
+  - name: Query one l3 interface
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      state: query
+      stack_id: '{{ stack_id }}'
+      interface_id: '{{interface_id_1}}'
+    delegate_to: localhost
+    register: query_one
+
+  - debug:
+      var: query_one
+
+  - name: Update l3 interface with check mode
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      stack_id: '{{stack_id}}'
+      name: "Test L3 interface 3"
+      subnet: "192.168.3.0/24"
+      interface_ip: "192.168.3.2"
+      interface_id: '{{interface_id_1}}'
+      multicast_routing: disabled
+      vlan_id: 11
+    delegate_to: localhost
+    register: update_check
+    check_mode: true
+
+  - assert:
+      that:
+        - update_check.data is defined
+        - update_check is changed
+
+  - name: Update l3 interface
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      stack_id: '{{stack_id}}'
+      name: "Test L3 interface 3"
+      subnet: "192.168.3.0/24"
+      interface_ip: "192.168.3.2"
+      interface_id: '{{interface_id_1}}'
+      multicast_routing: disabled
+      vlan_id: 11
+    delegate_to: localhost
+    register: update
+
+  - assert:
+      that:
+        - update.data is defined
+        - update is changed
+
+  - name: Update l3 interface idempotent
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      stack_id: '{{stack_id}}'
+      name: "Test L3 interface 3"
+      subnet: "192.168.3.0/24"
+      interface_ip: "192.168.3.2"
+      multicast_routing: disabled
+      vlan_id: 11
+    delegate_to: localhost
+    register: update_idempotent
+
+  - assert:
+      that:
+        update_idempotent is not changed
+
+  - name: Update l3 interface idempotent with check mode
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      stack_id: '{{stack_id}}'
+      name: "Test L3 interface 3"
+      subnet: "192.168.3.0/24"
+      interface_ip: "192.168.3.2"
+      multicast_routing: disabled
+      vlan_id: 11
+    delegate_to: localhost
+    register: update_idempotent_check
+    check_mode: true
+
+  - assert:
+      that:
+        update_idempotent_check is not changed
+
+
+  - name: Query all l3 interfaces
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      state: query
+      stack_id: '{{ stack_id }}'
+    delegate_to: localhost
+    register: query_l3
+
+  - debug:
+      var: query_l3
+
+  - set_fact:
+      interface_id_1: '{{query_l3.data[0].interface_id}}'
+    ignore_errors: true
+
+  - assert:
+      that:
+        - query_l3.data is defined
+        - query_l3.data | length > 0
+
+  - name: Query one l3 interface
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      stack_id: '{{ stack_id }}'
+      name: Test L3 interface
+    delegate_to: localhost
+    register: query_one
+
+  - assert:
+      that:
+        - query_one.data is defined
+
+
+#############################################################################
+# Tear down starts here
+#############################################################################
+
+  always:
+  - name: Delete l3 interface with check mode
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      stack_id: '{{stack_id}}'
+      interface_id: '{{ item }}'
+    delegate_to: localhost
+    check_mode: true
+    register: delete_check
+    loop:
+      - '{{interface_id_1}}'
+
+  - assert:
+      that:
+        - delete_check is changed
+
+  - name: Delete l3 interface
+    meraki_ms_stack_l3_interface:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      stack_id: '{{stack_id}}'
+      interface_id: '{{ interface_id_1 }}'
+    delegate_to: localhost
+    register: delete
+
+  - assert:
+      that:
+        - delete is changed
+
+  - name: Remove switches from stack
+    meraki_switch_stack:
+      auth_key: '{{auth_key}}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_id: '{{net_id}}'
+      name: Test stack
+    register: stack
+
+  # - name: Delete network
+  #   meraki_network:
+  #     auth_key: '{{ auth_key }}'
+  #     state: absent
+  #     org_name: '{{test_org_name}}'
+  #     net_name: IntTestNetworkSwitch
+  #   delegate_to: localhost
