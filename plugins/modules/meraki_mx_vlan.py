@@ -415,6 +415,8 @@ def construct_payload(meraki):
         payload['dhcpRelayServerIps'] = meraki.params['dhcp_relay_server_ips']
     if meraki.params['dhcp_lease_time']:
         payload['dhcpLeaseTime'] = meraki.params['dhcp_lease_time']
+    if meraki.params['dhcp_boot_options_enabled']:
+        payload['dhcpBootOptionsEnabled'] = meraki.params['dhcp_boot_options_enabled']
     if meraki.params['dhcp_boot_next_server']:
         payload['dhcpBootNextServer'] = meraki.params['dhcp_boot_next_server']
     if meraki.params['dhcp_boot_filename']:
