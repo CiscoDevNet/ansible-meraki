@@ -150,7 +150,19 @@ def get_rules(meraki, net_id, number):
     path = meraki.construct_path('get_all', net_id=net_id, custom={'number': number})
     response = meraki.request(path, method='GET')
     if meraki.status == 200:
-        return response
+        return normalize_rule_case(response)
+
+
+def normalize_rule_case(rules):
+    excluded = ['comment']
+    try:
+        for r in rules['rules']:
+            for k in r:
+                if k not in excluded:
+                    r[k] = r[k].lower()
+    except KeyError:
+        return rules
+    return rules
 
 
 def get_ssid_number(name, data):
