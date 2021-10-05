@@ -21,14 +21,18 @@
     meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
-      net_name: TestNetAppliance
+      net_name: TestNetWireless
       state: query
+      number: 0
     delegate_to: localhost
     register: query
+
+  - debug:
+      var: query
     
   - assert:
       that:
-        - query.data.rules.0.policy == 'allow'
+        - query.data.rules.0.policy == 'deny'
         - query.data.rules.0.protocol == 'any'
         - query.data.rules.0.dest_port == 'any'
         - query.data.rules.0.dest_cidr == 'local lan'
