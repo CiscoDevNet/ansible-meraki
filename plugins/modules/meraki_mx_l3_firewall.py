@@ -237,7 +237,7 @@ def normalize_rule_case(rules):
     except KeyError:
         return rules
     return rules
-    
+
 
 def normalize_case(rule):
     any = ['any', 'Any', 'ANY']
