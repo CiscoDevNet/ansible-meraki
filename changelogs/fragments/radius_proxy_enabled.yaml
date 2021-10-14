@@ -1,2 +1,0 @@
-minor_changes:
-  - meraki_mr_ssid - Add support for radius_proxy_enabled SSID setting.
