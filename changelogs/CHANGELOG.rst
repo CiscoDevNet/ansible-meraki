@@ -5,6 +5,17 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.5.0
+======
+
+Minor Changes
+-------------
+
+- meraki_mr_l3_firewall - Return each MR L3 firewall rule's values in lowercase.
+- meraki_mr_ssid - Add support for radius_proxy_enabled SSID setting.
+- meraki_mx_l3_firewall - Return each MX L3 firewall rule's values in lowercase.
+- meraki_mx_vlan - Fix dhcp_boot_options_enabled parameter
+
 v2.4.2
 ======
 
