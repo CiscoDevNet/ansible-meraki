@@ -185,3 +185,15 @@ releases:
     fragments:
     - sanity-fixes.yml
     release_date: '2021-06-22'
+  2.5.0:
+    changes:
+      minor_changes:
+      - meraki_mr_l3_firewall - Return each MR L3 firewall rule's values in lowercase.
+      - meraki_mr_ssid - Add support for radius_proxy_enabled SSID setting.
+      - meraki_mx_l3_firewall - Return each MX L3 firewall rule's values in lowercase.
+      - meraki_mx_vlan - Fix dhcp_boot_options_enabled parameter
+    fragments:
+    - dhcp_boot_options_enabled.yaml
+    - lowercase-firewall-rule-values.yml
+    - radius_proxy_enabled.yaml
+    release_date: '2021-10-14'
