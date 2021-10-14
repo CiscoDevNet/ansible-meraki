@@ -1,2 +1,0 @@
-minor_changes:
-  - meraki_mx_vlan - Fix dhcp_boot_options_enabled parameter
