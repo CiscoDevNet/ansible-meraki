@@ -574,6 +574,7 @@ def main():
             proposed['voiceVlan'] = original['voiceVlan']  # API shouldn't include voice VLAN on a trunk port
         # meraki.fail_json(msg='Compare', original=original, payload=payload)
         if meraki.is_update_required(original, proposed, optional_ignore=['number']):
+            meraki.generate_diff(original, payload)
             if meraki.check_mode is True:
                 original.update(proposed)
                 meraki.result['data'] = original
@@ -586,6 +587,7 @@ def main():
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             meraki.result['data'] = response
             meraki.result['changed'] = True
+            meraki.generate_diff(original, response)
         else:
             meraki.result['data'] = original
 
