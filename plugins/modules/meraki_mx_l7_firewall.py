@@ -446,7 +446,7 @@ def main():
                 payload['rules'].append(assemble_payload(meraki, net_id, rule))
         else:
             payload = dict()
-        if meraki.is_update_required(rules,payload, force_include='id'):
+        if meraki.is_update_required(rules, payload, force_include='id'):
             if meraki.module.check_mode is True:
                 response = restructure_response(payload)
                 meraki.generate_diff(restructure_response(rules), response)
