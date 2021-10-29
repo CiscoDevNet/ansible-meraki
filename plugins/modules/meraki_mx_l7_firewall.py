@@ -327,20 +327,6 @@ def get_rules(meraki, net_id):
         return response
 
 
-def rename_id_to_appid(rules):
-    for rule in rules['rules']:
-        if rule['type'] == 'application' or rule['type'] == 'applicationCategory':
-            rule['value']['appId'] = rule['value'].pop('id')
-    return rules
-
-
-def rename_appid_to_id(rules):
-    for rule in rules['rules']:
-        if rule['type'] == 'application' or rule['type'] == 'applicationCategory':
-            rule['value']['id'] = rule['value'].pop('appId')
-    return rules
-
-
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
@@ -433,22 +419,29 @@ def main():
     elif meraki.params['state'] == 'present':
         rules = get_rules(meraki, net_id)
         path = meraki.construct_path('get_all', net_id=net_id)
+
+        # Detect if no rules are given, special case
+        if len(meraki.params['rules']) == 0:
+            if meraki.is_update_required(rules, meraki.params['rules']):
+                if meraki.module.check_mode is True:
+                    meraki.result['data'] = meraki.params['rules']
+                    meraki.result['changed'] = True
+                    meraki.exit_json(**meraki.result)
+                payload = {'rules': []}
+                response = meraki.request(path, method='PUT', payload=json.dumps(payload))
+                meraki.result['data'] = response
+                meraki.result['changed'] = True
+                meraki.exit_json(**meraki.result)
+            else:
+                meraki.result['data'] = meraki.params['rules']
+                meraki.exit_json(**meraki.result)
         if meraki.params['rules']:
             payload = {'rules': []}
             for rule in meraki.params['rules']:
                 payload['rules'].append(assemble_payload(meraki, net_id, rule))
         else:
             payload = dict()
-
-        '''
-        The rename_* functions are needed because the key is id and
-        is_update_required() by default ignores id.
-        '''
-        rules = rename_id_to_appid(rules)
-        payload = rename_id_to_appid(payload)
-        if meraki.is_update_required(rules, payload):
-            rules = rename_appid_to_id(rules)
-            payload = rename_appid_to_id(payload)
+        if meraki.is_update_required(rules,payload, force_include='id'):
             if meraki.module.check_mode is True:
                 response = restructure_response(payload)
                 meraki.generate_diff(restructure_response(rules), response)
@@ -462,8 +455,6 @@ def main():
                 meraki.result['data'] = response
                 meraki.result['changed'] = True
         else:
-            rules = rename_appid_to_id(rules)
-            payload = rename_appid_to_id(payload)
             if meraki.module.check_mode is True:
                 meraki.result['data'] = rules
                 meraki.result['changed'] = False

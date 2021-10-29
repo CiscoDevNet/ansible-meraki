@@ -25,9 +25,6 @@
       state: query
     register: query
 
-  - debug:
-      var: query
-
   - assert:
       that:
         - query.data is defined
@@ -44,6 +41,39 @@
   - assert:
       that:
         - query_categories.data is defined
+
+  - name: Set firewall rules to empty array
+    meraki_mx_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: TestNetAppliance
+      state: present
+      rules: []
+    register: empty_list
+
+  - debug:
+      var: empty_list
+
+  - assert:
+      that:
+        - empty_list.data.rules | length == 0
+
+  - name: Set firewall rules to empty array with idempotency
+    meraki_mx_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      net_name: TestNetAppliance
+      state: present
+      rules: []
+    register: empty_list_idempotent
+
+  - debug:
+      var: empty_list_idempotent
+
+  - assert:
+      that:
+        - empty_list_idempotent.data.rules | length == 0
+        - empty_list_idempotent is not changed
 
   - name: Create firewall rule for IP range in check mode
     meraki_mx_l7_firewall:
