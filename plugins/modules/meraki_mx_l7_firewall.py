@@ -422,7 +422,12 @@ def main():
 
         # Detect if no rules are given, special case
         if len(meraki.params['rules']) == 0:
-            if meraki.is_update_required(rules, meraki.params['rules']):
+            # Conditionally wrap parameters in rules makes it comparable
+            if isinstance(meraki.params['rules'], list):
+                param_rules = {'rules': meraki.params['rules']}
+            else:
+                param_rules = meraki.params['rules']
+            if meraki.is_update_required(rules, param_rules):
                 if meraki.module.check_mode is True:
                     meraki.result['data'] = meraki.params['rules']
                     meraki.result['changed'] = True
@@ -433,7 +438,7 @@ def main():
                 meraki.result['changed'] = True
                 meraki.exit_json(**meraki.result)
             else:
-                meraki.result['data'] = meraki.params['rules']
+                meraki.result['data'] = param_rules
                 meraki.exit_json(**meraki.result)
         if meraki.params['rules']:
             payload = {'rules': []}
