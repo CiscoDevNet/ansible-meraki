@@ -1,0 +1,2 @@
+bugfixes:
+  - Requests failing due to local socket problems will be handled and retried.
