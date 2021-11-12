@@ -22,7 +22,7 @@ description:
 - Configure and query information about uplinks on Meraki MX appliances.
 notes:
 - Some of the options are likely only used for developers within Meraki.
-- Module was formerly named M(meraki_mx_uplink).
+- Module was formerly named M(cisco.meraki.meraki_mx_uplink).
 options:
     state:
       description:
