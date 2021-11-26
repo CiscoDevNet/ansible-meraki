@@ -54,7 +54,7 @@ options:
         - auto
         - 20
         - 40
-        - 80 
+        - 80
         type: str
       channel:
         description:
@@ -173,38 +173,45 @@ data:
       description:
       - Configured manual radio settings for 5 GHz.
       type: dict
-      suboptions:
+      returned: success
+      contains:
         target_power:
           description:
           - Configured manual target power for 5 GHz.
           - Null indicates auto power.
           type: int
+          sample: 25
         channel_width:
           description:
           - Configured manual channel for 5 GHz.
           - Null indicates auto channel width.
           type: str
+          sample: 40
         channel:
           description:
           - Configured manual channel for 5 GHz.
           - Null indicates auto channel.
           type: str
+          sample: 56
       returned: success
     two_four_ghz_settings:
       description:
       - Configured manual radio settings for 2.4 GHz.
       type: dict
-      suboptions:
+      returned: success
+      contains:
         target_power:
           description:
           - Configured manual target power for 2.4 GHz.
           - Null indicates auto power.
           type: int
+          sample: 15
         channel:
           description:
           - Configured manual channel for 2.4 GHz.
           - Null indicates auto channel.
           type: str
+          sample: 11
 """
 
 from ansible.module_utils.basic import AnsibleModule, json
@@ -302,7 +309,7 @@ TWO_FOUR_GHZ_SETTINGS_SPEC = {
         "target_power": {"type": "int", "default": None},
         "channel": {
             "type": "int",
-            "choices": [None] + range(1, 15),
+            "choices": [None] + list(range(1, 15)),
             "default": None,
         },
     },
