@@ -601,6 +601,7 @@ def main():
         path = meraki.construct_path('get_all', net_id=net_id)
         profiles = meraki.request(path, method='GET')
         # profile = get_profile(meraki, profiles, meraki.params['name'])
+        profile_id = next((profile['id'] for profile in profiles if profile['name'] == meraki.params['name']), None)
 
     if meraki.params['state'] == 'query':
         if profile_id is not None:
