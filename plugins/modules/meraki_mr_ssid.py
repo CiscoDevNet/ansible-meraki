@@ -597,9 +597,14 @@ def main():
         if ssid_id is None:  # Name should be used to lookup number
             ssid_id = get_ssid_number(meraki.params['name'], ssids)
             if ssid_id is False:
+                # This will return True as long as there's an unclaimed SSID number!
                 ssid_id = get_available_number(ssids)
+                # There are no available SSIDs or SSID numbers
                 if ssid_id is False:
-                    meraki.fail_json(msg='No SSID found by specified name and no number was referenced.')
+                    meraki.fail_json(msg='No SSID found by specified name and no numbers unclaimed.')
+                meraki.result['changed'] = False
+                meraki.result['data'] = {}
+                meraki.exit_json(**meraki.result)
         if meraki.check_mode is True:
             meraki.result['data'] = {}
             meraki.result['changed'] = True
