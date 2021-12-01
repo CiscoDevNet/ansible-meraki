@@ -58,12 +58,12 @@
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
-        channel: 56
+        channel: 40
         channel_width: 20
         target_power: 10
       two_four_ghz_settings:
-        channel: 6
-        target_power: 12
+        channel: 1
+        target_power: 10
       rf_profile_name: Test Profile
     delegate_to: localhost
     register: create_check
@@ -94,12 +94,12 @@
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
-        channel: 56
+        channel: 40
         channel_width: 20
         target_power: 10
       two_four_ghz_settings:
-        channel: 6
-        target_power: 12
+        channel: 1
+        target_power: 10
       rf_profile_name: Test Profile
     delegate_to: localhost
     register: update
@@ -117,12 +117,12 @@
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
-        channel: 56
+        channel: 40
         channel_width: 20
         target_power: 10
       two_four_ghz_settings:
-        channel: 6
-        target_power: 12
+        channel: 1
+        target_power: 10
       rf_profile_name: Test Profile
     delegate_to: localhost
     register: update_idempotent
