@@ -56,7 +56,7 @@
       org_name: "{{ test_org_name }}"
       net_name: IntTestNetworkWireless
       state: present
-      serial: "{{ serial }}"
+      serial: "{{ serial_wireless }}"
       five_ghz_settings:
         channel: 56
         channel_width: 20
@@ -77,7 +77,7 @@
   - name: Query a device radio
     meraki_mr_rf_profile:
       auth_key: '{{ auth_key }}'
-      serial: "{{ serial }}"
+      serial: "{{ serial_wireless }}"
       state: query
     delegate_to: localhost
     register: query_one
@@ -92,7 +92,7 @@
       org_name: "{{ test_org_name }}"
       net_name: IntTestNetworkWireless
       state: present
-      serial: "{{ serial }}"
+      serial: "{{ serial_wireless }}"
       five_ghz_settings:
         channel: 56
         channel_width: 20
@@ -115,7 +115,7 @@
       org_name: "{{ test_org_name }}"
       net_name: IntTestNetworkWireless
       state: present
-      serial: "{{ serial }}"
+      serial: "{{ serial_wireless }}"
       five_ghz_settings:
         channel: 56
         channel_width: 20
