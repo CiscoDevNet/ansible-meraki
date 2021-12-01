@@ -14,6 +14,15 @@
       timezone: America/Chicago
     delegate_to: localhost
 
+  - name: Add access points to network
+    meraki_device:
+      auth_key: "{{ auth_key }}"
+      state: present
+      org_name: "{{ test_org_name }}"
+      net_name: IntTestNetworkWireless
+      serial: "{{ serial_wireless }}"
+    delegate_to: localhost
+
   - name: Create RF profile
     meraki_mr_rf_profile:
       auth_key: "{{ auth_key }}"
