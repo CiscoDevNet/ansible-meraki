@@ -36,6 +36,21 @@ options:
     - The ID of an RF profile to assign to the device.
     - If the value of this parameter is null, the appropriate basic RF profile (indoor or outdoor) will be assigned to the device.
     - Assigning an RF profile will clear ALL manually configured overrides on the device (channel width, channel, power).
+    type: str
+  rf_profile_name:
+    description:
+    - The name of an RF profile to assign to the device.
+    - Similar to ``rf_profile_id``, but requires ``net_id`` (preferred) or ``net_name``.
+    type: str
+  net_name:
+    description:
+    - Name of a network.
+    aliases: [network]
+    type: str
+  net_id:
+    description:
+    - ID of a network.
+    type: str
   five_ghz_settings:
     description:
     - Manual radio settings for 5 GHz.
@@ -59,8 +74,7 @@ options:
       channel:
         description:
         - Sets a manual channel for 5 GHz.
-        type: list
-        elements: int
+        type: int
         choices:
         - 36
         - 40
@@ -87,6 +101,10 @@ options:
         - 157
         - 161
         - 165
+    default:
+      target_power:
+      channel_width:
+      channel:
   two_four_ghz_settings:
     description:
     - Manual radio settings for 2.4 GHz.
@@ -116,8 +134,10 @@ options:
         - 12
         - 13
         - 14
-        type: list
-        elements: int
+        type: int
+    default:
+      target_power:
+      channel:
 author:
 - Tyler Christiansen (@supertylerc)
 extends_documentation_fragment: cisco.meraki.meraki
@@ -266,11 +286,10 @@ def construct_payload(meraki):
 FIVE_GHZ_SETTINGS_SPEC = {
     "options": {
         "target_power": {"type": "int"},
-        "channel_width": {"type": "int", "choices": [None, 20, 40, 80]},
+        "channel_width": {"type": "str", "choices": ["auto", "20", "40", "80"]},
         "channel": {
             "type": "int",
             "choices": [
-                None,
                 36,
                 40,
                 44,
@@ -305,11 +324,10 @@ FIVE_GHZ_SETTINGS_SPEC = {
 # Ansible spec for the 'two_four_ghz_settings' param, based on Meraki API.
 TWO_FOUR_GHZ_SETTINGS_SPEC = {
     "options": {
-        "target_power": {"type": "int", "default": None},
+        "target_power": {"type": "int"},
         "channel": {
             "type": "int",
-            "choices": [None] + list(range(1, 15)),
-            "default": None,
+            "choices": list(range(1, 15)),
         },
     },
     "default": {"target_power": None, "channel": None},
@@ -442,7 +460,7 @@ def main():
         state=dict(type="str", choices=["present", "query"], default="present"),
         org_name=dict(type="str", aliases=["organization"]),
         org_id=dict(type="str"),
-        net_name=dict(type="str"),
+        net_name=dict(type="str", aliases=["network"]),
         net_id=dict(type="str"),
         serial=dict(type="str"),
         rf_profile_name=(dict(type="str")),
