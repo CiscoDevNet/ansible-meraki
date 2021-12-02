@@ -193,7 +193,6 @@ data:
           - Null indicates auto channel.
           type: str
           sample: 56
-      returned: success
     two_four_ghz_settings:
       description:
       - Configured manual radio settings for 2.4 GHz.
