@@ -102,9 +102,6 @@ options:
         - 161
         - 165
     default:
-      target_power:
-      channel_width:
-      channel:
   two_four_ghz_settings:
     description:
     - Manual radio settings for 2.4 GHz.
@@ -136,8 +133,6 @@ options:
         - 14
         type: int
     default:
-      target_power:
-      channel:
 author:
 - Tyler Christiansen (@supertylerc)
 extends_documentation_fragment: cisco.meraki.meraki
@@ -318,7 +313,7 @@ FIVE_GHZ_SETTINGS_SPEC = {
             ],
         },
     },
-    "default": {"target_power": None, "channel_width": None, "channel": None},
+    "default": {},
 }
 
 # Ansible spec for the 'two_four_ghz_settings' param, based on Meraki API.
@@ -330,7 +325,7 @@ TWO_FOUR_GHZ_SETTINGS_SPEC = {
             "choices": list(range(1, 15)),
         },
     },
-    "default": {"target_power": None, "channel": None},
+    "default": {},
 }
 
 
