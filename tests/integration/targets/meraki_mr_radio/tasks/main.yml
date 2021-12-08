@@ -84,7 +84,7 @@
         - create_check is changed
 
   - name: Query a device radio
-    meraki_mr_rf_profile:
+    meraki_mr_radio:
       auth_key: '{{ auth_key }}'
       serial: "{{ serial_wireless }}"
       state: query
