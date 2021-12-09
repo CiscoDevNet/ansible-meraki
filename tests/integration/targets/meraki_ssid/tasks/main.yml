@@ -527,7 +527,7 @@
 
   - assert:
       that:
-        - delete_ssid is changed
+        - deleted_ssid is changed
 
   - name: Remove SSID to Test SSID Delete Idempotency
     meraki_ssid:
@@ -541,7 +541,7 @@
 
   - assert:
       that:
-        - delete_ssid is not changed
+        - deleted_ssid is not changed
 
   always:
   - name: Delete SSID with check mode
