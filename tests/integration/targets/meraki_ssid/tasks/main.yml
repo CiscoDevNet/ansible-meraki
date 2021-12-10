@@ -505,6 +505,44 @@
       that: 
         - 'set_vlan_arg_err.msg == "default_vlan_id is required when use_vlan_tagging is True"'
 
+  - name: Create SSID to Test SSID Delete Idempotency
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleIdempotentDeleteSSID
+      enabled: true
+    delegate_to: localhost
+
+  - name: Remove SSID to Test SSID Delete Idempotency
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleIdempotentDeleteSSID
+    delegate_to: localhost
+    register: deleted_ssid
+
+  - assert:
+      that:
+        - deleted_ssid is changed
+
+  - name: Remove SSID to Test SSID Delete Idempotency
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleIdempotentDeleteSSID
+    delegate_to: localhost
+    register: deleted_ssid
+
+  - assert:
+      that:
+        - deleted_ssid is not changed
+
   always:
   - name: Delete SSID with check mode
     meraki_ssid:
