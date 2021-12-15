@@ -4,46 +4,76 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
 - block:
-  - name: Test an API key is provided
-    fail:
-      msg: Please define an API key
-    when: auth_key is not defined
+  # - name: Test an API key is provided
+  #   fail:
+  #     msg: Please define an API key
+  #   when: auth_key is not defined
     
-  - name: Create network
-    meraki_network:
+  # - name: Create network
+  #   meraki_network:
+  #     auth_key: '{{ auth_key }}'
+  #     org_name: '{{test_org_name}}'
+  #     net_name: TestNetAppliance
+  #     state: present
+  #     type: appliance
+
+  # - name: Query firewall rules
+  #   meraki_mx_l7_firewall:
+  #     auth_key: '{{ auth_key }}'
+  #     org_name: '{{test_org_name}}'
+  #     net_name: TestNetAppliance
+  #     state: query
+  #   register: query
+
+  # - assert:
+  #     that:
+  #       - query.data is defined
+
+  # - name: Query firewall application categories
+  #   meraki_mx_l7_firewall:
+  #     auth_key: '{{ auth_key }}'
+  #     org_name: '{{test_org_name}}'
+  #     net_name: TestNetAppliance
+  #     state: query
+  #     categories: yes
+  #   register: query_categories
+
+  # - assert:
+  #     that:
+  #       - query_categories.data is defined
+
+  # - name: Set firewall rules to empty array
+  #   meraki_mx_l7_firewall:
+  #     auth_key: '{{ auth_key }}'
+  #     org_name: '{{test_org_name}}'
+  #     net_name: TestNetAppliance
+  #     state: present
+  #     rules: []
+  #   register: empty_list
+
+  # - debug:
+  #     var: empty_list
+
+  # - assert:
+  #     that:
+  #       - empty_list.data.rules | length == 0
+
+  - name: Set firewall rules to empty array with idempotency
+    meraki_mx_l7_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
       net_name: TestNetAppliance
       state: present
-      type: appliance
-
-  - name: Query firewall rules
-    meraki_mx_l7_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      net_name: TestNetAppliance
-      state: query
-    register: query
+      rules: []
+    register: empty_list_idempotent
 
   - debug:
-      var: query
+      var: empty_list_idempotent
 
   - assert:
       that:
-        - query.data is defined
-
-  - name: Query firewall application categories
-    meraki_mx_l7_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      net_name: TestNetAppliance
-      state: query
-      categories: yes
-    register: query_categories
-
-  - assert:
-      that:
-        - query_categories.data is defined
+        - empty_list_idempotent.data.rules | length == 0
+        - empty_list_idempotent is not changed
 
   - name: Create firewall rule for IP range in check mode
     meraki_mx_l7_firewall:

@@ -157,9 +157,12 @@ class MerakiModule(object):
         elif isinstance(data, int) or isinstance(data, str) or isinstance(data, float):
             return data
 
-    def is_update_required(self, original, proposed, optional_ignore=None, debug=False):
+    def is_update_required(self, original, proposed, optional_ignore=None, force_include=None, debug=False):
         ''' Compare two data-structures '''
         self.ignored_keys.append('net_id')
+        if force_include is not None:
+            if force_include in self.ignored_keys:
+                self.ignored_keys.remove(force_include)
         if optional_ignore is not None:
             # self.fail_json(msg="Keys", ignored_keys=self.ignored_keys, optional=optional_ignore)
             self.ignored_keys = self.ignored_keys + optional_ignore
@@ -458,7 +461,14 @@ class MerakiModule(object):
             data = None
             if 'body' in info:
                 self.body = info['body']
-            data = json.loads(to_native(resp.read()))
+            try:
+                data = json.loads(to_native(resp.read()))
+            except AttributeError:
+                self.fail_json(msg="Failure occurred during pagination",
+                               response=self.response,
+                               status=self.status,
+                               body=self.body
+                               )
             header_link = self._parse_pagination_header(info['link'])
             while header_link['next'] is not None:
                 self.url = header_link['next']
@@ -468,7 +478,14 @@ class MerakiModule(object):
                 except HTTPError:
                     self.fail_json(msg="HTTP request to {url} failed with error code {code}".format(url=self.url, code=self.status))
                 header_link = self._parse_pagination_header(info['link'])
-                data.extend(json.loads(to_native(resp.read())))
+                try:
+                    data.extend(json.loads(to_native(resp.read())))
+                except AttributeError:
+                    self.fail_json(msg="Failure occurred during pagination",
+                                   response=self.response,
+                                   status=self.status,
+                                   body=self.body
+                                   )
             return data
         else:  # Non-pagination
             if 'body' in info:
