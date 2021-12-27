@@ -1,3 +1,0 @@
----
-bugfixes:
-  - meraki_mr_ssid - Fix issue with SSID removal idempotency when ID doesn't exist

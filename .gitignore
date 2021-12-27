@@ -6,4 +6,4 @@ inventory.networking
 tests/output/*
 .vscode
 .env
-venv
+venv*

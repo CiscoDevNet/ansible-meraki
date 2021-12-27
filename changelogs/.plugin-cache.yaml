@@ -1,4 +1,5 @@
-objects: {}
+objects:
+  role: {}
 plugins:
   become: {}
   cache: {}
@@ -42,6 +43,11 @@ plugins:
     meraki_mr_l3_firewall:
       description: Manage MR access point layer 3 firewalls in the Meraki cloud
       name: meraki_mr_l3_firewall
+      namespace: ''
+      version_added: null
+    meraki_mr_radio:
+      description: Manage device radio settings for Meraki wireless networks
+      name: meraki_mr_radio
       namespace: ''
       version_added: null
     meraki_mr_rf_profile:
@@ -188,4 +194,4 @@ plugins:
   shell: {}
   strategy: {}
   vars: {}
-version: 2.5.0
+version: 2.6.0
