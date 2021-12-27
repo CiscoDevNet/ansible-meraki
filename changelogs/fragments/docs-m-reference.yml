@@ -1,2 +1,0 @@
-trivial:
-  - meraki_mx_uplink_bandwidth - Change M() reference to be FQCN.

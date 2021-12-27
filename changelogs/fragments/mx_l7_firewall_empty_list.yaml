@@ -1,3 +1,0 @@
-minor_changes:
-  - meraki_mx_l7_firewall - Allow passing an empty ruleset to delete all rules
-  - meraki_utils - Add debugging output for failed socket connections

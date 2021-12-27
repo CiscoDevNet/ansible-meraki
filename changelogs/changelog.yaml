@@ -197,3 +197,18 @@ releases:
     - lowercase-firewall-rule-values.yml
     - radius_proxy_enabled.yaml
     release_date: '2021-10-14'
+  2.6.0:
+    changes:
+      bugfixes:
+      - meraki_mr_ssid - Fix issue with SSID removal idempotency when ID doesn't exist
+      major_changes:
+      - meraki_mr_radio - New module
+      minor_changes:
+      - meraki_mx_l7_firewall - Allow passing an empty ruleset to delete all rules
+      - meraki_utils - Add debugging output for failed socket connections
+    fragments:
+    - delete-ssid-idempotency.yml
+    - docs-m-reference.yml
+    - meraki_mr_radio.yml
+    - mx_l7_firewall_empty_list.yaml
+    release_date: '2021-12-27'

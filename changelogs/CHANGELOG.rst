@@ -5,6 +5,25 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.6.0
+======
+
+Major Changes
+-------------
+
+- meraki_mr_radio - New module
+
+Minor Changes
+-------------
+
+- meraki_mx_l7_firewall - Allow passing an empty ruleset to delete all rules
+- meraki_utils - Add debugging output for failed socket connections
+
+Bugfixes
+--------
+
+- meraki_mr_ssid - Fix issue with SSID removal idempotency when ID doesn't exist
+
 v2.5.0
 ======
 
