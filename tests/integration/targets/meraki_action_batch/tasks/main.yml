@@ -186,28 +186,22 @@
   - set_fact:
       new_networks: "{{ gather_networks.data.status.created_resources | selectattr('uri', 'defined') | map(attribute='uri') | list | unique }}"
 
-  # - name: Initialize an empty list
-  #   set_fact:
-  #     delete_actions: []
+  - name: Initialize an empty list
+    set_fact:
+      delete_actions: []
 
-  # - set_fact:
-  #     delete_actions: "{{ delete_actions }} + resource: {{ item }} operation: 'destroy'"
-  #     loop: '{{ new_networks }}'
+  - set_fact:
+      delete_actions: "{{ delete_actions + [{'resource': item , 'operation': 'destroy' }] }}"
+    loop: '{{ new_networks }}'
 
-
-  # - name: Create an Action Batch job to delete newly created networks
-  #   meraki_action_batch:
-  #     auth_key: '{{auth_key}}'
-  #     org_name: '{{test_org_name}}'
-  #     state: present
-  #     actions:
-  #     - resource: '{{ item }}'
-  #       operation: 'destroy'
-  #     - resource: '{{ item }}'
-  #       operation: 'destroy'
-  #   delegate_to: localhost
-  #   loop: '{{ new_networks }}'
-  #   register: create_two
+  - name: Create an Action Batch job to delete newly created networks
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      actions: '{{ delete_actions }}'
+    delegate_to: localhost
+    register: create_two
 
   - name: Delete an Action Batch job
     meraki_action_batch:
