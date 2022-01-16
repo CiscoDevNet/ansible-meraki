@@ -256,6 +256,58 @@
       that:
         - delete.data is defined
         - delete is changed
+- name: "Test RFProfile Bugfix from !281"
+  block:
+    - name: Create RF Profile
+      cisco.meraki.meraki_mr_rf_profile:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{test_org_name}}'
+        net_name: IntTestNetworkWireless
+        name: "RF Profile - !281"
+        band_selection_type: ap
+        ap_band_settings:
+          mode: 'dual'
+        five_ghz_settings:
+          channel_width: 40
+        two_four_ghz_settings:
+          ax_enabled: 'no'
+        state: present
+      register: create_281
+    - assert:
+        that:
+          - create_281.data is defined
+          - create_281.data is changed
+    - name: Create RF Profile - Idempotent
+      cisco.meraki.meraki_mr_rf_profile:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{test_org_name}}'
+        net_name: IntTestNetworkWireless
+        name: "RF Profile - !281"
+        band_selection_type: ap
+        ap_band_settings:
+          mode: 'dual'
+        five_ghz_settings:
+          channel_width: 40
+        two_four_ghz_settings:
+          ax_enabled: 'no'
+        state: present
+      register: idempotent_281
+    - assert:
+        that:
+          - idempotent_281.data is defined
+          - idempotent_281.data is not changed
+    - name: Clean Up RF Profile
+      cisco.meraki.meraki_mr_rf_profile:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{test_org_name}}'
+        net_name: IntTestNetworkWireless
+        name: "RF Profile - !281"
+        state: absent
+      register: delete_281
+    - assert:
+        that:
+          - delete_281.data is defined
+          - delete_281.data is changed
 
 #############################################################################
 # Tear down starts here
