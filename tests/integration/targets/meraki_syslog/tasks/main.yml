@@ -45,12 +45,14 @@
           port: 514
           roles:
             - Appliance event log
+            - Flows
     delegate_to: localhost
     register: create_server
 
   - assert:
       that:
         - create_server['data']['servers'][0]['host'] == "192.0.1.2"
+        - create_server is changed
 
   - name: Set syslog server with idempotency
     meraki_syslog:
@@ -63,6 +65,7 @@
           port: 514
           roles:
             - Appliance event log
+            - Flows
     delegate_to: localhost
     register: create_server_idempotency
 
