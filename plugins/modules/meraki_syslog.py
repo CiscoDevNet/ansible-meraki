@@ -165,6 +165,39 @@ def sort_roles(syslog_servers):
     # return sorted_servers
 
 
+def validate_role_choices(meraki, servers):
+    choices = [
+        "Wireless event log",
+        "Appliance event log",
+        "Switch event log",
+        "Air Marshal events",
+        "Flows",
+        "URLs",
+        "IDS alerts",
+        "Security events",
+    ]
+
+    # Change all choices to lowercase for comparison
+    for i in range(len(choices)):
+        choices[i] = choices[i].lower()
+    for server in range(len(servers)):
+        for role in servers[server]["roles"]:
+            if role.lower() not in choices:
+                meraki.fail_json(
+                    msg=f"Invalid role found in {servers[server]['host']}."
+                )
+
+
+def normalize_roles(meraki, servers):
+    if len(servers) > 0:
+        for server in range(len(servers)):
+            for role in range(len(servers["servers"][server]["roles"])):
+                servers["servers"][server]["roles"][role] = servers["servers"][server][
+                    "roles"
+                ][role].lower()
+    return servers
+
+
 def main():
 
     # define the available arguments/parameters that a user can pass to
@@ -176,16 +209,6 @@ def main():
         roles=dict(
             type="list",
             elements="str",
-            choices=[
-                "Wireless Event log",
-                "Appliance event log",
-                "Switch event log",
-                "Air Marshal events",
-                "Flows",
-                "URLs",
-                "IDS alerts",
-                "Security events",
-            ],
         ),
     )
 
@@ -244,6 +267,9 @@ def main():
         if meraki.status == 200:
             meraki.result["data"] = r
     elif meraki.params["state"] == "present":
+        # Validate roles
+        validate_role_choices(meraki, meraki.params["servers"])
+
         # Construct payload
         payload = dict()
         payload["servers"] = meraki.params["servers"]
@@ -266,7 +292,11 @@ def main():
             if len(payload["servers"]) > 0:
                 sort_roles(payload)
 
-        if meraki.is_update_required(original, payload):
+        # Sanitize roles for comparison
+        sanitized_original = normalize_roles(meraki, deepcopy(original))
+        sanitized_payload = normalize_roles(meraki, deepcopy(payload))
+
+        if meraki.is_update_required(sanitized_original, sanitized_payload):
             if meraki.module.check_mode is True:
                 meraki.generate_diff(original, payload)
                 original.update(payload)

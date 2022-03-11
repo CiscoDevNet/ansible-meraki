@@ -12,13 +12,15 @@
   - set_fact:
       syslog_test_net_name: 'syslog_{{test_net_name}}'
 
-  - name: Create network with type appliance and no timezone
+  - name: Create network with type appliance and switch
     meraki_network:
       auth_key: '{{ auth_key }}'
       state: present
       org_name: '{{test_org_name}}'
       net_name: '{{test_net_name}}'
-      type: appliance
+      type:
+        - appliance
+        - wireless
     delegate_to: localhost
     register: new_net
 
@@ -74,6 +76,48 @@
         - create_server_idempotency.changed == False
         - create_server_idempotency.data is defined
 
+  - name: Set syslog server with wireless Event log
+    meraki_syslog:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      state: present
+      servers:
+        - host: 192.0.1.2
+          port: 514
+          roles:
+            - Appliance event log
+            - Flows
+            - wireless Event log
+    delegate_to: localhost
+    register: create_server
+
+  - assert:
+      that:
+        - create_server['data']['servers'][0]['host'] == "192.0.1.2"
+        - create_server is changed
+
+  - name: Set syslog server with wireless Event log with idempotency
+    meraki_syslog:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      state: present
+      servers:
+        - host: 192.0.1.2
+          port: 514
+          roles:
+            - Appliance event log
+            - Flows
+            - wireless event log
+    delegate_to: localhost
+    register: create_server_idempotency
+
+  - assert:
+      that:
+        - create_server_idempotency.changed == False
+        - create_server_idempotency.data is defined
+
   - name: Set multiple syslog servers
     meraki_syslog:
       auth_key: '{{auth_key}}'
@@ -121,7 +165,7 @@
 
   - assert:
       that:
-        - '"Invalid role found in servers" in invalid_role.msg'
+        - '"Invalid role found in" in invalid_role.msg'
 
   - name: Add role to existing syslog server  # Adding doesn't work, just creation
     meraki_syslog:
