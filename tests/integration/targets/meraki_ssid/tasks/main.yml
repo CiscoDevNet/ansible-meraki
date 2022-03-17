@@ -99,6 +99,27 @@
         - enable_name_ssid_idempotent.changed == False
         - enable_name_ssid_idempotent.data is defined
 
+  - name: Set splash portal with sponsor domain
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      splash_page: Sponsored guest
+      splash_guest_sponsor_domains:
+        - "gmail.com"
+    delegate_to: localhost
+    register: splash_guest_sponsor_domain
+
+  - debug:
+      msg: '{{ splash_guest_sponsor_domain }}'
+
+  - assert:
+      that:
+        - splash_guest_sponsor_domain.changed == True
+        - splash_guest_sponsor_domain.data is defined
+
   - name: Query one SSIDs
     meraki_ssid:
       auth_key: '{{auth_key}}'
@@ -168,6 +189,15 @@
   - assert:
       that:
         - enable_ssid_number.data.enabled == True
+
+  - name: Configure sponsor portal
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      number: 1
+      splash_page: Sponsored guest      
 
   - name: Set VLAN arg spec
     meraki_ssid:
