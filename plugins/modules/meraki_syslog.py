@@ -62,14 +62,7 @@ options:
             roles:
                 description:
                 - List of applicable Syslog server roles.
-                choices: ['Wireless Event log',
-                          'Appliance event log',
-                          'Switch event log',
-                          'Air Marshal events',
-                          'Flows',
-                          'URLs',
-                          'IDS alerts',
-                          'Security events']
+                - Choices are one of the following case insensitive options: 'Wireless Event log', 'Appliance event log', 'Switch event log', 'Air Marshal events', 'Flows', 'URLs', 'IDS alerts', 'Security events'
                 type: list
                 elements: str
 
