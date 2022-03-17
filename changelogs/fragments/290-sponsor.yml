@@ -1,0 +1,2 @@
+minor_changes:
+  - meraki_ssid - Add support for enterprise_admin_access and splash_guest_sponsor_domains with the latter required for creating a sponsor portal.
