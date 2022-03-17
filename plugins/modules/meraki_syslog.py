@@ -177,7 +177,7 @@ def validate_role_choices(meraki, servers):
         for role in servers[server]["roles"]:
             if role.lower() not in choices:
                 meraki.fail_json(
-                    msg="Invalid role found in {}.".format(servers[server]["host"])
+                    msg="Invalid role found in {0}.".format(servers[server]["host"])
                 )
 
 
