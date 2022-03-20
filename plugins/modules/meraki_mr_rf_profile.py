@@ -103,7 +103,7 @@ options:
             channel_width:
                 description:
                 - Sets channel width (MHz) for 5Ghz band.
-                choices: [ auto, 20, 40, 80 ]
+                choices: [ auto, '20', '40', '80' ]
                 type: str
             valid_auto_channels:
                 description:
