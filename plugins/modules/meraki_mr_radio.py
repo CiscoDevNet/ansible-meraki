@@ -67,9 +67,9 @@ options:
         - Can be '0', '20', '40', or '80' or null for using auto channel width.
         choices:
         - auto
-        - 20
-        - 40
-        - 80
+        - '20'
+        - '40'
+        - '80'
         type: str
       channel:
         description:
