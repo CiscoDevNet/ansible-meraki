@@ -1,0 +1,4 @@
+---
+trivial:
+  - meraki_mr_radio - Fix documentation where type is str but int is a choice.
+  - meraki_mr_rf_profile - Fix documentation where type is str but int is a choice.
