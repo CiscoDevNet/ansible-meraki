@@ -5,6 +5,20 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.6.1
+======
+
+Minor Changes
+-------------
+
+- meraki_ssid - Add support for enterprise_admin_access and splash_guest_sponsor_domains with the latter required for creating a sponsor portal.
+
+Bugfixes
+--------
+
+- meraki_mr_rf_profile - Fix issue with idempotency and creation of RF Profiles by name only
+- meraki_syslog - Improve reliability for multiple roles or capitalization.
+
 v2.6.0
 ======
 

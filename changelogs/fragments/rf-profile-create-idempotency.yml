@@ -1,3 +1,0 @@
----
-bugfixes:
-  - meraki_mr_rf_profile - Fix issue with idempotency and creation of RF Profiles by name only

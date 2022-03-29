@@ -1,2 +1,0 @@
-bugfixes:
-  - meraki_syslog - Improve reliability for multiple roles or capitalization.
