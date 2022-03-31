@@ -182,7 +182,7 @@ def validate_role_choices(meraki, servers):
 
 
 def normalize_roles(meraki, servers):
-    if len(servers) > 0:
+    if len(servers["servers"]) > 0:
         for server in range(len(servers)):
             for role in range(len(servers["servers"][server]["roles"])):
                 servers["servers"][server]["roles"][role] = servers["servers"][server][
