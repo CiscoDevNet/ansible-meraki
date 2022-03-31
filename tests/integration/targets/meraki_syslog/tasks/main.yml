@@ -27,14 +27,14 @@
   - set_fact:
       net_id: '{{new_net.data.id}}'
 
-  - name: Query syslog settings
-    meraki_syslog:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      state: query
-    delegate_to: localhost
-    register: query_all
+  # - name: Query syslog settings
+  #   meraki_syslog:
+  #     auth_key: '{{auth_key}}'
+  #     org_name: '{{test_org_name}}'
+  #     net_name: '{{test_net_name}}'
+  #     state: query
+  #   delegate_to: localhost
+  #   register: query_all
 
   - name: Set syslog server
     meraki_syslog:
@@ -117,6 +117,34 @@
       that:
         - create_server_idempotency.changed == False
         - create_server_idempotency.data is defined
+
+  - name: Set syslog servers to address bug 288
+    meraki_syslog:
+      auth_key: "{{ meraki_api_key }}"
+      state: present
+      org_name: "{{ meraki_org.data[0].name }}"
+      net_id: "{{ item.network_id }}"
+      servers:
+       - host: "10.3.15.11"
+         port: 604
+         roles:
+           - Appliance event log
+           - Security events
+       - host: "10.5.15.11"
+         port: 604
+         roles:
+           - Appliance event log
+           - Security events
+       - host: "10.9.15.11"
+         port: 604
+         roles:
+           - Appliance event log
+           - Security events
+       - host: "10.5.250.12"
+         port: 514
+         roles:
+           - Appliance event log
+             - Security events
 
   - name: Set multiple syslog servers
     meraki_syslog:
