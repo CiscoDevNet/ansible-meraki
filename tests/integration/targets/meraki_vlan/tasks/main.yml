@@ -290,6 +290,40 @@
         - update_vlan_idempotent.changed == False
         - update_vlan_idempotent.data is defined
 
+  - name: Change VLAN for diff test
+    meraki_vlan:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      vlan_id: 2
+      name: TestVLAN
+      subnet: 192.168.250.0/24
+      appliance_ip: 192.168.250.2
+    delegate_to: localhost
+
+  - name: Test idempotency with diff
+    meraki_vlan:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      vlan_id: 2
+      name: TestVLAN
+      subnet: 192.168.250.0/24
+      appliance_ip: 192.168.250.2
+    diff: yes
+    delegate_to: localhost
+    register: diff_test
+
+  - debug:
+      msg: '{{diff_test}}'
+
+  - assert:
+      that:
+        - diff_test.changed == False
+        - diff_test.data is defined
+
   - name: Update VLAN with list of DNS entries
     meraki_vlan:
       auth_key: '{{auth_key}}'
