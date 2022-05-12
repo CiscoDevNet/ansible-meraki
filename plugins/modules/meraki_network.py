@@ -41,7 +41,7 @@ options:
         - Required when creating a network.
         - As of Ansible 2.8, C(combined) type is no longer accepted.
         - As of Ansible 2.8, changes to this parameter are no longer idempotent.
-        choices: [ appliance, switch, wireless ]
+        choices: [ appliance, switch, wireless, sensor, environmental, camera, cellularGateway ]
         aliases: [ net_type ]
         type: list
         elements: str
@@ -209,7 +209,7 @@ def main():
     argument_spec = meraki_argument_spec()
     argument_spec.update(
         net_id=dict(type='str'),
-        type=dict(type='list', elements='str', choices=['wireless', 'switch', 'appliance'], aliases=['net_type']),
+        type=dict(type='list', elements='str', choices=['wireless', 'switch', 'appliance', 'sensor', 'environmental', 'camera', 'cellularGateway'], aliases=['net_type']),
         tags=dict(type='list', elements='str'),
         timezone=dict(type='str'),
         net_name=dict(type='str', aliases=['name', 'network']),
