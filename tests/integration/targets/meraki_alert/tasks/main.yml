@@ -25,7 +25,9 @@
         - '{{ email_prefix }}@{{ email_domain }}'
         - '{{ email_prefix }}2@{{ email_domain }}'
         all_admins: no
-        snmp: no 
+        snmp: no
+        http_server_ids:
+          - abcdefg
       alerts:
         - alert_type: "gatewayDown"
           enabled: yes
@@ -57,6 +59,7 @@
         - update_check.data is defined
         - update_check.diff is defined
         - update_check is changed
+        - update_check.data.default_destinations.http_server_ids.0 == "abcdefg"
 
   - name: Update settings
     meraki_alert:
