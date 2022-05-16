@@ -1,2 +1,2 @@
 bugfixes:
-  - meraki_alert: Updates now properly set default destination webhook
+  - meraki_alert - Updates now properly set default destination webhook
