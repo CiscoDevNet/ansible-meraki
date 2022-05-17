@@ -1,2 +1,0 @@
-bugfixes:
-  - meraki_syslog -  Fix crash due to incorrect dictionary reference

@@ -228,3 +228,17 @@ releases:
     - rf-profile-create-idempotency.yml
     - sanity_fixes.yaml
     release_date: '2022-03-28'
+  2.6.2:
+    changes:
+      bugfixes:
+      - meraki_alert - Updates now properly set default destination webhook
+      - meraki_syslog -  Fix crash due to incorrect dictionary reference
+      minor_changes:
+      - Add execution-environment.yml in meta as the base to a Meraki ee
+      - meraki_network - Add Products to net_type list
+    fragments:
+    - 288-fix-dict.yml
+    - 310-alert-webhook.yml
+    - ee.yml
+    - net_type-list.yml
+    release_date: '2022-05-16'

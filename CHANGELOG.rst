@@ -5,6 +5,21 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.6.2
+======
+
+Minor Changes
+-------------
+
+- Add execution-environment.yml in meta as the base to a Meraki ee
+- meraki_network - Add Products to net_type list
+
+Bugfixes
+--------
+
+- meraki_alert - Updates now properly set default destination webhook
+- meraki_syslog -  Fix crash due to incorrect dictionary reference
+
 v2.6.1
 ======
 
