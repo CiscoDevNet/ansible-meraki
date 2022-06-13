@@ -1,0 +1,319 @@
+# Test code for the Meraki Third Party VPN Peer module
+# Copyright: (c) 2022, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Test an API key is provided
+    fail:
+      msg: Please define an API key
+    when: auth_key is not defined
+
+  - name: Query all VPN peers with no org_id or org_name
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: query
+    register: query_all
+    ignore_errors: yes
+
+  - assert:
+      that: query_all.msg == "Organization must be specified via org_name or org_id"
+
+  - name: Query all VPN peers
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: query
+      org_name: '{{ test_org_name }}'
+    register: query_all
+
+  - assert:
+      that: query_all.data.peers is defined
+
+  - name: Add a VPN peer without name
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      peers:
+        - public_ip: "198.51.100.1"
+          secret: "s3cret"
+          private_subnets:
+            - "192.0.2.0/24"
+          ike_version: "2"
+    register: create_one_no_name
+    ignore_errors: yes
+
+  - assert:
+      that: create_one_no_name.msg == "Peer name must be specified"
+
+  - name: Add a VPN peer with check mode
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      peers:
+        - name: "Test peer"
+          public_ip: "198.51.100.1"
+          secret: "s3cret"
+          private_subnets:
+            - "192.0.2.0/24"
+          ike_version: "2"
+          ipsec_policies_preset: default
+    register: create_one_check
+    check_mode: yes
+
+  - debug:
+      var: create_one_check
+
+  - assert:
+      that:
+        - create_one_check is changed
+        - create_one_check.data is defined
+        - create_one_check.data.peers.0.name == "Test peer"
+        - create_one_check.data.peers.0.public_ip == "198.51.100.1"
+        - create_one_check.data.peers.0.private_subnets.0 == "192.0.2.0/24"
+        - create_one_check.data.peers.0.ike_version == "2"
+        - create_one_check.data.peers.0.ipsec_policies_preset == "default"
+
+  - name: Add a VPN peer
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      peers:
+        - name: "Test peer"
+          public_ip: "198.51.100.1"
+          secret: "s3cret"
+          private_subnets:
+            - "192.0.2.0/24"
+          ike_version: "2"
+          ipsec_policies_preset: default
+    register: create_one
+
+  - assert:
+      that:
+        - create_one is changed
+        - create_one.data is defined
+        - create_one.data.peers.0.name == "Test peer"
+        - create_one.data.peers.0.public_ip == "198.51.100.1"
+        - create_one.data.peers.0.private_subnets.0 == "192.0.2.0/24"
+        - create_one.data.peers.0.ike_version == "2"
+        - create_one.data.peers.0.ipsec_policies_preset == "default"
+
+  - name: Add a VPN peer with idempotency
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      peers:
+        - name: "Test peer"
+          public_ip: "198.51.100.1"
+          secret: "s3cret"
+          private_subnets:
+            - "192.0.2.0/24"
+          ike_version: "2"
+          ipsec_policies_preset: default
+    register: create_one_idempotent
+
+  - assert:
+      that:
+        - create_one_idempotent is not changed
+        - create_one_idempotent.data is defined
+        - create_one_idempotent.data.peers.0.name == "Test peer"
+        - create_one_idempotent.data.peers.0.public_ip == "198.51.100.1"
+        - create_one_idempotent.data.peers.0.private_subnets.0 == "192.0.2.0/24"
+        - create_one_idempotent.data.peers.0.ike_version == "2"
+        - create_one_idempotent.data.peers.0.ipsec_policies_preset == "default"
+
+  - name: Change peer to use network tags
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      peers:
+        - name: "Test peer"
+          public_ip: "198.51.100.1"
+          secret: "s3cret"
+          private_subnets:
+            - "192.0.2.0/24"
+          ike_version: "2"
+          network_tags:
+            - none
+          ipsec_policies_preset: default
+    register: add_network_tags
+
+  - assert:
+      that:
+        - add_network_tags is changed
+        - add_network_tags.data.peers.0.network_tags.0 == "none"
+
+  - name: Change peer to use network tags with idempotency
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      peers:
+        - name: "Test peer"
+          public_ip: "198.51.100.1"
+          secret: "s3cret"
+          private_subnets:
+            - "192.0.2.0/24"
+          ike_version: "2"
+          network_tags:
+            - none
+          ipsec_policies_preset: default
+    register: add_network_tags_idempotent
+
+  - assert:
+      that:
+        - add_network_tags_idempotent is not changed
+        - add_network_tags_idempotent.data.peers.0.network_tags.0 == "none"
+
+
+  - name: Set IPsec policies
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      peers:
+        - name: "Test peer"
+          public_ip: "198.51.100.1"
+          secret: "s3cret"
+          private_subnets:
+            - "192.0.2.0/24"
+          ike_version: "2"
+          network_tags:
+            - none
+          remote_id: "192.0.2.0"
+          ipsec_policies:
+            child_lifetime: 600
+            ike_lifetime: 600
+            child_auth_algo:
+              - "md5"
+            child_cipher_algo:
+              - "tripledes"
+              - "aes192"
+            child_pfs_group:
+              - "disabled"
+            ike_auth_algo:
+              - "sha256"
+            ike_cipher_algo:
+              - "tripledes"
+            ike_diffie_hellman_group:
+              - "group2"
+            ike_prf_algo:
+              - "prfmd5"
+    register: set_ipsec_policies
+
+  - assert:
+      that:
+        - set_ipsec_policies is changed
+        - set_ipsec_policies.data.peers.0.ipsec_policies.child_lifetime == 600
+        - set_ipsec_policies.data.peers.0.ipsec_policies.ike_lifetime == 600
+        - set_ipsec_policies.data.peers.0.ipsec_policies.child_auth_algo.0 == "md5"
+        - set_ipsec_policies.data.peers.0.ipsec_policies.child_cipher_algo.0 == "tripledes"
+        - set_ipsec_policies.data.peers.0.ipsec_policies.child_pfs_group.0 == "disabled"
+        - set_ipsec_policies.data.peers.0.ipsec_policies.ike_auth_algo.0 == "sha256"
+        - set_ipsec_policies.data.peers.0.ipsec_policies.ike_cipher_algo.0 == "tripledes"
+        - set_ipsec_policies.data.peers.0.ipsec_policies.ike_diffie_hellman_group.0 == "group2"
+        - set_ipsec_policies.data.peers.0.ipsec_policies.ike_prf_algo.0 == "prfmd5"
+
+  - name: Set IPsec policies with idempotency
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      peers:
+        - name: "Test peer"
+          public_ip: "198.51.100.1"
+          secret: "s3cret"
+          private_subnets:
+            - "192.0.2.0/24"
+          ike_version: "2"
+          network_tags:
+            - none
+          remote_id: "192.0.2.0"
+          ipsec_policies:
+            child_lifetime: 600
+            ike_lifetime: 600
+            child_auth_algo:
+              - "md5"
+            child_cipher_algo:
+              - "tripledes"
+              - "aes192"
+            child_pfs_group:
+              - "disabled"
+            ike_auth_algo:
+              - "sha256"
+            ike_cipher_algo:
+              - "tripledes"
+            ike_diffie_hellman_group:
+              - "group2"
+            ike_prf_algo:
+              - "prfmd5"
+    register: set_ipsec_policies_idempotent
+
+  - assert:
+      that:
+        - set_ipsec_policies_idempotent is not changed
+        - set_ipsec_policies_idempotent.data.peers.0.ipsec_policies.child_lifetime == 600
+        - set_ipsec_policies_idempotent.data.peers.0.ipsec_policies.ike_lifetime == 600
+        - set_ipsec_policies_idempotent.data.peers.0.ipsec_policies.child_auth_algo.0 == "md5"
+        - set_ipsec_policies_idempotent.data.peers.0.ipsec_policies.child_cipher_algo.0 == "tripledes"
+        - set_ipsec_policies_idempotent.data.peers.0.ipsec_policies.child_pfs_group.0 == "disabled"
+        - set_ipsec_policies_idempotent.data.peers.0.ipsec_policies.ike_auth_algo.0 == "sha256"
+        - set_ipsec_policies_idempotent.data.peers.0.ipsec_policies.ike_cipher_algo.0 == "tripledes"
+        - set_ipsec_policies_idempotent.data.peers.0.ipsec_policies.ike_diffie_hellman_group.0 == "group2"
+        - set_ipsec_policies_idempotent.data.peers.0.ipsec_policies.ike_prf_algo.0 == "prfmd5"
+
+
+  - name: Add a second VPN peer
+    meraki_mx_third_party_vpn_peers:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      peers:
+        - name: "Test peer"
+          public_ip: "198.51.100.1"
+          secret: "s3cret"
+          private_subnets:
+            - "192.0.2.0/24"
+          ike_version: "2"
+          ipsec_policies_preset: default
+        - name: "Test peer 2"
+          public_ip: "198.51.100.2"
+          secret: "s3cret"
+          private_subnets:
+            - "192.0.3.0/24"
+          ike_version: "2"
+          ipsec_policies_preset: default
+    register: create_second
+
+  - assert:
+      that:
+        - create_second is changed
+        - create_second.data.peers | length == 2
+        - create_second.data is defined
+        - create_second.data.peers.0.name == "Test peer"
+        - create_second.data.peers.0.public_ip == "198.51.100.1"
+        - create_second.data.peers.0.private_subnets.0 == "192.0.2.0/24"
+        - create_second.data.peers.0.ike_version == "2"
+        - create_second.data.peers.0.ipsec_policies_preset == "default"
+        - create_second.data is defined
+        - create_second.data.peers.1.name == "Test peer 2"
+        - create_second.data.peers.1.public_ip == "198.51.100.2"
+        - create_second.data.peers.1.private_subnets.0 == "192.0.3.0/24"
+        - create_second.data.peers.1.ike_version == "2"
+        - create_second.data.peers.1.ipsec_policies_preset == "default"
+
+  #############################################################################
+  # Tear down starts here
+  #############################################################################
+  # always:
+  # - name: Delete test network
+  #   meraki_network:
+  #     auth_key: '{{auth_key}}'
+  #     state: absent
+  #     org_name: '{{test_org_name}}'
+  #     net_name: '{{test_net_name}}'
+  #   delegate_to: localhost
