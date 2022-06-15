@@ -1,3 +1,0 @@
----
-minor_changes:
-  - meraki_mx_network_vlan_settings - New module to enable or disable VLANs on a network

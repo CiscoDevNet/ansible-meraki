@@ -140,6 +140,11 @@ plugins:
       name: meraki_mx_nat
       namespace: ''
       version_added: null
+    meraki_mx_network_vlan_settings:
+      description: Manage VLAN settings for Meraki Networks
+      name: meraki_mx_network_vlan_settings
+      namespace: ''
+      version_added: null
     meraki_mx_site_to_site_firewall:
       description: Manage MX appliance firewall rules for site-to-site VPNs
       name: meraki_mx_site_to_site_firewall
@@ -153,6 +158,11 @@ plugins:
     meraki_mx_static_route:
       description: Manage static routes in the Meraki cloud
       name: meraki_mx_static_route
+      namespace: ''
+      version_added: null
+    meraki_mx_third_party_vpn_peers:
+      description: Manage third party (IPSec) VPN peers for MX devices
+      name: meraki_mx_third_party_vpn_peers
       namespace: ''
       version_added: null
     meraki_mx_uplink_bandwidth:
@@ -194,4 +204,4 @@ plugins:
   shell: {}
   strategy: {}
   vars: {}
-version: 2.6.2
+version: 2.7.0

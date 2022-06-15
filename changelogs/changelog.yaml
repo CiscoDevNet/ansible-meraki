@@ -242,3 +242,18 @@ releases:
     - ee.yml
     - net_type-list.yml
     release_date: '2022-05-16'
+  2.7.0:
+    changes:
+      bugfixes:
+      - meraki_mx_static_route - Add support for gateway_vlan_id otherwise requests
+        could error
+      minor_changes:
+      - meraki_mx_network_vlan_settings - New module to enable or disable VLANs on
+        a network
+      - meraki_mx_third_party_vpn_peers - New module for managing third party VPM
+        peers
+    fragments:
+    - meraki_mx_network_vlan_settings.yml
+    - mx_static_route.yaml
+    - s2s_peers.yaml
+    release_date: '2022-06-14'

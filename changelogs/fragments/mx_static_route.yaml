@@ -1,3 +1,0 @@
----
-bugfixes:
-- meraki_mx_static_route - Add support for gateway_vlan_id otherwise requests could error

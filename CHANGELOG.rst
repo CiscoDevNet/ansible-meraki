@@ -5,6 +5,20 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.7.0
+======
+
+Minor Changes
+-------------
+
+- meraki_mx_network_vlan_settings - New module to enable or disable VLANs on a network
+- meraki_mx_third_party_vpn_peers - New module for managing third party VPM peers
+
+Bugfixes
+--------
+
+- meraki_mx_static_route - Add support for gateway_vlan_id otherwise requests could error
+
 v2.6.2
 ======
 
