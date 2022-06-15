@@ -45,11 +45,8 @@ def execute_tests(module_name, ansible_test_path=None) -> None:
                 "--allow-unsupported",
                 module_name,
             ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         ) as process:
-            for line in process.stdout:
-                print(line.decode("utf8"))
+            process.communicate()
     else:
         with subprocess.Popen(
             [
@@ -58,11 +55,8 @@ def execute_tests(module_name, ansible_test_path=None) -> None:
                 "--allow-unsupported",
                 module_name,
             ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         ) as process:
-            for line in process.stdout:
-                print(line.decode("utf8"))
+            process.communicate()
 
 
 def main():
