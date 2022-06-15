@@ -52,6 +52,10 @@ options:
         description:
         - Unique ID of static route.
         type: str
+    gateway_vlan_id:
+        description:
+        - The gateway IP (next hop) VLAN ID of the static route.
+        type: int
     fixed_ip_assignments:
         description:
         - List of fixed MAC to IP bindings for DHCP.
