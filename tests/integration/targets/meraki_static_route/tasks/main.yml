@@ -15,12 +15,33 @@
     delegate_to: localhost
     register: net
 
+  - name: Enable VLANs on network
+    meraki_mx_network_vlan_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetwork
+      vlans_enabled: yes
+    delegate_to: localhost
+
   - set_fact:
       net_id: '{{net.data.id}}'
 
   - name: Initialize static route id list
     set_fact:
       route_ids: []
+  
+  - name: Create VLAN
+    meraki_mx_vlan:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetwork
+      name: "Test VLAN"
+      vlan_id: 2
+      subnet: "192.168.129.0/24"
+      appliance_ip: "192.168.129.2"
+    delegate_to: localhost
 
   - name: Create static_route
     meraki_static_route:
@@ -82,6 +103,7 @@
       route_id: '{{create_route.data.id}}'
       subnet: 192.0.3.0/24
       enabled: yes
+      gateway_vlan_id: 1
     delegate_to: localhost
     register: update
 
@@ -89,6 +111,7 @@
       that:
         - update is changed
         - update.data.subnet == "192.0.3.0/24"
+        - update.data.gateway_vlan_id == 1
 
   - name: Query static routes
     meraki_static_route:
