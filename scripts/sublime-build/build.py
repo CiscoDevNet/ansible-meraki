@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/Users/kbreit/Documents/Programming/ansible_collections/cisco/meraki/venv/bin/python
 
 import subprocess
 import sys
@@ -34,10 +34,35 @@ def get_module_name_from_test(path) -> str:
     return parts[-3]
 
 
-def execute_tests(module_name) -> None:
-    subprocess.run(
-        ["ansible-test", "network-integration", "--allow-unsupported", module_name]
-    )
+def execute_tests(module_name, ansible_test_path=None) -> None:
+    if ansible_test_path is not None:
+        if ansible_test_path[-1] != "/":
+            ansible_test_path = f"{ansible_test_path}/"
+        with subprocess.Popen(
+            [
+                f"{ansible_test_path}ansible-test",
+                "network-integration",
+                "--allow-unsupported",
+                module_name,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        ) as process:
+            for line in process.stdout:
+                print(line.decode("utf8"))
+    else:
+        with subprocess.Popen(
+            [
+                "ansible-test",
+                "network-integration",
+                "--allow-unsupported",
+                module_name,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        ) as process:
+            for line in process.stdout:
+                print(line.decode("utf8"))
 
 
 def main():
@@ -47,8 +72,10 @@ def main():
         module_name = get_module_name_from_module(sys.argv[1])
     if is_path_integration_test(sys.argv[1]) is True:
         module_name = get_module_name_from_test(sys.argv[1])
-    exit(module_name)
-    # execute_tests(module_name)
+    if len(sys.argv) == 3:  # Specify ansible-test path
+        execute_tests(module_name, sys.argv[2])
+    else:
+        execute_tests(module_name)
 
 
 if __name__ == "__main__":
