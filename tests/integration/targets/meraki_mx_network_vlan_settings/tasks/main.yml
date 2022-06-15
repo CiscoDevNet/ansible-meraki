@@ -1,0 +1,95 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2020, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Create network with type appliance
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkAppliance
+      type: appliance
+      timezone: America/Chicago
+    delegate_to: localhost
+
+  - name: Get VLAN settings
+    meraki_mx_network_vlan_settings:
+      auth_key: '{{ auth_key }}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkAppliance
+    delegate_to: localhost
+    register: query_all
+
+  - debug:
+      var: query_all
+
+  - name: Enable VLANs on network with check mode
+    meraki_mx_network_vlan_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkAppliance
+      vlans_enabled: yes
+    delegate_to: localhost
+    register: enable_vlans_check
+    check_mode: yes
+
+  - debug:
+      var: enable_vlans_check
+
+  - assert:
+      that:
+        - enable_vlans_check is changed
+        - enable_vlans_check.data.vlans_enabled == true
+
+  - name: Enable VLANs on network
+    meraki_mx_network_vlan_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkAppliance
+      vlans_enabled: yes
+    delegate_to: localhost
+    register: enable_vlans
+
+  - debug:
+      var: enable_vlans
+
+  - assert:
+      that:
+        - enable_vlans is changed
+        - enable_vlans.data.vlans_enabled == true
+
+  - name: Enable VLANs on network idempotent
+    meraki_mx_network_vlan_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkAppliance
+      vlans_enabled: yes
+    delegate_to: localhost
+    register: enable_vlans_idempotent
+
+  - debug:
+      var: enable_vlans_idempotent
+
+  - assert:
+      that:
+        - enable_vlans_idempotent is not changed
+        - enable_vlans_idempotent.data.vlans_enabled == true
+
+#############################################################################
+# Tear down starts here
+#############################################################################
+
+  always:
+  - name: Delete network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkAppliance
+    delegate_to: localhost
