@@ -1,2 +1,3 @@
 plugins/modules/meraki_mx_intrusion_prevention.py validate-modules:invalid-argument-name
 plugins/modules/meraki_intrusion_prevention.py validate-modules:invalid-argument-name
+scripts/sublime-build/build.py.generic shebang:!skip
