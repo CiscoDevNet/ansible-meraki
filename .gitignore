@@ -7,3 +7,4 @@ tests/output/*
 .vscode
 .env
 venv*
+scripts/sublime-build/build.py
