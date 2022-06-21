@@ -20,6 +20,8 @@ module: meraki_action_batch
 short_description: Manage Action Batch jobs within the Meraki Dashboard.
 description:
 - Allows for management of Action Batch jobs for Meraki.
+notes:
+- This module is in active development and the interface may change.
 options:
     state:
         description:
