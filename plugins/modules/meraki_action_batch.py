@@ -23,69 +23,69 @@ description:
 notes:
 - This module is in active development and the interface may change.
 options:
-    state:
+  state:
+    description:
+    - Specifies whether to lookup, create, or delete an Action Batch job.
+    choices: ['query', 'present', 'absent']
+    default: present
+    type: str
+  net_name:
+    description:
+    - Name of network, if applicable.
+    type: str
+  net_id:
+      description:
+      - ID of network, if applicable.
+      type: str
+  action_batch_id:
+    description:
+    - ID of an existing Action Batch job.
+    type: str
+  confirmed:
+    description:
+    - Whether job is to be executed.
+    type: bool
+    default: False
+  synchronous:
+    description:
+    - Whether job is a synchronous or asynchronous job.
+    type: bool
+    default: True
+  actions:
+    description:
+    - List of actions the job should execute.
+    type: list
+    elements: dict
+    suboptions:
+      operation:
         description:
-        - Specifies whether to lookup, create, or delete an Action Batch job.
-        choices: ['query', 'present', 'absent']
-        default: present
+        - Operation type of action
         type: str
-    net_name:
+        choices: [
+            'create',
+            'destroy',
+            'update',
+            'claim',
+            'bind',
+            'split',
+            'unbind',
+            'combine',
+            'update_order',
+            'cycle',
+            'swap',
+            'assignSeats',
+            'move',
+            'moveSeats',
+            'renewSeats'
+        ]
+      resource:
         description:
-        - Name of network, if applicable
+        - Path to Action Batch resource.
         type: str
-    net_id:
+      body:
         description:
-        - ID of network, if applicable
-        type: str
-    action_batch_id:
-        description:
-        - ID of an existing Action Batch job
-        type: str
-    confirmed:
-        description:
-        - Whether job is to be executed
-        type: bool
-        default: False
-    synchronous:
-        description:
-        - Whether job is a synchronous or asynchronous job
-        type: bool
-        default: True
-    actions:
-        description:
-        - List of actions the job should execute
-        type: list
-        elements: dict
-        suboptions:
-            operation:
-                description:
-                - Operation type of action
-                type: str
-                choices: [
-                    'create',
-                    'destroy',
-                    'update',
-                    'claim',
-                    'bind',
-                    'split',
-                    'unbind',
-                    'combine',
-                    'update_order',
-                    'cycle',
-                    'swap',
-                    'assignSeats',
-                    'move',
-                    'moveSeats',
-                    'renewSeats'
-                ]
-            resource:
-                description:
-                - Path to Action Batch resource
-                type: str
-            body:
-                description:
-                - Required body of action
-                type: raw
+        - Required body of action.
+        type: raw
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
@@ -93,79 +93,120 @@ extends_documentation_fragment: cisco.meraki.meraki
 
 
 EXAMPLES = r"""
+  - name: Query all Action Batches
+    meraki_action_batch:
+      auth_key: abc123
+      org_name: YourOrg
+      state: query
+    delegate_to: localhost
+
+  - name: Query one Action Batch job
+    meraki_action_batch:
+      auth_key: abc123
+      org_name: YourOrg
+      state: query
+      action_batch_id: 12345
+    delegate_to: localhost
+
+  - name: Create an Action Batch job
+    meraki_action_batch:
+      auth_key: abc123
+      org_name: YourOrg
+      state: present
+      actions:
+      - resource: '/organizations/org_123/networks'
+        operation: 'create'
+        body:
+          name: 'AnsibleActionBatch1'
+          productTypes:
+            - 'switch'
+    delegate_to: localhost
+
+  - name: Update Action Batch job
+    meraki_action_batch:
+      auth_key: abc123
+      org_name: YourOrg
+      state: present
+      action_batch_id: 12345
+      synchronous: false
+
+  - name: Create an Action Batch job with multiple actions
+    meraki_action_batch:
+      auth_key: abc123
+      org_name: YourOrg
+      state: present
+      actions:
+      - resource: '/organizations/org_123/networks'
+        operation: 'create'
+        body:
+          name: 'AnsibleActionBatch2'
+          productTypes:
+            - 'switch'
+      - resource: '/organizations/org_123/networks'
+        operation: 'create'
+        body:
+          name: 'AnsibleActionBatch3'
+          productTypes:
+            - 'switch'
+    delegate_to: localhost
+
+  - name: Delete an Action Batch job
+    meraki_action_batch:
+      auth_key: abc123
+      org_name: YourOrg
+      state: absent
+      action_batch_id: 12345
+    delegate_to: localhost
 """
 
 RETURN = r"""
 data:
-    description: Information about SNMP settings.
+    description: Information about action batch jobs.
     type: complex
     returned: always
     contains:
-        hostname:
-            description: Hostname of SNMP server.
-            returned: success and no network specified.
+        id:
+            description: Unique ID of action batch job.
+            returned: success
             type: str
-            sample: n1.meraki.com
-        peer_ips:
-            description: Semi-colon delimited list of IPs which can poll SNMP information.
-            returned: success and no network specified.
+            sample: 123
+        organization_id:
+            description: Unique ID of organization which owns batch job.
+            returned: success
             type: str
-            sample: 192.0.1.1
-        port:
-            description: Port number of SNMP.
-            returned: success and no network specified.
-            type: str
-            sample: 16100
-        v2c_enabled:
-            description: Shows enabled state of SNMPv2c
-            returned: success and no network specified.
+            sample: 2930418
+        confirmed:
+            description: Whether action batch job was confirmed for execution.
+            returned: success
             type: bool
-            sample: true
-        v3_enabled:
-            description: Shows enabled state of SNMPv3
-            returned: success and no network specified.
+        synchronous:
+            description: Whether action batch job executes synchronously or asynchronously.
+            returned: success
             type: bool
-            sample: true
-        v3_auth_mode:
-            description: The SNMP version 3 authentication mode either MD5 or SHA.
-            returned: success and no network specified.
-            type: str
-            sample: SHA
-        v3_priv_mode:
-            description: The SNMP version 3 privacy mode DES or AES128.
-            returned: success and no network specified.
-            type: str
-            sample: AES128
-        v2_community_string:
-            description: Automatically generated community string for SNMPv2c.
-            returned: When SNMPv2c is enabled and no network specified.
-            type: str
-            sample: o/8zd-JaSb
-        v3_user:
-            description: Automatically generated username for SNMPv3.
-            returned: When SNMPv3c is enabled and no network specified.
-            type: str
-            sample: o/8zd-JaSb
-        access:
-            description: Type of SNMP access.
-            type: str
-            returned: success, when network specified
-        community_string:
-            description: SNMP community string. Only relevant if C(access) is set to C(community).
-            type: str
-            returned: success, when network specified
-        users:
-            description: Information about users with access to SNMP. Only relevant if C(access) is set to C(users).
+        status:
+            description: Information about the action batch job state.
             type: complex
             contains:
-                username:
-                    description: Username of user with access.
-                    type: str
-                    returned: success, when network specified
-                passphrase:
-                    description: Passphrase for user SNMP access.
-                    type: str
-                    returned: success, when network specified
+                completed:
+                    description: Whether job has completed.
+                    type: bool
+                    returned: success
+                failed:
+                    description: Whether execution of action batch job failed.
+                    type: bool
+                    returned: success
+                errors:
+                    description: List of errors, if any, created during execution.
+                    type: list
+                    returned: success
+                created_resources:
+                    description: List of resources created during execution.
+                    type: list
+                    returned: success
+                    sample: [{"id": 100, "uri": "/networks/L_XXXXX/groupPolicies/100"}]
+        actions:
+            description: List of actions associated to job.
+            type: dict
 """
 
 from ansible.module_utils.basic import AnsibleModule, json
