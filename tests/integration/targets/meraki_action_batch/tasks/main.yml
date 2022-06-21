@@ -179,12 +179,19 @@
       auth_key: '{{auth_key}}'
       org_name: '{{test_org_name}}'
       state: query
-      action_batch_id: 'asdf'
+      action_batch_id: '{{ create_two_batch_id }}'
     delegate_to: localhost
     register: gather_networks
 
+
+  - assert:
+      that:
+        - gather_networks.data.actions.0.status.errors.0 != 'Validation failed\: Name has already been taken'
+
+
   - set_fact:
       new_networks: "{{ gather_networks.data.status.created_resources | selectattr('uri', 'defined') | map(attribute='uri') | list | unique }}"
+
 
   - name: Initialize an empty list
     set_fact:
@@ -194,6 +201,7 @@
       delete_actions: "{{ delete_actions + [{'resource': item , 'operation': 'destroy' }] }}"
     loop: '{{ new_networks }}'
 
+
   - name: Create an Action Batch job to delete newly created networks
     meraki_action_batch:
       auth_key: '{{auth_key}}'
@@ -201,7 +209,10 @@
       state: present
       actions: '{{ delete_actions }}'
     delegate_to: localhost
-    register: create_two
+    register: delete_two
+
+  - set_fact:
+      deletable_batch_id: '{{ delete_two.data.id }}'
 
   - name: Delete an Action Batch job
     meraki_action_batch:
@@ -209,5 +220,46 @@
       org_name: '{{test_org_name}}'
       state: absent
       action_batch_id: '{{ deletable_batch_id }}'
+      actions: '{{ delete_actions }}'
     delegate_to: localhost
-    register: delete_one
+    register: delete_two_networks
+
+  always:
+  - name: Get network ID for AnsibleActionBatch2
+    meraki_network:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: query
+      net_name: AnsibleActionBatch2
+    delegate_to: localhost
+    register: aab2
+
+  - set_fact:
+      aab2_id: '{{ aab2.data.id }}'
+
+  - name: Get network ID for AnsibleActionBatch3
+    meraki_network:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: query
+      net_name: AnsibleActionBatch3
+    delegate_to: localhost
+    register: aab3
+
+  - set_fact:
+      aab3_id: '{{ aab3.data.id }}'
+
+
+  - name: Delete new networks before other tests
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      confirmed: true
+      actions:
+      - resource: '/networks/{{ aab2_id }}'
+        operation: 'destroy'
+      - resource: '/networks/{{ aab3_id }}'
+        operation: 'destroy'
+    delegate_to: localhost
+    register: delete_networks
