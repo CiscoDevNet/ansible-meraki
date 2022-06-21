@@ -20,6 +20,11 @@
   - set_fact:
       batch_id: '{{ query_all.data[0].id }}'
 
+  - assert:
+      that:
+        - query_all.data is defined
+        - query_all is not changed
+
   - name: Query one Action Batch job
     meraki_action_batch:
       auth_key: '{{auth_key}}'
@@ -28,6 +33,13 @@
       action_batch_id: '{{ batch_id }}'
     delegate_to: localhost
     register: query_one
+
+  - debug:
+      var: query_one | length
+
+  - assert:
+      that:
+        - query_one.data is defined
 
   - name: Create an Action Batch job
     meraki_action_batch:
@@ -47,6 +59,11 @@
   - assert:
       that:
         - create_one.data.id is defined
+        - create_one.data.status.completed == false
+        - create_one.data.actions.0.resource == '/organizations/{{ test_org_id }}/networks'
+        - create_one.data.actions.0.operation == 'create'
+        - create_one.data.actions.0.body.name == 'AnsibleActionBatch1'
+        - create_one.data.actions[0].body.product_types[0] == 'switch'
 
   - set_fact:
       new_batch_id: '{{ create_one.data.id }}'
@@ -236,6 +253,7 @@
 
   - set_fact:
       aab2_id: '{{ aab2.data.id }}'
+    ignore_errors: yes
 
   - name: Get network ID for AnsibleActionBatch3
     meraki_network:
@@ -248,7 +266,7 @@
 
   - set_fact:
       aab3_id: '{{ aab3.data.id }}'
-
+    ignore_errors: yes
 
   - name: Delete new networks before other tests
     meraki_action_batch:
@@ -263,3 +281,26 @@
         operation: 'destroy'
     delegate_to: localhost
     register: delete_networks
+    when:
+      - aab2 is defined
+      - aab3 is defined
+
+  # - name: Get all action batch jobs
+  #   meraki_action_batch:
+  #     auth_key: '{{auth_key}}'
+  #     org_name: '{{test_org_name}}'
+  #     state: query
+  #   delegate_to: localhost
+  #   register: all_jobs
+
+  # - debug:
+  #     var: all_jobs
+
+  # - name: Delete all action batch jobs
+  #   meraki_action_batch:
+  #     auth_key: '{{auth_key}}'
+  #     org_name: '{{test_org_name}}'
+  #     state: absent
+  #     action_batch_id: '{{ item.id }}'
+  #   loop: '{{ all_jobs.data }}'
+  #   delegate_to: localhost
