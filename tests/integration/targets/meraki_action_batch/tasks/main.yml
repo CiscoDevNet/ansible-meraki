@@ -1,0 +1,306 @@
+# Test code for the Meraki Organization module
+# Copyright: (c) 2018, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Test an API key is provided
+    fail:
+      msg: Please define an API key
+    when: auth_key is not defined
+
+  - name: Query all Action Batches
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: query
+    delegate_to: localhost
+    register: query_all
+
+  - set_fact:
+      batch_id: '{{ query_all.data[0].id }}'
+
+  - assert:
+      that:
+        - query_all.data is defined
+        - query_all is not changed
+
+  - name: Query one Action Batch job
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: query
+      action_batch_id: '{{ batch_id }}'
+    delegate_to: localhost
+    register: query_one
+
+  - debug:
+      var: query_one | length
+
+  - assert:
+      that:
+        - query_one.data is defined
+
+  - name: Create an Action Batch job
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      actions:
+      - resource: '/organizations/{{ test_org_id }}/networks'
+        operation: 'create'
+        body:
+          name: 'AnsibleActionBatch1'
+          productTypes:
+            - 'switch'
+    delegate_to: localhost
+    register: create_one
+
+  - assert:
+      that:
+        - create_one.data.id is defined
+        - create_one.data.status.completed == false
+        - create_one.data.actions.0.resource == '/organizations/{{ test_org_id }}/networks'
+        - create_one.data.actions.0.operation == 'create'
+        - create_one.data.actions.0.body.name == 'AnsibleActionBatch1'
+        - create_one.data.actions[0].body.product_types[0] == 'switch'
+
+  - set_fact:
+      new_batch_id: '{{ create_one.data.id }}'
+
+  - name: Create an Action Batch job to be deleted later
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      actions:
+      - resource: '/organizations/{{ test_org_id }}/networks'
+        operation: 'create'
+        body:
+          name: 'AnsibleActionBatch100'
+          productTypes:
+            - 'switch'
+    delegate_to: localhost
+    register: batch_delete_id
+
+  - set_fact:
+      deletable_batch_id: '{{ batch_delete_id.data.id }}'
+
+  - name: Update Action Batch job with a body
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      action_batch_id: '{{ new_batch_id }}'
+      actions:
+      - resource: '/organizations/{{ test_org_id }}/networks'
+        operation: 'create'
+        body:
+          name: 'AnsibleActionBatch1'
+          productTypes:
+            - 'switch'
+    delegate_to: localhost
+    register: create_one_idempotent
+    ignore_errors: true
+
+  - assert:
+      that:
+        - create_one_idempotent.msg == 'Body cannot be updated on existing job.'
+
+  - name: Update Action Batch job
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      action_batch_id: '{{ new_batch_id }}'
+      synchronous: false
+    delegate_to: localhost
+    register: update_one
+
+  - assert:
+      that:
+        - update_one.data.id is defined
+        - update_one is changed
+
+  - name: Update Action Batch job with idempotentcy
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      action_batch_id: '{{ new_batch_id }}'
+      synchronous: false
+    delegate_to: localhost
+    register: update_one_idempotent
+
+  - assert:
+      that:
+        - update_one_idempotent.data.id is defined
+        - update_one_idempotent is not changed
+
+  - name: Create an Action Batch job with multiple actions
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      actions:
+      - resource: '/organizations/{{ test_org_id }}/networks'
+        operation: 'create'
+        body:
+          name: 'AnsibleActionBatch2'
+          productTypes:
+            - 'switch'
+      - resource: '/organizations/{{ test_org_id }}/networks'
+        operation: 'create'
+        body:
+          name: 'AnsibleActionBatch3'
+          productTypes:
+            - 'switch'
+    delegate_to: localhost
+    register: create_two
+
+  - set_fact:
+      create_two_batch_id: '{{ create_two.data.id }}'
+
+  - name: Set single action job as confirmed
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      action_batch_id: '{{ new_batch_id }}'
+      confirmed: true
+    delegate_to: localhost
+    register: confirm_one
+
+  - assert:
+      that:
+        - confirm_one.data.id is defined
+        - confirm_one is changed
+
+  - name: Set two action job as confirmed
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      action_batch_id: '{{ create_two_batch_id }}'
+      confirmed: true
+    delegate_to: localhost
+    register: confirm_two
+
+  - assert:
+      that:
+        - confirm_two.data.id is defined
+        - confirm_two is changed
+
+  - name: Gather newly created networks
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: query
+      action_batch_id: '{{ create_two_batch_id }}'
+    delegate_to: localhost
+    register: gather_networks
+
+
+  - assert:
+      that:
+        - gather_networks.data.actions.0.status.errors.0 != 'Validation failed\: Name has already been taken'
+
+
+  - set_fact:
+      new_networks: "{{ gather_networks.data.status.created_resources | selectattr('uri', 'defined') | map(attribute='uri') | list | unique }}"
+
+
+  - name: Initialize an empty list
+    set_fact:
+      delete_actions: []
+
+  - set_fact:
+      delete_actions: "{{ delete_actions + [{'resource': item , 'operation': 'destroy' }] }}"
+    loop: '{{ new_networks }}'
+
+
+  - name: Create an Action Batch job to delete newly created networks
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      actions: '{{ delete_actions }}'
+    delegate_to: localhost
+    register: delete_two
+
+  - set_fact:
+      deletable_batch_id: '{{ delete_two.data.id }}'
+
+  - name: Delete an Action Batch job
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: absent
+      action_batch_id: '{{ deletable_batch_id }}'
+      actions: '{{ delete_actions }}'
+    delegate_to: localhost
+    register: delete_two_networks
+
+  always:
+  - name: Get network ID for AnsibleActionBatch2
+    meraki_network:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: query
+      net_name: AnsibleActionBatch2
+    delegate_to: localhost
+    register: aab2
+
+  - set_fact:
+      aab2_id: '{{ aab2.data.id }}'
+    ignore_errors: yes
+
+  - name: Get network ID for AnsibleActionBatch3
+    meraki_network:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: query
+      net_name: AnsibleActionBatch3
+    delegate_to: localhost
+    register: aab3
+
+  - set_fact:
+      aab3_id: '{{ aab3.data.id }}'
+    ignore_errors: yes
+
+  - name: Delete new networks before other tests
+    meraki_action_batch:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      state: present
+      confirmed: true
+      actions:
+      - resource: '/networks/{{ aab2_id }}'
+        operation: 'destroy'
+      - resource: '/networks/{{ aab3_id }}'
+        operation: 'destroy'
+    delegate_to: localhost
+    register: delete_networks
+    when:
+      - aab2 is defined
+      - aab3 is defined
+
+  # - name: Get all action batch jobs
+  #   meraki_action_batch:
+  #     auth_key: '{{auth_key}}'
+  #     org_name: '{{test_org_name}}'
+  #     state: query
+  #   delegate_to: localhost
+  #   register: all_jobs
+
+  # - debug:
+  #     var: all_jobs
+
+  # - name: Delete all action batch jobs
+  #   meraki_action_batch:
+  #     auth_key: '{{auth_key}}'
+  #     org_name: '{{test_org_name}}'
+  #     state: absent
+  #     action_batch_id: '{{ item.id }}'
+  #   loop: '{{ all_jobs.data }}'
+  #   delegate_to: localhost
