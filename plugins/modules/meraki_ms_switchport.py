@@ -522,7 +522,7 @@ def main():
         sticky_mac_allow_list_limit=dict(type="int"),
         # adaptive_policy_group_id=dict(type=str),
         # peer_sgt_capable=dict(type=bool),
-        flexible_stacking_enabled=dict(type=bool),
+        flexible_stacking_enabled=dict(type="bool"),
     )
 
     # the AnsibleModule object will be our abstraction working with Ansible
