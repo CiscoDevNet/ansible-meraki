@@ -257,3 +257,12 @@ releases:
     - mx_static_route.yaml
     - s2s_peers.yaml
     release_date: '2022-06-14'
+  2.8.0:
+    changes:
+      minor_changes:
+      - meraki_action_batch - New module for CRUD operations on Meraki Action Batches
+      - meraki_switchport - Add support for flexible stacking
+    fragments:
+    - 327-switchport-flex.yaml
+    - action_batch.yaml
+    release_date: '2022-06-24'

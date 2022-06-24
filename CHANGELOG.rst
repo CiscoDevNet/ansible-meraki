@@ -5,6 +5,15 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.8.0
+======
+
+Minor Changes
+-------------
+
+- meraki_action_batch - New module for CRUD operations on Meraki Action Batches
+- meraki_switchport - Add support for flexible stacking
+
 v2.7.0
 ======
 

@@ -10,6 +10,11 @@ plugins:
   inventory: {}
   lookup: {}
   module:
+    meraki_action_batch:
+      description: Manage Action Batch jobs within the Meraki Dashboard.
+      name: meraki_action_batch
+      namespace: ''
+      version_added: null
     meraki_admin:
       description: Manage administrators in the Meraki cloud
       name: meraki_admin
@@ -204,4 +209,4 @@ plugins:
   shell: {}
   strategy: {}
   vars: {}
-version: 2.7.0
+version: 2.8.0

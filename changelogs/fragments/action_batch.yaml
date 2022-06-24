@@ -1,3 +1,0 @@
----
-minor_changes:
-  - meraki_action_batch - New module for CRUD operations on Meraki Action Batches
