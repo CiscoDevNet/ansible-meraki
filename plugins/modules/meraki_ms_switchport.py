@@ -413,8 +413,8 @@ param_map = {
     "mac_allow_list": "macAllowList",
     "sticky_mac_allow_list": "stickyMacAllowList",
     "sticky_mac_allow_list_limit": "stickyMacAllowListLimit",
-    # "adaptive_policy_group_id": "adaptivePolicyGroupId",
-    # "peer_sgt_capable": "peerSgtCapable",
+    "adaptive_policy_group_id": "adaptivePolicyGroupId",
+    "peer_sgt_capable": "peerSgtCapable",
     "flexible_stacking_enabled": "flexibleStackingEnabled",
 }
 
@@ -512,8 +512,8 @@ def main():
         mac_allow_list=dict(type="dict", options=policy_data_arg_spec),
         sticky_mac_allow_list=dict(type="dict", options=policy_data_arg_spec),
         sticky_mac_allow_list_limit=dict(type="int"),
-        adaptive_policy_group_id=dict(type=str),
-        peer_sgt_capable=dict(type=bool),
+        # adaptive_policy_group_id=dict(type=str),
+        # peer_sgt_capable=dict(type=bool),
         flexible_stacking_enabled=dict(type=bool),
     )
 
