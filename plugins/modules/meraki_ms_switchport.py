@@ -5,15 +5,16 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 ---
 module: meraki_ms_switchport
 short_description: Manage switchports on a switch in the Meraki cloud
@@ -168,9 +169,9 @@ options:
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Query information about all switchports on a switch
   meraki_switchport:
     auth_key: abc12345
@@ -277,9 +278,9 @@ EXAMPLES = r'''
           - 22:22:bb:bb:cc:cc
         state: merged
     delegate_to: localhost
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 data:
     description: Information queried or updated switchports.
     returned: success
@@ -385,30 +386,37 @@ data:
             returned: success
             type: str
             sample: "Alert only"
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
+from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import (
+    MerakiModule,
+    meraki_argument_spec,
+)
 
-param_map = {'access_policy_number': 'accessPolicyNumber',
-             'access_policy_type': 'accessPolicyType',
-             'allowed_vlans': 'allowedVlans',
-             'enabled': 'enabled',
-             'isolation_enabled': 'isolationEnabled',
-             'link_negotiation': 'linkNegotiation',
-             'name': 'name',
-             'number': 'number',
-             'poe_enabled': 'poeEnabled',
-             'rstp_enabled': 'rstpEnabled',
-             'stp_guard': 'stpGuard',
-             'tags': 'tags',
-             'type': 'type',
-             'vlan': 'vlan',
-             'voice_vlan': 'voiceVlan',
-             'mac_allow_list': 'macAllowList',
-             'sticky_mac_allow_list': 'stickyMacAllowList',
-             'sticky_mac_allow_list_limit': 'stickyMacAllowListLimit',
-             }
+param_map = {
+    "access_policy_number": "accessPolicyNumber",
+    "access_policy_type": "accessPolicyType",
+    "allowed_vlans": "allowedVlans",
+    "enabled": "enabled",
+    "isolation_enabled": "isolationEnabled",
+    "link_negotiation": "linkNegotiation",
+    "name": "name",
+    "number": "number",
+    "poe_enabled": "poeEnabled",
+    "rstp_enabled": "rstpEnabled",
+    "stp_guard": "stpGuard",
+    "tags": "tags",
+    "type": "type",
+    "vlan": "vlan",
+    "voice_vlan": "voiceVlan",
+    "mac_allow_list": "macAllowList",
+    "sticky_mac_allow_list": "stickyMacAllowList",
+    "sticky_mac_allow_list_limit": "stickyMacAllowListLimit",
+    # "adaptive_policy_group_id": "adaptivePolicyGroupId",
+    # "peer_sgt_capable": "peerSgtCapable",
+    "flexible_stacking_enabled": "flexibleStackingEnabled",
+}
 
 
 def sort_vlans(meraki, vlans):
@@ -419,7 +427,7 @@ def sort_vlans(meraki, vlans):
     vlans_str = []
     for vlan in vlans_sorted:
         vlans_str.append(str(vlan))
-    return ','.join(vlans_str)
+    return ",".join(vlans_str)
 
 
 def assemble_payload(meraki):
@@ -430,8 +438,8 @@ def assemble_payload(meraki):
     for k, v in meraki.params.items():
         try:
             if meraki.params[k] is not None:
-                if k == 'access_policy_number':
-                    if meraki.params['access_policy_type'] is not None:
+                if k == "access_policy_number":
+                    if meraki.params["access_policy_type"] is not None:
                         payload[param_map[k]] = v
                 else:
                     payload[param_map[k]] = v
@@ -454,145 +462,204 @@ def main():
     argument_spec = meraki_argument_spec()
 
     policy_data_arg_spec = dict(
-        macs=dict(type='list', elements='str'),
-        state=dict(type='str', choices=['merged', 'replaced', 'deleted'], default='replaced'),
+        macs=dict(type="list", elements="str"),
+        state=dict(
+            type="str", choices=["merged", "replaced", "deleted"], default="replaced"
+        ),
     )
 
-    argument_spec.update(state=dict(type='str', choices=['present', 'query'], default='query'),
-                         serial=dict(type='str', required=True),
-                         number=dict(type='str'),
-                         name=dict(type='str', aliases=['description']),
-                         tags=dict(type='list', elements='str'),
-                         enabled=dict(type='bool', default=True),
-                         type=dict(type='str', choices=['access', 'trunk'], default='access'),
-                         vlan=dict(type='int'),
-                         voice_vlan=dict(type='int'),
-                         voice_vlan_state=dict(type='str', choices=['present', 'absent'], default='present'),
-                         allowed_vlans=dict(type='list', elements='str', default='all'),
-                         poe_enabled=dict(type='bool', default=True),
-                         isolation_enabled=dict(type='bool', default=False),
-                         rstp_enabled=dict(type='bool', default=True),
-                         stp_guard=dict(type='str', choices=['disabled', 'root guard', 'bpdu guard', 'loop guard'], default='disabled'),
-                         access_policy_type=dict(type='str', choices=['Open', 'Custom access policy', 'MAC allow list', 'Sticky MAC allow list']),
-                         access_policy_number=dict(type='int'),
-                         link_negotiation=dict(type='str',
-                                               choices=['Auto negotiate', '100 Megabit (auto)', '100 Megabit full duplex (forced)'],
-                                               default='Auto negotiate'),
-                         mac_allow_list=dict(type='dict', options=policy_data_arg_spec),
-                         sticky_mac_allow_list=dict(type='dict', options=policy_data_arg_spec),
-                         sticky_mac_allow_list_limit=dict(type='int'),
-                         )
+    argument_spec.update(
+        state=dict(type="str", choices=["present", "query"], default="query"),
+        serial=dict(type="str", required=True),
+        number=dict(type="str"),
+        name=dict(type="str", aliases=["description"]),
+        tags=dict(type="list", elements="str"),
+        enabled=dict(type="bool", default=True),
+        type=dict(type="str", choices=["access", "trunk"], default="access"),
+        vlan=dict(type="int"),
+        voice_vlan=dict(type="int"),
+        voice_vlan_state=dict(
+            type="str", choices=["present", "absent"], default="present"
+        ),
+        allowed_vlans=dict(type="list", elements="str", default="all"),
+        poe_enabled=dict(type="bool", default=True),
+        isolation_enabled=dict(type="bool", default=False),
+        rstp_enabled=dict(type="bool", default=True),
+        stp_guard=dict(
+            type="str",
+            choices=["disabled", "root guard", "bpdu guard", "loop guard"],
+            default="disabled",
+        ),
+        access_policy_type=dict(
+            type="str",
+            choices=[
+                "Open",
+                "Custom access policy",
+                "MAC allow list",
+                "Sticky MAC allow list",
+            ],
+        ),
+        access_policy_number=dict(type="int"),
+        link_negotiation=dict(
+            type="str",
+            choices=[
+                "Auto negotiate",
+                "100 Megabit (auto)",
+                "100 Megabit full duplex (forced)",
+            ],
+            default="Auto negotiate",
+        ),
+        mac_allow_list=dict(type="dict", options=policy_data_arg_spec),
+        sticky_mac_allow_list=dict(type="dict", options=policy_data_arg_spec),
+        sticky_mac_allow_list_limit=dict(type="int"),
+        adaptive_policy_group_id=dict(type=str),
+        peer_sgt_capable=dict(type=bool),
+        flexible_stacking_enabled=dict(type=bool),
+    )
 
     # the AnsibleModule object will be our abstraction working with Ansible
     # this includes instantiation, a couple of common attr would be the
     # args/params passed to the execution, as well as if the module
     # supports check mode
-    module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=True,
-                           )
-    meraki = MerakiModule(module, function='switchport')
-    if meraki.params.get('voice_vlan_state') == "absent" and meraki.params.get('voice_vlan'):
-        meraki.fail_json(msg='voice_vlan_state cant be `absent` while voice_vlan is also defined.')
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True,
+    )
+    meraki = MerakiModule(module, function="switchport")
+    if meraki.params.get("voice_vlan_state") == "absent" and meraki.params.get(
+        "voice_vlan"
+    ):
+        meraki.fail_json(
+            msg="voice_vlan_state cant be `absent` while voice_vlan is also defined."
+        )
 
-    meraki.params['follow_redirects'] = 'all'
+    meraki.params["follow_redirects"] = "all"
 
-    if meraki.params['type'] == 'trunk':
-        if not meraki.params['allowed_vlans']:
-            meraki.params['allowed_vlans'] = ['all']  # Backdoor way to set default without conflicting on access
+    if meraki.params["type"] == "trunk":
+        if not meraki.params["allowed_vlans"]:
+            meraki.params["allowed_vlans"] = [
+                "all"
+            ]  # Backdoor way to set default without conflicting on access
 
-    query_urls = {'switchport': '/devices/{serial}/switch/ports'}
-    query_url = {'switchport': '/devices/{serial}/switch/ports/{number}'}
-    update_url = {'switchport': '/devices/{serial}/switch/ports/{number}'}
+    query_urls = {"switchport": "/devices/{serial}/switch/ports"}
+    query_url = {"switchport": "/devices/{serial}/switch/ports/{number}"}
+    update_url = {"switchport": "/devices/{serial}/switch/ports/{number}"}
 
-    meraki.url_catalog['get_all'].update(query_urls)
-    meraki.url_catalog['get_one'].update(query_url)
-    meraki.url_catalog['update'] = update_url
+    meraki.url_catalog["get_all"].update(query_urls)
+    meraki.url_catalog["get_one"].update(query_url)
+    meraki.url_catalog["update"] = update_url
 
     # execute checks for argument completeness
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
-    if meraki.params['state'] == 'query':
-        if meraki.params['number']:
-            path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
-                                                            'number': meraki.params['number'],
-                                                            })
-            response = meraki.request(path, method='GET')
-            meraki.result['data'] = response
+    if meraki.params["state"] == "query":
+        if meraki.params["number"]:
+            path = meraki.construct_path(
+                "get_one",
+                custom={
+                    "serial": meraki.params["serial"],
+                    "number": meraki.params["number"],
+                },
+            )
+            response = meraki.request(path, method="GET")
+            meraki.result["data"] = response
         else:
-            path = meraki.construct_path('get_all', custom={'serial': meraki.params['serial']})
-            response = meraki.request(path, method='GET')
-            meraki.result['data'] = response
-    elif meraki.params['state'] == 'present':
+            path = meraki.construct_path(
+                "get_all", custom={"serial": meraki.params["serial"]}
+            )
+            response = meraki.request(path, method="GET")
+            meraki.result["data"] = response
+    elif meraki.params["state"] == "present":
         payload = assemble_payload(meraki)
         # meraki.fail_json(msg='payload', payload=payload)
         allowed = set()  # Use a set to remove duplicate items
-        if meraki.params['allowed_vlans'][0] == 'all':
-            allowed.add('all')
+        if meraki.params["allowed_vlans"][0] == "all":
+            allowed.add("all")
         else:
-            for vlan in meraki.params['allowed_vlans']:
+            for vlan in meraki.params["allowed_vlans"]:
                 allowed.add(str(vlan))
-            if meraki.params['vlan'] is not None:
-                allowed.add(str(meraki.params['vlan']))
+            if meraki.params["vlan"] is not None:
+                allowed.add(str(meraki.params["vlan"]))
         if len(allowed) > 1:  # Convert from list to comma separated
-            payload['allowedVlans'] = sort_vlans(meraki, allowed)
+            payload["allowedVlans"] = sort_vlans(meraki, allowed)
         else:
-            payload['allowedVlans'] = next(iter(allowed))
+            payload["allowedVlans"] = next(iter(allowed))
 
         # Exceptions need to be made for idempotency check based on how Meraki returns
-        if meraki.params['type'] == 'access':
-            if not meraki.params['vlan']:  # VLAN needs to be specified in access ports, but can't default to it
-                payload['vlan'] = 1
-        query_path = meraki.construct_path('get_one', custom={'serial': meraki.params['serial'],
-                                                              'number': meraki.params['number'],
-                                                              })
-        original = meraki.request(query_path, method='GET')
+        if meraki.params["type"] == "access":
+            if not meraki.params[
+                "vlan"
+            ]:  # VLAN needs to be specified in access ports, but can't default to it
+                payload["vlan"] = 1
+        query_path = meraki.construct_path(
+            "get_one",
+            custom={
+                "serial": meraki.params["serial"],
+                "number": meraki.params["number"],
+            },
+        )
+        original = meraki.request(query_path, method="GET")
         # Check voiceVlan to see if state is absent to remove the vlan.
-        if meraki.params.get('voice_vlan_state'):
-            if meraki.params.get('voice_vlan_state') == 'absent':
-                payload['voiceVlan'] = None
+        if meraki.params.get("voice_vlan_state"):
+            if meraki.params.get("voice_vlan_state") == "absent":
+                payload["voiceVlan"] = None
             else:
-                payload['voiceVlan'] = meraki.params.get('voice_vlan')
-        if meraki.params.get('mac_allow_list'):
-            macs = get_mac_list(original.get('macAllowList'), meraki.params["mac_allow_list"].get("macs"), meraki.params["mac_allow_list"].get("state"))
-            payload['macAllowList'] = macs
-        # Evaluate Sticky Limit whether it was passed in or what is currently configured and was returned in GET call.
-        if meraki.params.get('sticky_mac_allow_list_limit'):
-            sticky_mac_limit = meraki.params.get('sticky_mac_allow_list_limit')
-        else:
-            sticky_mac_limit = original.get('stickyMacAllowListLimit')
-        if meraki.params.get('sticky_mac_allow_list'):
+                payload["voiceVlan"] = meraki.params.get("voice_vlan")
+        if meraki.params.get("mac_allow_list"):
             macs = get_mac_list(
-                original.get('stickyMacAllowList'), meraki.params["sticky_mac_allow_list"].get("macs"), meraki.params["sticky_mac_allow_list"].get("state")
+                original.get("macAllowList"),
+                meraki.params["mac_allow_list"].get("macs"),
+                meraki.params["mac_allow_list"].get("state"),
+            )
+            payload["macAllowList"] = macs
+        # Evaluate Sticky Limit whether it was passed in or what is currently configured and was returned in GET call.
+        if meraki.params.get("sticky_mac_allow_list_limit"):
+            sticky_mac_limit = meraki.params.get("sticky_mac_allow_list_limit")
+        else:
+            sticky_mac_limit = original.get("stickyMacAllowListLimit")
+        if meraki.params.get("sticky_mac_allow_list"):
+            macs = get_mac_list(
+                original.get("stickyMacAllowList"),
+                meraki.params["sticky_mac_allow_list"].get("macs"),
+                meraki.params["sticky_mac_allow_list"].get("state"),
             )
             if int(sticky_mac_limit) < len(macs):
-                meraki.fail_json(msg='Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List.')
-            payload['stickyMacAllowList'] = macs
-            payload['stickyMacAllowListLimit'] = sticky_mac_limit
+                meraki.fail_json(
+                    msg="Stick MAC Allow List Limit must be equal to or greater than length of Sticky MAC Allow List."
+                )
+            payload["stickyMacAllowList"] = macs
+            payload["stickyMacAllowListLimit"] = sticky_mac_limit
         proposed = payload.copy()
-        if meraki.params['type'] == 'trunk':
-            proposed['voiceVlan'] = original['voiceVlan']  # API shouldn't include voice VLAN on a trunk port
+        if meraki.params["type"] == "trunk":
+            proposed["voiceVlan"] = original[
+                "voiceVlan"
+            ]  # API shouldn't include voice VLAN on a trunk port
         # meraki.fail_json(msg='Compare', original=original, payload=payload)
-        if meraki.is_update_required(original, proposed, optional_ignore=['number']):
+        if meraki.is_update_required(original, proposed, optional_ignore=["number"]):
             if meraki.check_mode is True:
                 original.update(proposed)
-                meraki.result['data'] = original
-                meraki.result['changed'] = True
+                meraki.result["data"] = original
+                meraki.result["changed"] = True
                 meraki.exit_json(**meraki.result)
-            path = meraki.construct_path('update', custom={'serial': meraki.params['serial'],
-                                                           'number': meraki.params['number'],
-                                                           })
+            path = meraki.construct_path(
+                "update",
+                custom={
+                    "serial": meraki.params["serial"],
+                    "number": meraki.params["number"],
+                },
+            )
             # meraki.fail_json(msg=payload)
-            response = meraki.request(path, method='PUT', payload=json.dumps(payload))
-            meraki.result['data'] = response
-            meraki.result['changed'] = True
+            response = meraki.request(path, method="PUT", payload=json.dumps(payload))
+            meraki.result["data"] = response
+            meraki.result["changed"] = True
         else:
-            meraki.result['data'] = original
+            meraki.result["data"] = original
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results
     meraki.exit_json(**meraki.result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
