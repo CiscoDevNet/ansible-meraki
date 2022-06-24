@@ -38,6 +38,7 @@
     serial: '{{ serial_switch }}'
     number: 7
     enabled: true
+    name: Temporary
   delegate_to: localhost
   check_mode: yes
   register: update_port_true_check
@@ -145,6 +146,44 @@
 - assert:
     that:
       - update_access_port.data.vlan == 10
+
+- name: Configure flexible stacking
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch_l3 }}'
+    number: 7
+    enabled: true
+    flexible_stacking_enabled: true
+  delegate_to: localhost
+  register: flex_stacking_enabled
+
+- debug:
+    msg: '{{flex_stacking_enabled}}'
+
+- assert:
+    that:
+      - flex_stacking_enabled.data.flexible_stacking_enabled == true
+
+# - name: Configure adaptive policy and SGT
+#   meraki_switchport:
+#     auth_key: '{{auth_key}}'
+#     state: present
+#     serial: '{{ serial_switch_l3 }}'
+#     number: 7
+#     enabled: true
+#     adaptive_policy_group_id: "1234"
+#     peer_sgt_capable: true
+#   delegate_to: localhost
+#   register: adaptive_policy
+
+# - debug:
+#     msg: '{{adaptive_policy}}'
+
+# - assert:
+#     that:
+#       - adaptive_policy.data.adaptive_policy_group_id == "1234"
+#       - adaptive_policy.data.peer_sgt_capable == true
 
 - name: Configure port as trunk
   meraki_switchport:
