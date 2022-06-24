@@ -166,6 +166,10 @@ options:
         - Only applicable to access_policy_type "Sticky MAC allow list".
         - The value must be equal to or greater then the list size of sticky_mac_allow_list. Value will be checked for validity, during processing.
         type: int
+    flexible_stacking_enabled:
+        description:
+        - Whether flexible stacking capabilities are supported on the port.
+        type: bool
 author:
 - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
@@ -386,6 +390,10 @@ data:
             returned: success
             type: str
             sample: "Alert only"
+        flexible_stacking_enabled:
+            description: Whether flexible stacking capabilities are enabled on the port.
+            returned: success
+            type: bool
 """
 
 from ansible.module_utils.basic import AnsibleModule, json
