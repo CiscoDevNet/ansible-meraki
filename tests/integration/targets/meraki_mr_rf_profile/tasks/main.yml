@@ -276,7 +276,7 @@
     - assert:
         that:
           - create_281.data is defined
-          - create_281.data is changed
+          - create_281 is changed
     - name: Create RF Profile - Idempotent
       cisco.meraki.meraki_mr_rf_profile:
         auth_key: '{{ auth_key }}'
@@ -295,7 +295,7 @@
     - assert:
         that:
           - idempotent_281.data is defined
-          - idempotent_281.data is not changed
+          - idempotent_281 is not changed
     - name: Clean Up RF Profile
       cisco.meraki.meraki_mr_rf_profile:
         auth_key: '{{ auth_key }}'
@@ -307,7 +307,7 @@
     - assert:
         that:
           - delete_281.data is defined
-          - delete_281.data is changed
+          - delete_281 is changed
 
 #############################################################################
 # Tear down starts here
