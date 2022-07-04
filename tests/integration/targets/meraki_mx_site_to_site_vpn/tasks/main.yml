@@ -1,0 +1,140 @@
+# Test code for the Meraki Admin module
+# Copyright: (c) 2018, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+
+  - name: Create hub network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+      type: appliance
+    delegate_to: localhost
+    register: net_hub
+
+  - name: Create spoke network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_spoke'
+      type: appliance
+    delegate_to: localhost
+    register: net_spoke
+
+  - set_fact:
+      net_spoke_id: '{{net_spoke.data.id}}'
+      net_hub_id: '{{net_hub.data.id}}'
+
+  - name: Set hub mode
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+      mode: hub
+      subnets:
+        - local_subnet: '192.168.128.0/24'
+          use_vpn: no
+    delegate_to: localhost
+    register: set_hub
+
+  - assert:
+      that:
+        - set_hub is changed
+        - set_hub.data is defined
+
+  - name: Set hub mode with idempotency
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+      mode: hub
+    delegate_to: localhost
+    register: set_hub_idempotent
+
+  - assert:
+      that:
+        - set_hub_idempotent is not changed
+        - set_hub_idempotent.data is defined
+
+  - name: Enable subnet on hub network
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+      mode: hub
+      subnets:
+        - local_subnet: '192.168.128.0/24'
+          use_vpn: yes
+    delegate_to: localhost
+    register: enable_hub_subnet
+
+  - assert:
+      that:
+        - enable_hub_subnet is changed
+        - enable_hub_subnet.data is defined
+
+  - name: Set spoke mode
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_spoke'
+      mode: spoke
+      hubs:
+        - hub_id: '{{net_hub_id}}'
+          use_default_route: false
+    delegate_to: localhost
+    register: set_spoke
+
+  - debug:
+      var: set_spoke
+
+  - name: Set spoke configuration
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_spoke'
+      mode: spoke
+      hubs:
+        - hub_id: '{{net_hub_id}}'
+          use_default_route: false
+      subnets:
+        - local_subnet: '192.168.169.0/24'
+          use_vpn: true
+    delegate_to: localhost
+    register: set_spoke
+
+  - debug:
+      var: set_spoke
+
+  - name: Query rules for hub
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+    delegate_to: localhost
+    register: query_all_hub
+
+  - debug:
+      var: query_all_hub
+
+  - name: Query rules for spoke
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_spoke'
+    delegate_to: localhost
+    register: query_all_spoke
+
+  - debug:
+      var: query_all_spoke
