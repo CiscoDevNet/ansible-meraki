@@ -104,6 +104,7 @@ options:
         description:
         - VLAN number assigned to port.
         - If a port is of type trunk, the specified VLAN is the native VLAN.
+        - Setting value to 0 on a trunk will clear the VLAN.
         type: int
     voice_vlan:
         description:
