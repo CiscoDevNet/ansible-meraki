@@ -85,6 +85,11 @@ plugins:
       name: meraki_ms_link_aggregation
       namespace: ''
       version_added: 1.2.0
+    meraki_ms_mtu:
+      description: Manage switchports on a switch in the Meraki cloud
+      name: meraki_ms_mtu
+      namespace: ''
+      version_added: null
     meraki_ms_ospf:
       description: Manage OSPF configuration on MS switches
       name: meraki_ms_ospf
@@ -209,4 +214,4 @@ plugins:
   shell: {}
   strategy: {}
   vars: {}
-version: 2.8.0
+version: 2.9.0

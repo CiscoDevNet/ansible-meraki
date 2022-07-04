@@ -266,3 +266,10 @@ releases:
     - 327-switchport-flex.yaml
     - action_batch.yaml
     release_date: '2022-06-24'
+  2.9.0:
+    changes:
+      bugfixes:
+      - meraki_switchport - Setting VLAN to 0 on trunk port clears the VLAN.
+    fragments:
+    - 331-switchport_clear_vlan.yml
+    release_date: '2022-07-04'

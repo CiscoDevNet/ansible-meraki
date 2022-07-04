@@ -1,3 +1,0 @@
----
-bugfixes:
-  - meraki_switchport - Setting VLAN to 0 on trunk port clears the VLAN.

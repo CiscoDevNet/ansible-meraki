@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.9.0
+======
+
+Bugfixes
+--------
+
+- meraki_switchport - Setting VLAN to 0 on trunk port clears the VLAN.
+
 v2.8.0
 ======
 
