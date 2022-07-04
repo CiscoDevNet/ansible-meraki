@@ -15,3 +15,5 @@ plugin_routing:
       redirect: cisco.meraki.meraki_mx_uplink_bandwidth
     meraki_nat:
       redirect: cisco.meraki.meraki_mx_nat
+    meraki_site_to_site_vpn:
+      redirect: cisco.meraki.meraki_mx_site_to_site_vpn
