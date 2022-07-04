@@ -11,3 +11,7 @@ plugin_routing:
       redirect: cisco.meraki.meraki_mx_intrusion_prevention
     meraki_malware:
       redirect: cisco.meraki.meraki_mx_malware
+    meraki_mx_uplink:
+      redirect: cisco.meraki.meraki_mx_uplink_bandwidth
+    meraki_nat:
+      redirect: cisco.meraki.meraki_mx_nat
