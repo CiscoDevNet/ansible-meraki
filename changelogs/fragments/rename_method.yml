@@ -1,0 +1,15 @@
+---
+trivial:
+  - meraki_mx_vlan - Move alias from sym link to runtime.yml file
+  - meraki_mx_content_filtering - Move alias from sym link to runtime.yml file
+  - meraki_mx_intrusion_prevention - Move alias from sym link to runtime.yml file
+  - meraki_mx_malware - Move alias from sym link to runtime.yml file
+  - meraki_mx_uplink - Move alias from sym link to runtime.yml file
+  - meraki_mx_nat - Move alias from sym link to runtime.yml file
+  - meraki_mx_site_to_site_vpn - Move alias from sym link to runtime.yml file
+  - meraki_mx_static_route - Move alias from sym link to runtime.yml file
+  - meraki_ms_access_list - Move alias from sym link to runtime.yml file
+  - meraki_ms_stack - Move alias from sym link to runtime.yml file
+  - meraki_ms_storm_control - Move alias from sym link to runtime.yml file
+  - meraki_ms_switchport - Move alias from sym link to runtime.yml file
+  - meraki_mr_ssid - Move alias from sym link to runtime.yml file
