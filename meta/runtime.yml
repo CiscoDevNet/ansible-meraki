@@ -17,3 +17,13 @@ plugin_routing:
       redirect: cisco.meraki.meraki_mx_nat
     meraki_site_to_site_vpn:
       redirect: cisco.meraki.meraki_mx_site_to_site_vpn
+    meraki_ssid:
+      redirect: cisco.meraki.meraki_mr_ssid
+    meraki_static_route:
+      redirect: cisco.meraki.meraki_mx_static_route
+    meraki_switch_access_list:
+      redirect: cisco.meraki.meraki_ms_access_list
+    meraki_switch_stack:
+      redirect: cisco.meraki.meraki_ms_stack
+    meraki_switch_storm_control:
+      redirect: cisco.meraki.meraki_ms_storm_control
