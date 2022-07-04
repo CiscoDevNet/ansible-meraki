@@ -1,0 +1,19 @@
+name: Changelog
+on:
+  pull_request:
+
+
+jobs:
+  changlog:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out code
+        uses: actions/checkout@v1
+        with:
+          path: ansible_collections/cisco/meraki
+
+      - id: changelog_fragment
+        uses: trilom/file-changes-action@v1.2.4
+        with:
+          output: 'json'
