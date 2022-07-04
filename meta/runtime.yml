@@ -5,3 +5,5 @@ plugin_routing:
       redirect: cisco.meraki.meraki_mx_vlan
     meraki_switchport:
       redirect: cisco.meraki.meraki_ms_switchport
+    meraki_content_filtering:
+      redirect: cisco.meraki.meraki_mx_content_filtering
