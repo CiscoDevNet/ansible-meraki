@@ -1,3 +1,4 @@
 ---
 trivial:
 	- meraki_mx_vlan - Move alias from sym link to runtime.yml file
+	- meraki_ms_switchport - Move alias from sym link to runtime.yml file

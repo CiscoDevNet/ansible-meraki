@@ -6,7 +6,7 @@ See the CHANGELOG.md file for details of updates in each release.
 
 ## Requirements
 
-* Ansible v2.9 or newer is required for collection support
+* Ansible v2.10 or newer is required for collection support
 
 ## What is Cisco Meraki?
 
