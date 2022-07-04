@@ -104,6 +104,7 @@ options:
         description:
         - VLAN number assigned to port.
         - If a port is of type trunk, the specified VLAN is the native VLAN.
+        - Setting value to 0 on a trunk will clear the VLAN.
         type: int
     voice_vlan:
         description:
@@ -464,6 +465,12 @@ def get_mac_list(original_allowed, new_mac_list, state):
     return new_mac_list
 
 
+def clear_vlan(params, payload):
+    if params["vlan"] == 0:
+        payload["vlan"] = None
+    return payload
+
+
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
@@ -638,6 +645,7 @@ def main():
                 )
             payload["stickyMacAllowList"] = macs
             payload["stickyMacAllowListLimit"] = sticky_mac_limit
+        payload = clear_vlan(meraki.params, payload)
         proposed = payload.copy()
         if meraki.params["type"] == "trunk":
             proposed["voiceVlan"] = original[
@@ -657,7 +665,6 @@ def main():
                     "number": meraki.params["number"],
                 },
             )
-            # meraki.fail_json(msg=payload)
             response = meraki.request(path, method="PUT", payload=json.dumps(payload))
             meraki.result["data"] = response
             meraki.result["changed"] = True

@@ -198,6 +198,25 @@
     allowed_vlans: 10, 100, 200
   delegate_to: localhost
 
+- name: Remove VLAN on switchport
+  meraki_switchport:
+    auth_key: '{{auth_key}}'
+    state: present
+    serial: '{{ serial_switch }}'
+    number: 8
+    enabled: true
+    type: trunk
+    vlan: 0
+  delegate_to: localhost
+  register: remove_vlan
+
+- debug:
+    msg: '{{remove_vlan}}'
+
+- assert:
+    that:
+      - remove_vlan.data.vlan == None
+
 - name: Convert trunk port to access
   meraki_switchport:
     auth_key: '{{auth_key}}'
