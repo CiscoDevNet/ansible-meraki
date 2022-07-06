@@ -57,7 +57,27 @@
       timezone: America/Chicago
     delegate_to: localhost
     register: create_net_switch
-    
+
+  - set_fact:
+      switch_net_id: '{{ create_net_switch.data.id }}'
+
+  - name: Copy network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkSwitchCopied
+      type: switch
+      copy_from_network_id: '{{ switch_net_id }}'
+    delegate_to: localhost
+    register: copy_from_net_id
+
+  - assert:
+      that:
+        - copy_from_net_id is defined
+        - copy_from_net_id is changed
+        - copy_from_net_id.data.id != create_net_switch.data.id
+
   - name: Create network with type switch by org ID
     meraki_network:
       auth_key: '{{ auth_key }}'
@@ -442,6 +462,7 @@
     ignore_errors: yes
     loop:
       - IntTestNetworkSwitch
+      - IntTestNetworkSwitchCopied
       - IntTestNetworkWireless
       - IntTestNetworkAppliance
       - IntTestNetworkCombined
