@@ -75,6 +75,12 @@ options:
             - Can only be set if C(local_status_page_enabled:) is set to C(yes).
             - Only can be specified on its own or with C(local_status_page_enabled).
         type: bool
+    copy_from_network_id:
+        description:
+            - New network inherits properties from this network ID.
+            - Other provided parameters will override the copied configuration.
+            - Type which must match this network's type exactly.
+        type: str
 
 author:
     - Kevin Breit (@kbreit)
@@ -115,6 +121,16 @@ EXAMPLES = r"""
           - appliance
         timezone: America/Chicago
         tags: production, chicago
+    - name: Create new network based on an existing network
+      meraki_network:
+        auth_key: abc12345
+        state: present
+        org_name: YourOrg
+        net_name: MyNet
+        type:
+          - switch
+          - appliance
+        copy_from_network_id: N_1234
     - name: Enable VLANs on a network
       meraki_network:
         auth_key: abc12345
@@ -236,6 +252,7 @@ def main():
         enable_vlans=dict(type="bool"),
         local_status_page_enabled=dict(type="bool"),
         remote_status_page_enabled=dict(type="bool"),
+        copy_from_network_id=dict(type="str"),
     )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -307,6 +324,8 @@ def main():
             payload["remoteStatusPageEnabled"] = meraki.params[
                 "remote_status_page_enabled"
             ]
+        if meraki.params["copy_from_network_id"] is not None:
+            payload["copyFromNetworkId"] = meraki.params["copy_from_network_id"]
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
