@@ -124,6 +124,14 @@ releases:
     fragments:
     - pagination.yml
     release_date: '2020-12-16'
+  2.10.0:
+    changes:
+      minor_changes:
+      - meraki_network - Add support for `copy_from_network_id`.
+    fragments:
+    - 335-net_copy.yml
+    - rename_method.yml
+    release_date: '2022-07-06'
   2.2.0:
     changes:
       bugfixes:

@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.10.0
+=======
+
+Minor Changes
+-------------
+
+- meraki_network - Add support for `copy_from_network_id`.
+
 v2.9.0
 ======
 
