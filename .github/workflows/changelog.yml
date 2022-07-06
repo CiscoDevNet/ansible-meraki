@@ -22,7 +22,7 @@ jobs:
           done
 
       - name: Fail if changelog fragment is absent
-        if: contains(steps.changed-files.outputs.added_files, 'fragments')
+        if: contains(steps.changed-files.outputs.added_files, 'fragments') == false
         run: |
           echo "Changelog fragment for this branch is not present"
           exit 1
