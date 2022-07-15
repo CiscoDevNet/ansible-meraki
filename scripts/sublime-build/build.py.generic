@@ -1,5 +1,4 @@
-#!/Users/kbreit/Documents/Programming/ansible_collections/cisco/meraki/venv/bin/python
-
+#!/usr/bin/python
 import subprocess
 import sys
 import pathlib
