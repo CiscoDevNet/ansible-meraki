@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.10.1
+=======
+
+Minor Changes
+-------------
+
+- Change shebang in Sublime utils to point to env instead of direct to the path
+
 v2.10.0
 =======
 

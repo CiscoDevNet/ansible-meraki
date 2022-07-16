@@ -132,6 +132,14 @@ releases:
     - 335-net_copy.yml
     - rename_method.yml
     release_date: '2022-07-06'
+  2.10.1:
+    changes:
+      minor_changes:
+      - Change shebang in Sublime utils to point to env instead of direct to the path
+    fragments:
+    - changelog-frags.yml
+    - sublime-utils.yml
+    release_date: '2022-07-16'
   2.2.0:
     changes:
       bugfixes:
