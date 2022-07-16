@@ -272,23 +272,21 @@ def get_admins(meraki, org_id):
         return admins
 
 
-def get_admin_id(meraki, data, name=None, email=None):
+def get_admin_id(params, data, name=None, email=None):
     admin_id = None
     for a in data:
-        if meraki.params["name"] is not None:
-            if meraki.params["name"] == a["name"]:
+        if params["name"] is not None:
+            if params["name"] == a["name"]:
                 if admin_id is not None:
-                    meraki.fail_json(
-                        msg="There are multiple administrators with the same name"
-                    )
+                    return None, "There are multiple administrators with the same name"
                 else:
                     admin_id = a["id"]
-        elif meraki.params["email"]:
-            if meraki.params["email"] == a["email"]:
-                return a["id"]
+        elif params["email"]:
+            if params["email"] == a["email"]:
+                return a["id"], None
     if admin_id is None:
-        meraki.fail_json(msg="No admin_id found")
-    return admin_id
+        return admin_id, "No admin_id found"
+    return admin_id, None
 
 
 def get_admin(meraki, data, id):
@@ -479,12 +477,20 @@ def main():
         ):  # Return all admins for org
             meraki.result["data"] = admins
         if meraki.params["name"] is not None:  # Return a single admin for org
-            admin_id = get_admin_id(meraki, admins, name=meraki.params["name"])
+            admin_id, err = get_admin_id(
+                meraki.params, admins, name=meraki.params["name"]
+            )
+            if err is not None:
+                meraki.fail_json(msg=err)
             meraki.result["data"] = admin_id
             admin = get_admin(meraki, admins, admin_id)
             meraki.result["data"] = admin
         elif meraki.params["email"] is not None:
-            admin_id = get_admin_id(meraki, admins, email=meraki.params["email"])
+            admin_id, err = get_admin_id(
+                meraki.params, admins, email=meraki.params["email"]
+            )
+            if err is not None:
+                meraki.fail_json(msg=err)
             meraki.result["data"] = admin_id
             admin = get_admin(meraki, admins, admin_id)
             meraki.result["data"] = admin
@@ -502,9 +508,11 @@ def main():
             meraki.result["data"] = {}
             meraki.result["changed"] = True
             meraki.exit_json(**meraki.result)
-        admin_id = get_admin_id(
-            meraki, get_admins(meraki, org_id), email=meraki.params["email"]
+        admin_id, err = get_admin_id(
+            meraki.params, get_admins(meraki, org_id), email=meraki.params["email"]
         )
+        if err is not None:
+            meraki.fail_json(msg=err)
         r = delete_admin(meraki, org_id, admin_id)
 
         if r != -1:
