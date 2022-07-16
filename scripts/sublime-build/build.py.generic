@@ -1,4 +1,4 @@
-#!/Users/kbreit/Documents/Programming/ansible_collections/cisco/meraki/venv/bin/python
+#!/usr/bin/env python
 
 import subprocess
 import sys
