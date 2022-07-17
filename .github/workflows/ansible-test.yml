@@ -28,8 +28,8 @@ jobs:
       - name: Show ansible-base version
         run: ansible --version
 
-      - name: Run sanity tests
-        run: ansible-test sanity --docker -v --color
-
       - name: Run pytest
         run: pytest
+
+      - name: Run sanity tests
+        run: ansible-test sanity --docker -v --color
