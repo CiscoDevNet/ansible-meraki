@@ -42,7 +42,7 @@ def test_find_admin_success(admin_data):
 
 def test_find_admin_fail(admin_data):
     result = find_admin(admin_data, "not.john.doe@example.com")
-    assert result == None
+    assert result is None
 
 
 def test_get_admin_id_by_name_success(admin_data):
