@@ -595,7 +595,7 @@ def main():
             )
     if meraki.params["radius_accounting_enabled"] is True:
         if meraki.params["auth_mode"] not in ("open-with-radius", "8021x-radius"):
-            meraki.fails_json(
+            meraki.fail_json(
                 msg="radius_accounting_enabled is only allowed when auth_mode is open-with-radius or 8021x-radius"
             )
     if meraki.params["radius_accounting_servers"] is True:
