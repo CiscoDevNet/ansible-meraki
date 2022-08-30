@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.10.2
+=======
+
+Minor Changes
+-------------
+
+- meraki_ssid - Add support for `visible`.
+
 v2.10.1
 =======
 
