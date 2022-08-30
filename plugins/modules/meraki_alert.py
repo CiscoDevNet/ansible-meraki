@@ -122,7 +122,7 @@ EXAMPLES = r"""
       all_admins: yes
       snmp: no
     alerts:
-      - type: "gatewayDown"
+      - alert_type: "gatewayDown"
         enabled: yes
         filters:
           timeout: 60
@@ -132,7 +132,7 @@ EXAMPLES = r"""
           - 'youremail2@yourcorp'
           all_admins: yes
           snmp: no
-      - type: "usageAlert"
+      - alert_type: "usageAlert"
         enabled: yes
         filters:
           period: 1200
@@ -186,7 +186,7 @@ data:
             description: Alert-specific configuration for each type.
             type: complex
             contains:
-                type:
+                alert_type:
                     description: The type of alert.
                     type: str
                     returned: success
