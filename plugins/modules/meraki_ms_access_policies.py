@@ -36,7 +36,6 @@ options:
         description:
         - Name of Access Policy.
         type: str
-        required: True
     net_id:
         description:
         - ID of network.
@@ -55,7 +54,6 @@ options:
         - Set authentication method in the policy.
         type: str
         choices: ["Meraki authentication", "my RADIUS server"]
-        required: True
     guest_vlan:
         description:
         - Guest Vlan
@@ -323,10 +321,9 @@ def main():
         net_id=dict(type="str"),
         net_name=dict(type="str", aliases=["network"]),
         number=dict(type="int", aliases=["access_policy_number"]),
-        name=dict(type="str", required=True),
+        name=dict(type="str"),
         auth_method=dict(
             type="str",
-            required=True,
             choices=["Meraki authentication", "my RADIUS server"],
         ),
         guest_vlan=dict(type="int"),
