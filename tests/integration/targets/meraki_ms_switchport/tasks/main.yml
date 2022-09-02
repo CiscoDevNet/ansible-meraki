@@ -724,3 +724,84 @@
     that:
       - idempotent_delete_mac.changed == False
       - idempotent_delete_mac.data is defined
+
+- name: Create access policy with auth_method is "my Radius Server"
+  cisco.meraki.meraki_ms_access_policies:
+    auth_key: "{{ auth_key }}"
+    access_policy_type: "802.1x"
+    host_mode: "Single-Host"
+    state: present
+    name: "Meraki authentication policy 3"
+    auth_method: "my RADIUS server"
+    radius_servers:
+      - host: 192.0.1.18
+        port: 7890
+        secret: secret123
+    net_id: "{{ test_net_id }}"
+    radius_coa_enabled: false
+    radius_accounting_enabled: false
+    guest_vlan: 10
+    voice_vlan_clients: false
+  delegate_to: localhost
+
+- name: Configure port
+  cisco.meraki.meraki_switchport:
+    auth_key: "{{ auth_key }}"
+    serial: "{{ serial_switch }}"
+    name: "E1_AP_198_TEST"
+    state: present
+    number: 7
+    type: access
+    poe_enabled: true
+    access_policy_type: "Custom access policy"
+    access_policy_number: 1
+  delegate_to: localhost
+
+- name: Query switchports
+  meraki_switchport:
+    auth_key: "{{ auth_key }}"
+    state: query
+    serial: "{{ serial_switch }}"
+    number: 7
+  delegate_to: localhost
+  register: query_port_seven
+
+- assert:
+    that:
+      - query_port_seven.data.type == "access"
+
+- name: Configure port - Update
+  cisco.meraki.meraki_switchport:
+    auth_key: "{{ auth_key }}"
+    serial: "{{ serial_switch }}"
+    name: "E1_AP_198_TEST"
+    state: present
+    number: 7
+    type: trunk
+    allowed_vlans:
+      - 1
+      - 15
+    poe_enabled: true
+  delegate_to: localhost
+
+- name: Query switchports
+  meraki_switchport:
+    auth_key: "{{ auth_key }}"
+    state: query
+    serial: "{{ serial_switch }}"
+    number: 7
+  delegate_to: localhost
+  register: query_port_seven
+
+- assert:
+    that:
+      - query_port_seven.data.type == "trunk"
+
+- name: Delete access policy
+  cisco.meraki.meraki_ms_access_policies:
+    auth_key: "{{ auth_key }}"
+    state: absent
+    number: 1
+    net_id: "{{ test_net_id }}"
+  delegate_to: localhost
+  register: delete_access_policy
