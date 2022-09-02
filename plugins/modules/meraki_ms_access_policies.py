@@ -472,6 +472,17 @@ def main():
             meraki.result["data"] = response
     elif meraki.params["state"] == "present":
 
+        query_path_all = meraki.construct_path(
+            "get_all",
+            net_id=net_id,
+        )
+
+        original_all = meraki.request(query_path_all, method="GET")
+
+        for i in original_all:
+            if i.get("name") == meraki.params["name"]:
+                meraki.params["number"] = i.get("accessPolicyNumber")
+
         if meraki.params["number"] is None:
             path = meraki.construct_path(
                 "create",
@@ -504,9 +515,8 @@ def main():
                 },
             )
 
-            original = meraki.request(query_path, method="GET")
-
             proposed = ""
+            original = meraki.request(query_path, method="GET")
 
             if meraki.is_update_required(original, proposed):
                 if meraki.params["auth_method"] == "Meraki authentication":
