@@ -104,6 +104,27 @@
   delegate_to: localhost
   register: create_access_policy_my_radius_server
 
+- name: Update the same access policy with auth_method is "my Radius Server"
+  cisco.meraki.meraki_ms_access_policies:
+    auth_key: "{{ auth_key }}"
+    access_policy_type: "802.1x"
+    host_mode: "Single-Host"
+    state: present
+    name: "Meraki authentication policy"
+    number: 1
+    auth_method: "my RADIUS server"
+    radius_servers:
+      - host: 192.0.1.18
+        port: 7890
+        secret: secret123
+    net_id: "{{ test_net_id }}"
+    radius_coa_enabled: False
+    radius_accounting_enabled: False
+    guest_vlan: 10
+    voice_vlan_clients: False
+  delegate_to: localhost
+  register: create_access_policy_my_radius_server
+
 - name: Query one access policy
   cisco.meraki.meraki_ms_access_policies:
     auth_key: "{{ auth_key }}"
