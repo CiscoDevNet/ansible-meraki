@@ -23,7 +23,8 @@
     state: present
     name: "Meraki authentication policy"
     auth_method: "Meraki authentication"
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
   delegate_to: localhost
   register: create_access_policy
 
@@ -31,7 +32,8 @@
   cisco.meraki.meraki_ms_access_policies:
     auth_key: "{{ auth_key }}"
     state: query
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     number: 1
   delegate_to: localhost
   register: query_one
@@ -46,7 +48,8 @@
     auth_key: "{{ auth_key }}"
     state: absent
     number: 1
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
   delegate_to: localhost
   register: delete_access_policy
 
@@ -56,7 +59,8 @@
     state: present
     name: "Meraki authentication policy"
     auth_method: "Meraki authentication"
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     guest_vlan: 10
   delegate_to: localhost
   register: create_access_policy_guest_vlan
@@ -65,7 +69,8 @@
   cisco.meraki.meraki_ms_access_policies:
     auth_key: "{{ auth_key }}"
     state: query
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     number: 1
   delegate_to: localhost
   register: query_one
@@ -80,7 +85,8 @@
     auth_key: "{{ auth_key }}"
     state: absent
     number: 1
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
   delegate_to: localhost
   register: delete_access_policy
 
@@ -96,7 +102,8 @@
       - host: 192.0.1.18
         port: 7890
         secret: secret123
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     radius_coa_enabled: False
     radius_accounting_enabled: False
     guest_vlan: 10
@@ -117,7 +124,8 @@
       - host: 192.0.1.18
         port: 7890
         secret: secret123
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     radius_coa_enabled: False
     radius_accounting_enabled: False
     guest_vlan: 10
@@ -129,7 +137,8 @@
   cisco.meraki.meraki_ms_access_policies:
     auth_key: "{{ auth_key }}"
     state: query
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     number: 1
   delegate_to: localhost
   register: query_one
@@ -145,7 +154,8 @@
     auth_key: "{{ auth_key }}"
     state: absent
     number: 1
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
   delegate_to: localhost
   register: delete_access_policy
 
@@ -161,7 +171,8 @@
       - host: 192.0.1.18
         port: 7890
         secret: secret123
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     radius_coa_enabled: False
     radius_accounting_enabled: True
     radius_accounting_servers:
@@ -176,7 +187,8 @@
   cisco.meraki.meraki_ms_access_policies:
     auth_key: "{{ auth_key }}"
     state: query
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     number: 1
   delegate_to: localhost
   register: query_one
@@ -191,7 +203,8 @@
     auth_key: "{{ auth_key }}"
     state: absent
     number: 1
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
   delegate_to: localhost
   register: delete_access_policy
 
@@ -207,7 +220,8 @@
       - host: 192.0.1.18
         port: 7890
         secret: secret123
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     radius_coa_enabled: False
     radius_accounting_enabled: True
     radius_accounting_servers:
@@ -231,7 +245,8 @@
       - host: 192.0.1.20
         port: 7890
         secret: secret123
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     radius_coa_enabled: False
     radius_accounting_enabled: False
     voice_vlan_clients: False
@@ -242,7 +257,8 @@
   cisco.meraki.meraki_ms_access_policies:
     auth_key: "{{ auth_key }}"
     state: query
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     number: 1
   delegate_to: localhost
   register: query_one
@@ -257,6 +273,7 @@
     auth_key: "{{ auth_key }}"
     state: absent
     number: 1
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
   delegate_to: localhost
   register: delete_access_policy
