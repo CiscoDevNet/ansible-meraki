@@ -518,13 +518,53 @@ def main():
             )
 
             proposed = ""
+
+            if meraki.params["auth_method"] == "Meraki authentication":
+                proposed = payload_auth.copy()
+            elif meraki.params["auth_method"] == "my RADIUS server":
+                proposed = payload_radius.copy()
+
             original = meraki.request(query_path, method="GET")
 
-            if meraki.is_update_required(original, proposed):
-                if meraki.params["auth_method"] == "Meraki authentication":
-                    proposed = payload_auth.copy()
-                elif meraki.params["auth_method"] == "my RADIUS server":
-                    proposed = payload_radius.copy()
+            ignored_parameters = [
+                "accessPolicyNumber",
+                "secret",
+                "systems_management_enrollment",
+            ]
+
+            if meraki.params["radius_accounting_enabled"]:
+                proposed.update(
+                    {
+                        "radiusAccountingServers": meraki.params[
+                            "radius_accounting_servers"
+                        ],
+                    }
+                )
+            else:
+                proposed.update(
+                    {
+                        "radiusAccountingServers": [],
+                    }
+                )
+
+            if meraki.params["radius_servers"]:
+                proposed.update(
+                    {
+                        "radiusServers": meraki.params["radius_servers"],
+                    }
+                )
+            else:
+                proposed.update(
+                    {
+                        "radiusServers": [],
+                    }
+                )
+
+            if meraki.is_update_required(
+                original,
+                proposed,
+                optional_ignore=ignored_parameters,
+            ):
 
                 if meraki.check_mode is True:
                     original.update(proposed)
@@ -532,39 +572,13 @@ def main():
                     meraki.result["changed"] = True
                     meraki.exit_json(**meraki.result)
 
-                if meraki.params["radius_accounting_enabled"]:
-                    original.update(
-                        {
-                            "radiusAccountingServers": meraki.params[
-                                "radius_accounting_servers"
-                            ],
-                        }
-                    )
-                else:
-                    original.update(
-                        {
-                            "radiusAccountingServers": [],
-                        }
-                    )
-
-                if meraki.params["radius_servers"]:
-                    original.update(
-                        {
-                            "radiusServers": meraki.params["radius_servers"],
-                        }
-                    )
-                else:
-                    original.update(
-                        {
-                            "radiusServers": [],
-                        }
-                    )
-
                 response = meraki.request(
-                    update_path, method="PUT", payload=json.dumps(original)
+                    update_path, method="PUT", payload=json.dumps(proposed)
                 )
-                meraki.result["data"] = response
                 meraki.result["changed"] = True
+                meraki.result["data"] = response
+            else:
+                meraki.result["data"] = original
 
     elif meraki.params["state"] == "absent":
         path = meraki.construct_path(
