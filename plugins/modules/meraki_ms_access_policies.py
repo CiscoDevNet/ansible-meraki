@@ -492,11 +492,13 @@ def main():
                 response = meraki.request(
                     path, method="POST", payload=json.dumps(payload_auth)
                 )
+                meraki.result["changed"] = True
                 meraki.result["data"] = response
             elif meraki.params["auth_method"] == "my RADIUS server":
                 response = meraki.request(
                     path, method="POST", payload=json.dumps(payload_radius)
                 )
+                meraki.result["changed"] = True
                 meraki.result["data"] = response
         else:
             query_path = meraki.construct_path(
@@ -574,6 +576,7 @@ def main():
         )
 
         response = meraki.request(path, method="DELETE")
+        meraki.result["changed"] = True
         meraki.result["data"] = response
 
     meraki.exit_json(**meraki.result)
