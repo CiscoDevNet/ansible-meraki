@@ -522,7 +522,7 @@
       net_name: TestNetSSID
       number: 1
       use_vlan_tagging: yes
-      visibile: true
+      visible: true
       ip_assignment_mode: Bridge mode
       ap_tags_vlan_ids:
         - tags: wifi
