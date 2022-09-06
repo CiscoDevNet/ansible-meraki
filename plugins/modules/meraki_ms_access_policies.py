@@ -147,7 +147,7 @@ options:
         description:
         - Enable that attribute for a RADIUS
         type: str
-        choices: ["11", ""]
+        choices: ["Filter-Id", ""]
 author:
 - Marcin Woźniak (@y0rune)
 extends_documentation_fragment: cisco.meraki.meraki
@@ -303,6 +303,13 @@ def convert_vlan_id(vlan_id):
         return vlan_id
 
 
+def convert_radius_attribute_group_policy_name(arg):
+    if arg == "Filter-Id":
+        return 11
+    else:
+        return ""
+
+
 def main():
     argument_spec = meraki_argument_spec()
 
@@ -354,7 +361,7 @@ def main():
         voice_vlan_id=dict(type="int"),
         suspend_port_bounce=dict(type="bool", default="False"),
         radius_attribute_group_policy_name=dict(
-            type="str", choices=["11", ""], default=""
+            type="str", choices=["Filter-Id", ""], default=""
         ),
     )
 
@@ -430,9 +437,9 @@ def main():
         "name": meraki.params["name"],
         "radiusServers": meraki.params["radius_servers"],
         "radiusTestingEnabled": meraki.params["radius_testing"],
-        "radiusGroupAttribute": meraki.params[
-            "radius_attribute_group_policy_name"
-        ],
+        "radiusGroupAttribute": convert_radius_attribute_group_policy_name(
+            meraki.params["radius_attribute_group_policy_name"]
+        ),
         "radius": {
             "criticalAuth": {
                 "dataVlanId": convert_vlan_id(meraki.params["data_vlan_id"]),
