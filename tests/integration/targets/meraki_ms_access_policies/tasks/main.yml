@@ -450,15 +450,6 @@
 
 - name: Testing - created "Meraki authentication" and changed it into "my RADIUS Server"
   block:
-    - name: Query all access polices
-      cisco.meraki.meraki_ms_access_policies:
-        auth_key: "{{ auth_key }}"
-        state: query
-        org_name: "{{ test_org_name }}"
-        net_name: "{{ test_net_name }}"
-      delegate_to: localhost
-      register: query_all
-
     - name: Create access policy with auth_method is "Meraki authentication"
       cisco.meraki.meraki_ms_access_policies:
         auth_key: "{{ auth_key }}"
