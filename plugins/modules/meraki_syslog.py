@@ -75,7 +75,7 @@ EXAMPLES = r"""
 - name: Query syslog configurations on network named MyNet in the YourOrg organization
   meraki_syslog:
     auth_key: abc12345
-    status: query
+    state: query
     org_name: YourOrg
     net_name: MyNet
   delegate_to: localhost
@@ -83,7 +83,7 @@ EXAMPLES = r"""
 - name: Add single syslog server with Appliance event log role
   meraki_syslog:
     auth_key: abc12345
-    status: query
+    state: present
     org_name: YourOrg
     net_name: MyNet
     servers:
@@ -96,7 +96,7 @@ EXAMPLES = r"""
 - name: Add multiple syslog servers
   meraki_syslog:
     auth_key: abc12345
-    status: query
+    state: present
     org_name: YourOrg
     net_name: MyNet
     servers:
