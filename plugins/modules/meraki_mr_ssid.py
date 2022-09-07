@@ -158,6 +158,11 @@ options:
                   'Layer 3 roaming',
                   'Layer 3 roaming with a concentrator',
                   'VPN']
+    lan_isolation_enabled:
+        description:
+        - Boolean indicating whether Layer 2 LAN isolation should be enabled or disabled.
+        - Requires C(ip_assignment_mode) to be C(Bridge mode)'.
+        type: bool
     use_vlan_tagging:
         description:
         - Set whether to use VLAN tagging.
@@ -417,6 +422,7 @@ def construct_payload(meraki):
         "visible": "visible",
         "concentratorNetworkId": "concentrator_network_id",
         "vlanId": "vlan_id",
+        "lanIsolationEnabled": "lan_isolation_enabled",
         "defaultVlanId": "default_vlan_id",
         "apTagsAndVlanIds": "ap_tags_vlan_ids",
         "walledGardenEnabled": "walled_garden_enabled",
@@ -541,6 +547,7 @@ def main():
         ),
         use_vlan_tagging=dict(type="bool"),
         visible=dict(type="bool"),
+        lan_isolation_enabled=dict(type="bool"),
         concentrator_network_id=dict(type="str"),
         vlan_id=dict(type="int"),
         default_vlan_id=dict(type="int"),
@@ -619,7 +626,11 @@ def main():
             meraki.fail_json(
                 msg="default_vlan_id is required when use_vlan_tagging is True"
             )
-
+    if meraki.params["lan_isolation_enabled"] is not None:
+        if meraki.params["ip_assignment_mode"] not in ("Bridge mode"):
+            meraki.fail_json(
+                msg="lan_isolation_enabled is only allowed when ip_assignment_mode is Bridge mode"
+            )
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
     org_id = meraki.params["org_id"]
