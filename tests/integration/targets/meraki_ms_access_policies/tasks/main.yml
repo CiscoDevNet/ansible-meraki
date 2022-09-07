@@ -1,0 +1,561 @@
+# Test code for the Meraki Organization module
+# Copyright: (c) 2022, Marcin Woźniak (@y0rune) <y0rune@aol.com>
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- name: Test an API key is provided
+  ansible.builtin.fail:
+    msg: Please define an API key
+  when: auth_key is not defined
+
+- name: Testing - created "Meraki authentication"
+  block:
+    - name: Query all access polices
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: query_all
+
+    - name: Create access policy with auth_method is "Meraki authentication"
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: present
+        name: "Meraki authentication policy"
+        auth_method: "Meraki authentication"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: create_access_policy
+
+    - name: Query one access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        number: 1
+      delegate_to: localhost
+      register: query_one
+
+    - name: Checking if the query one access policy returns right name of policy
+      ansible.builtin.assert:
+        that:
+          - create_access_policy is changed
+          - query_one.data.name == "Meraki authentication policy"
+
+  always:
+    - name: Delete access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: absent
+        number: 1
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: delete_access_policy
+
+- name: Testing - created "Meraki authentication" with guest_vlan
+  block:
+    - name: Create access policy with auth_method is "Meraki authentication" with guest_vlan
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: present
+        name: "Meraki authentication policy"
+        auth_method: "Meraki authentication"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        guest_vlan: 10
+      delegate_to: localhost
+      register: create_access_policy_guest_vlan
+
+    - name: Query one access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        number: 1
+      delegate_to: localhost
+      register: query_one
+
+    - name: Checking if the query one access policy returns right guest_vlan
+      ansible.builtin.assert:
+        that:
+          - query_one.data.guest_vlan_id == 10
+          - create_access_policy_guest_vlan is changed
+
+  always:
+    - name: Delete access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: absent
+        number: 1
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: delete_access_policy
+
+- name: Testing - created "my RADIUS Server" and updated the same policy
+  block:
+    - name: Create access policy with auth_method is "my RADIUS Server"
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        access_policy_type: "802.1x"
+        host_mode: "Single-Host"
+        state: present
+        name: "Meraki authentication policy"
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: false
+        guest_vlan: 10
+        voice_vlan_clients: false
+      delegate_to: localhost
+      register: create_access_policy_my_radius_server
+
+    - name: Update the same access policy with auth_method is "my RADIUS Server"
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        access_policy_type: "802.1x"
+        host_mode: "Single-Host"
+        state: present
+        name: "Meraki authentication policy"
+        number: 1
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: false
+        guest_vlan: 10
+        voice_vlan_clients: false
+      delegate_to: localhost
+      register: update_access_policy_my_radius_server
+
+    - name: Query one access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        number: 1
+      delegate_to: localhost
+      register: query_one
+
+    - name: Checking if the query one access policy returns right host in radius_server
+      ansible.builtin.assert:
+        that:
+          - query_one.data.radius_servers.0.host == '192.0.1.18'
+          - query_one.data.guest_vlan_id == 10
+          - create_access_policy_my_radius_server is changed
+          - update_access_policy_my_radius_server is not changed
+
+  always:
+    - name: Delete access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: absent
+        number: 1
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: delete_access_policy
+
+- name: Testing - created "my RADIUS Server" with accounting
+  block:
+    - name: Create access policy with auth_method is "my RADIUS Server" with accounting
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: present
+        name: "Meraki authentication policy"
+        host_mode: "Single-Host"
+        access_policy_type: "802.1x"
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: true
+        radius_accounting_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        voice_vlan_clients: false
+      delegate_to: localhost
+      register: create_access_policy_my_radius_server_accounting
+
+    - name: Query one access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        number: 1
+      delegate_to: localhost
+      register: query_one
+
+    - name: Checking if the query one access policy returns right host in accounting servers
+      ansible.builtin.assert:
+        that:
+          - query_one.data.radius_accounting_servers.0.host == '192.0.1.18'
+          - create_access_policy_my_radius_server_accounting is changed
+
+  always:
+    - name: Delete access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: absent
+        number: 1
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: delete_access_policy
+
+- name: Testing - created "my RADIUS Server" with accounting and removed accounting
+  block:
+    - name: Create access policy with auth_method is "my RADIUS Server" with accounting
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: present
+        name: "Meraki authentication policy"
+        host_mode: "Single-Host"
+        access_policy_type: "802.1x"
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: true
+        radius_accounting_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        voice_vlan_clients: false
+      delegate_to: localhost
+      register: create_access_policy_my_radius_server_accounting
+
+    - name: Update access policy with auth_method is "my RADIUS Server" with accounting
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: present
+        number: 1
+        name: "Updated Meraki authentication policy"
+        host_mode: "Single-Host"
+        access_policy_type: "802.1x"
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.20
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: false
+        voice_vlan_clients: false
+      delegate_to: localhost
+      register: update_access_policy_my_radius_server_accounting
+
+    - name: Query one access policy when was updated
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        number: 1
+      delegate_to: localhost
+      register: query_one
+
+    - name: Checking if the query one access policy returns right host in accounting servers
+      ansible.builtin.assert:
+        that:
+          - query_one.data.radius_servers.0.host == '192.0.1.20'
+          - update_access_policy_my_radius_server_accounting is changed
+
+  always:
+    - name: Delete access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: absent
+        number: 1
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: delete_access_policy
+
+- name: Testing - created "my RADIUS Server" and added accounting
+  block:
+    - name: Create access policy with auth_method is "my RADIUS Server"
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        access_policy_type: "802.1x"
+        host_mode: "Single-Host"
+        state: present
+        name: "Meraki authentication policy"
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: false
+        guest_vlan: 10
+        voice_vlan_clients: false
+      delegate_to: localhost
+      register: create_access_policy_my_radius_server
+
+    - name: Update access policy with auth_method is "my RADIUS Server" with accounting
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: present
+        name: "Meraki authentication policy"
+        host_mode: "Single-Host"
+        access_policy_type: "802.1x"
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: true
+        radius_accounting_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        voice_vlan_clients: false
+      delegate_to: localhost
+      register: update_access_policy_my_radius_server_accounting
+
+    - name: Query one access policy when was updated
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        number: 1
+      delegate_to: localhost
+      register: query_one
+
+    - name: Checking if the query one access policy returns right host in accounting servers
+      ansible.builtin.assert:
+        that:
+          - query_one.data.radius_servers.0.host == '192.0.1.18'
+          - query_one.data.radius_accounting_servers.0.host == '192.0.1.18'
+          - update_access_policy_my_radius_server_accounting is changed
+
+  always:
+    - name: Delete access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: absent
+        number: 1
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: delete_access_policy
+
+- name: Testing - created "my RADIUS Server" with accounting and removed accounting
+  block:
+    - name: Create access policy with auth_method is "my RADIUS Server" with accounting
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: present
+        name: "Meraki authentication policy"
+        host_mode: "Single-Host"
+        access_policy_type: "802.1x"
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: true
+        radius_accounting_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        voice_vlan_clients: false
+      delegate_to: localhost
+      register: create_access_policy_my_radius_server_accounting
+
+    - name: Update access policy with auth_method is "my RADIUS Server"
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        access_policy_type: "802.1x"
+        host_mode: "Single-Host"
+        state: present
+        name: "Meraki authentication policy"
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: false
+        guest_vlan: 10
+        voice_vlan_clients: false
+      delegate_to: localhost
+      register: update_access_policy_my_radius_server
+
+    - name: Query one access policy when was updated
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        number: 1
+      delegate_to: localhost
+      register: query_one
+
+    - name: Checking if the query one access policy returns right host in accounting servers
+      ansible.builtin.assert:
+        that:
+          - query_one.data.radius_servers.0.host == '192.0.1.18'
+          - update_access_policy_my_radius_server is changed
+
+  always:
+    - name: Delete access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: absent
+        number: 1
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: delete_access_policy
+
+- name: Testing - created "Meraki authentication" and changed it into "my RADIUS Server"
+  block:
+    - name: Create access policy with auth_method is "Meraki authentication"
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: present
+        name: "Authentication policy"
+        auth_method: "Meraki authentication"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: create_access_policy
+
+    - name: Update access policy with auth_method is "my RADIUS Server"
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        access_policy_type: "802.1x"
+        host_mode: "Single-Host"
+        state: present
+        name: "Authentication policy"
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: false
+        guest_vlan: 10
+        voice_vlan_clients: false
+      delegate_to: localhost
+      register: update_access_policy_my_radius_server
+
+    - name: Query one access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        number: 1
+      delegate_to: localhost
+      register: query_one
+
+    - name: Checking if the query one access policy returns right name of policy
+      ansible.builtin.assert:
+        that:
+          - update_access_policy_my_radius_server is changed
+          - query_one.data.radius_servers.0.host == '192.0.1.18'
+
+  always:
+    - name: Delete access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: absent
+        number: 1
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: delete_access_policy
+
+- name: Testing - created "Meraki authentication" with RADIUS attribute specyfing group policy
+  block:
+    - name: Create access policy with auth_method is "my RADIUS Server"
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        access_policy_type: "802.1x"
+        host_mode: "Single-Host"
+        state: present
+        name: "Authentication policy"
+        auth_method: "my RADIUS server"
+        radius_servers:
+          - host: 192.0.1.18
+            port: 7890
+            secret: secret123
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        radius_coa_enabled: false
+        radius_accounting_enabled: false
+        guest_vlan: 10
+        voice_vlan_clients: false
+        radius_attribute_group_policy_name: "Filter-Id"
+      delegate_to: localhost
+      register: create_access_policy_my_radius_server
+
+    - name: Query one access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        number: 1
+      delegate_to: localhost
+      register: query_one
+
+    - name: Checking if the query one access policy returns right name of policy
+      ansible.builtin.assert:
+        that:
+          - create_access_policy_my_radius_server is changed
+          - query_one.data.radius_group_attribute == '11'
+
+  always:
+    - name: Delete access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: absent
+        number: 1
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: delete_access_policy
