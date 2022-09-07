@@ -163,6 +163,10 @@ options:
         - Set whether to use VLAN tagging.
         - Requires C(default_vlan_id) to be set.
         type: bool
+    visible:
+        description:
+        - Enable or disable whether APs should broadcast this SSID.
+        type: bool
     default_vlan_id:
         description:
         - Default VLAN ID.
@@ -245,6 +249,7 @@ EXAMPLES = r"""
     net_name: WiFi
     name: GuestSSID
     enabled: true
+    visible: true
   delegate_to: localhost
 
 - name: Set PSK with invalid encryption mode
@@ -409,6 +414,7 @@ def construct_payload(meraki):
         "radiusAccountingServers": "radius_accounting_servers",
         "ipAssignmentMode": "ip_assignment_mode",
         "useVlanTagging": "use_vlan_tagging",
+        "visible": "visible",
         "concentratorNetworkId": "concentrator_network_id",
         "vlanId": "vlan_id",
         "defaultVlanId": "default_vlan_id",
@@ -534,6 +540,7 @@ def main():
             ],
         ),
         use_vlan_tagging=dict(type="bool"),
+        visible=dict(type="bool"),
         concentrator_network_id=dict(type="str"),
         vlan_id=dict(type="int"),
         default_vlan_id=dict(type="int"),
