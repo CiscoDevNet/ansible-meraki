@@ -207,6 +207,7 @@
       net_name: TestNetSSID
       number: 1
       use_vlan_tagging: yes
+      visible: yes
       ip_assignment_mode: Bridge mode
       default_vlan_id: 1
       ap_tags_vlan_ids:
@@ -229,6 +230,7 @@
       net_name: TestNetSSID
       number: 1
       use_vlan_tagging: yes
+      visible: yes
       ip_assignment_mode: Bridge mode
       default_vlan_id: 1
       ap_tags_vlan_ids:
@@ -520,6 +522,7 @@
       net_name: TestNetSSID
       number: 1
       use_vlan_tagging: yes
+      visible: true
       ip_assignment_mode: Bridge mode
       ap_tags_vlan_ids:
         - tags: wifi
