@@ -160,7 +160,7 @@ options:
                   'VPN']
     lan_isolation_enabled:
         description:
-        - Boolean indicating whether Layer 2 LAN isolation should be enabled or disabled.
+        - Enable or disable Layer 2 Lan isolation.
         - Requires C(ip_assignment_mode) to be C(Bridge mode)'.
         type: bool
     use_vlan_tagging:
