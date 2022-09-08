@@ -476,6 +476,7 @@ def clear_polices(params, payload):
         payload["accessPolicyType"] = "Open"
     return payload
 
+
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
