@@ -1,0 +1,2 @@
+bugfixes:
+  - meraki_ms_switchport - resolve issue #342
