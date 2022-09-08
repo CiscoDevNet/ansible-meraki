@@ -450,6 +450,46 @@
   #################
   # Error testing #
   #################
+  - name: Set available on all aps to false without also setting availability tags
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      available_on_all_aps: false
+    delegate_to: localhost
+    register: no_availability_tags
+    ignore_errors: yes
+
+  - debug:
+      msg: '{{ no_availability_tags }}'
+
+  - assert:
+      that:
+        - no_availability_tags.msg == 'available_on_all_aps is only allowed to be false when ap_availability_tags is defined'
+
+  - name: Set ap availability tags without setting available on all aps to false
+    meraki_ssid:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: TestNetSSID
+      name: AnsibleSSID
+      available_on_all_aps: true
+      ap_availability_tags:
+        - "test"
+    delegate_to: localhost
+    register: available_on_all_aps_true_with_tags
+    ignore_errors: yes
+
+  - debug:
+      msg: '{{ available_on_all_aps_true_with_tags }}'
+
+  - assert:
+      that:
+        - available_on_all_aps_true_with_tags.msg == 'ap_availability_tags is only allowed when available_on_all_aps is false'
+
   - name: Set PSK with wrong mode
     meraki_ssid:
       auth_key: '{{auth_key}}'
