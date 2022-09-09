@@ -1,0 +1,2 @@
+minor_changes:
+ - meraki_alert - Change type for opbject to alert_type in examples
