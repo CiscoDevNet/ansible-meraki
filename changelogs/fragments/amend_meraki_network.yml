@@ -1,0 +1,2 @@
+trivial:
+  - meraki_network - Removed "environmental" product type and added "systemsManager" 
