@@ -737,7 +737,8 @@
       - host: 192.0.1.18
         port: 7890
         secret: secret123
-    net_id: "{{ test_net_id }}"
+    org_name: "{{ test_org_name }}"
+    net_name: "{{ test_net_name }}"
     radius_coa_enabled: false
     radius_accounting_enabled: false
     guest_vlan: 10
@@ -748,7 +749,7 @@
   cisco.meraki.meraki_switchport:
     auth_key: "{{ auth_key }}"
     serial: "{{ serial_switch }}"
-    name: "E1_AP_198_TEST"
+    name: "Port_with_access_policy"
     state: present
     number: 7
     type: access
@@ -766,15 +767,17 @@
   delegate_to: localhost
   register: query_port_seven
 
-- assert:
+- name: Checking if query_port_seven has changed the type to access
+  ansible.builtin.assert:
     that:
       - query_port_seven.data.type == "access"
+      - port_update is changed
 
 - name: Configure port - Update
   cisco.meraki.meraki_switchport:
     auth_key: "{{ auth_key }}"
     serial: "{{ serial_switch }}"
-    name: "E1_AP_198_TEST"
+    name: "Port_with_access_policy"
     state: present
     number: 7
     type: trunk
@@ -783,8 +786,9 @@
       - 15
     poe_enabled: true
   delegate_to: localhost
+  register: port_update
 
-- name: Query switchports
+- name: Query switchport
   meraki_switchport:
     auth_key: "{{ auth_key }}"
     state: query
@@ -793,9 +797,11 @@
   delegate_to: localhost
   register: query_port_seven
 
-- assert:
+- name: Checking if query_port_seven has changed the type to trunk
+  ansible.builtin.assert:
     that:
       - query_port_seven.data.type == "trunk"
+      - port_update is changed
 
 - name: Delete access policy
   cisco.meraki.meraki_ms_access_policies:
