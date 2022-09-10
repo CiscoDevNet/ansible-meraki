@@ -42,7 +42,7 @@ options:
         - Required when creating a network.
         - As of Ansible 2.8, C(combined) type is no longer accepted.
         - As of Ansible 2.8, changes to this parameter are no longer idempotent.
-        choices: [ appliance, switch, wireless, sensor, environmental, camera, cellularGateway ]
+        choices: [ appliance, switch, wireless, sensor, systemsManager, camera, cellularGateway ]
         aliases: [ net_type ]
         type: list
         elements: str
@@ -237,7 +237,7 @@ def main():
                 "switch",
                 "appliance",
                 "sensor",
-                "environmental",
+                "systemsManager",
                 "camera",
                 "cellularGateway",
             ],
