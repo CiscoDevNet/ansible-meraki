@@ -208,6 +208,17 @@ options:
         - List of walled garden ranges.
         type: list
         elements: str
+    available_on_all_aps:
+        description:
+        - Set whether all APs should broadcast the SSID or if it should be restricted to APs matching any availability tags.
+        - Requires C(ap_availability_tags) to be defined when set to C(False).
+        type: bool
+    ap_availability_tags:
+        description:
+        - Set whether SSID will be broadcast by APs with tags matching any of the tags in this list.
+        - Requires C(available_on_all_aps) to be C(false).
+        type: list
+        elements: str
     min_bitrate:
         description:
         - Minimum bitrate (Mbps) allowed on SSID.
@@ -423,6 +434,8 @@ def construct_payload(meraki):
         "concentratorNetworkId": "concentrator_network_id",
         "vlanId": "vlan_id",
         "lanIsolationEnabled": "lan_isolation_enabled",
+        "availableOnAllAps": "available_on_all_aps",
+        "availabilityTags": "ap_availability_tags",
         "defaultVlanId": "default_vlan_id",
         "apTagsAndVlanIds": "ap_tags_vlan_ids",
         "walledGardenEnabled": "walled_garden_enabled",
@@ -548,6 +561,8 @@ def main():
         use_vlan_tagging=dict(type="bool"),
         visible=dict(type="bool"),
         lan_isolation_enabled=dict(type="bool"),
+        available_on_all_aps=dict(type="bool"),
+        ap_availability_tags=dict(type="list", elements="str"),
         concentrator_network_id=dict(type="str"),
         vlan_id=dict(type="int"),
         default_vlan_id=dict(type="int"),
@@ -630,7 +645,15 @@ def main():
         if meraki.params["ip_assignment_mode"] not in ("Bridge mode"):
             meraki.fail_json(
                 msg="lan_isolation_enabled is only allowed when ip_assignment_mode is Bridge mode"
+    if meraki.params["available_on_all_aps"] is False:
+        if not meraki.params["ap_availability_tags"]:
+            meraki.fail_json(
+                msg="available_on_all_aps is only allowed to be false when ap_availability_tags is defined"
             )
+    if meraki.params["ap_availability_tags"]:
+        if meraki.params["available_on_all_aps"] is not False:
+            meraki.fail_json(
+                msg="ap_availability_tags is only allowed when available_on_all_aps is false"
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
     org_id = meraki.params["org_id"]

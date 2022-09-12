@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - meraki_ssid - Add support for `ap_availability_tags`.
+  - meraki_ssid - Add support for `available_on_all_aps`
