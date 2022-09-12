@@ -161,7 +161,7 @@ options:
     lan_isolation_enabled:
         description:
         - Enable or disable Layer 2 Lan isolation.
-        - Requires C(ip_assignment_mode) to be C(Bridge mode)'.
+        - Requires C(ip_assignment_mode) to be C(Bridge mode).
         type: bool
     use_vlan_tagging:
         description:
@@ -645,6 +645,7 @@ def main():
         if meraki.params["ip_assignment_mode"] not in ("Bridge mode"):
             meraki.fail_json(
                 msg="lan_isolation_enabled is only allowed when ip_assignment_mode is Bridge mode"
+            )
     if meraki.params["available_on_all_aps"] is False:
         if not meraki.params["ap_availability_tags"]:
             meraki.fail_json(
@@ -654,6 +655,7 @@ def main():
         if meraki.params["available_on_all_aps"] is not False:
             meraki.fail_json(
                 msg="ap_availability_tags is only allowed when available_on_all_aps is false"
+            )
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
     org_id = meraki.params["org_id"]
