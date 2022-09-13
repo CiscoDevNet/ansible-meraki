@@ -5,6 +5,21 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.11.0
+=======
+
+Minor Changes
+-------------
+
+- Add GPLv3 license. Always was GPLv3, but didn't have the file.
+- Change shebang in Sublime utils to point to env instead of direct to the path
+- meraki_alert - Change type for opbject to alert_type in examples
+- meraki_ms_access_policies - New module to create, delete, update Access Policies in the Switch settings
+- meraki_ssid - Add support for `ap_availability_tags`.
+- meraki_ssid - Add support for `available_on_all_aps`
+- meraki_ssid - Add support for `lan_isolation_enabled`.
+- meraki_ssid - Add support for `visible`.
+
 v2.10.1
 =======
 

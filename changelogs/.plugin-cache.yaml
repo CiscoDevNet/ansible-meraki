@@ -75,6 +75,11 @@ plugins:
       name: meraki_ms_access_list
       namespace: ''
       version_added: 0.1.0
+    meraki_ms_access_policies:
+      description: Manage Switch Access Policies in the Meraki cloud
+      name: meraki_ms_access_policies
+      namespace: ''
+      version_added: null
     meraki_ms_l3_interface:
       description: Manage routed interfaces on MS switches
       name: meraki_ms_l3_interface
@@ -209,4 +214,4 @@ plugins:
   shell: {}
   strategy: {}
   vars: {}
-version: 2.10.1
+version: 2.11.0
