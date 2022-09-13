@@ -1,3 +1,0 @@
----
-minor_changes:
-  - meraki_ms_access_policies - New module to create, delete, update Access Policies in the Switch settings

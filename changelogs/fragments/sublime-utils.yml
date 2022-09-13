@@ -1,3 +1,0 @@
----
-minor_changes:
-  - Change shebang in Sublime utils to point to env instead of direct to the path

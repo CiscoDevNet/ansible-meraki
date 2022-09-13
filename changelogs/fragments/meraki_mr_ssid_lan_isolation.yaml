@@ -1,3 +1,0 @@
----
-minor_changes:
-  - meraki_ssid - Add support for `lan_isolation_enabled`.
