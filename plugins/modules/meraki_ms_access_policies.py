@@ -155,7 +155,7 @@ extends_documentation_fragment: cisco.meraki.meraki
 
 EXAMPLES = r"""
 - name: Create access policy with auth_method is "Meraki authentication"
-  cisco.meraki.meraki_access_policies:
+  cisco.meraki.meraki_ms_access_policies:
     auth_key: abc123
     state: present
     name: "Meraki authentication policy"
@@ -165,7 +165,7 @@ EXAMPLES = r"""
   delegate_to: localhost
 
 - name: Create access policy with auth_method is "my Radius Server"
-  cisco.meraki.meraki_access_policies:
+  cisco.meraki.meraki_ms_access_policies:
     auth_key: abc123
     access_policy_type: "802.1x"
     host_mode: "Single-Host"
