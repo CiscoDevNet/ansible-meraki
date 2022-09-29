@@ -1,0 +1,2 @@
+trivial:
+  - Ignore certain errors in Ansible 2.16 tests
