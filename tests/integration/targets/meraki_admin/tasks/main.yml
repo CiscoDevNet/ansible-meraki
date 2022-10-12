@@ -3,89 +3,91 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
+- name: Block of tests
+  block:
   - name: Create new administrator in check mode
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jane Doe
-      email: '{{email_prefix}}+janedoe@{{email_domain}}'
+      email: '{{ email_prefix }}+janedoe@{{ email_domain }}'
       org_access: read-only
     delegate_to: localhost
-    check_mode: yes
+    check_mode: true
     register: create_org_check
 
   - name: Create new admin check mode assertion
-    assert:
+    ansible.builtin.assert:
       that:
         - create_org_check is changed
         - 'create_org_check.data.name == "Jane Doe"'
 
   - name: Create new administrator
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jane Doe
-      email: '{{email_prefix}}+janedoe@{{email_domain}}'
+      email: '{{ email_prefix }}+janedoe@{{ email_domain }}'
       org_access: read-only
     delegate_to: localhost
     register: create_orgaccess
 
   - name: Create new admin assertion
-    assert:
+    ansible.builtin.assert:
       that:
         - create_orgaccess.changed == true
         - 'create_orgaccess.data.name == "Jane Doe"'
 
   - name: Delete recently created administrator with check mode
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: absent
-      org_name: '{{test_org_name}}'
-      email: '{{email_prefix}}+janedoe@{{email_domain}}'
+      org_name: '{{ test_org_name }}'
+      email: '{{ email_prefix }}+janedoe@{{ email_domain }}'
     delegate_to: localhost
     register: delete_one_check
-    check_mode: yes
+    check_mode: true
 
-  - assert:
+  - name: Assert if delete_one_check has been changed
+    ansible.builtin.assert:
       that:
         - delete_one_check is changed
 
   - name: Delete recently created administrator
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: absent
-      org_name: '{{test_org_name}}'
-      email: '{{email_prefix}}+janedoe@{{email_domain}}'
+      org_name: '{{ test_org_name }}'
+      email: '{{ email_prefix }}+janedoe@{{ email_domain }}'
     delegate_to: localhost
     register: delete_one
 
   - name: Create new administrator with org_id
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_id: '{{test_org_id}}'
+      org_id: '{{ test_org_id }}'
       name: Jane Doe
-      email: '{{email_prefix}}+janedoe@{{email_domain}}'
+      email: '{{ email_prefix }}+janedoe@{{ email_domain }}'
       orgAccess: read-only
     delegate_to: localhost
     register: create_orgaccess_id
 
   - name: Create new admin assertion
-    assert:
+    ansible.builtin.assert:
       that:
         - create_orgaccess_id.changed == true
         - 'create_orgaccess_id.data.name == "Jane Doe"'
 
   - name: Create administrator with tags with check mode
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: John Doe
-      email: '{{email_prefix}}+johndoe@{{email_domain}}'
+      email: '{{ email_prefix }}+johndoe@{{ email_domain }}'
       orgAccess: none
       tags:
         - tag: production
@@ -94,21 +96,22 @@
           access: full
     delegate_to: localhost
     register: create_tags_check
-    check_mode: yes
+    check_mode: true
 
-  - assert:
+  - name: Assert if create_tags_check has been changed
+    ansible.builtin.assert:
       that:
         - create_tags_check is changed
         - create_tags_check.data.name == "John Doe"
         - create_tags_check.data.tags | length == 2
 
   - name: Create administrator with tags
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: John Doe
-      email: '{{email_prefix}}+johndoe@{{email_domain}}'
+      email: '{{ email_prefix }}+johndoe@{{ email_domain }}'
       orgAccess: none
       tags:
         - tag: production
@@ -118,19 +121,20 @@
     delegate_to: localhost
     register: create_tags
 
-  - assert:
+  - name: Assert if create_tags has been changed
+    ansible.builtin.assert:
       that:
         - create_tags.changed == true
         - create_tags.data.name == "John Doe"
         - create_tags.data.tags | length == 2
 
   - name: Create administrator with invalid tags
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jake Doe
-      email: '{{email_prefix}}+jakedoe@{{email_domain}}'
+      email: '{{ email_prefix }}+jakedoe@{{ email_domain }}'
       orgAccess: none
       tags:
         - tag: production
@@ -139,20 +143,22 @@
           access: invalid
     delegate_to: localhost
     register: create_tags_invalid
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - assert:
+  - name: Assert if create_tags_invalid
+    ansible.builtin.assert:
       that:
         - '"400" in create_tags_invalid.msg'
         - '"must be one of" in create_tags_invalid.msg'
 
   - name: Create administrator with invalid tag permission
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jake Doe
-      email: '{{email_prefix}}+jakedoe@{{email_domain}}'
+      email: '{{ email_prefix }}+jakedoe@{{ email_domain }}'
       orgAccess: none
       tags:
         - tag: production
@@ -161,36 +167,39 @@
           access: invalid
     delegate_to: localhost
     register: create_tags_invalid_permission
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - assert:
+  - name: Assert if create_tags_invalid_permission
+    ansible.builtin.assert:
       that:
         - '"400" in create_tags_invalid_permission.msg'
         - '"must be one of" in create_tags_invalid_permission.msg'
 
   - name: Make sure TestNet and TestNet2 are created
-    meraki_network:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{item}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ item }}'
       type: switch
     register: new_networks
     loop:
       - TestNet
       - TestNet2
 
-  - set_fact:
+  - name: Set facts testnet_id, testnet2_id
+    ansible.builtin.set_fact:
       testnet_id: new_networks.results[0].data.id
       testnet2_id: new_networks.results[1].data.id
 
   - name: Create administrator with networks with check mode
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jim Doe
-      email: '{{email_prefix}}+jimdoe@{{email_domain}}'
+      email: '{{ email_prefix }}+jimdoe@{{ email_domain }}'
       orgAccess: none
       networks:
         - network: TestNet
@@ -199,21 +208,22 @@
           access: full
     delegate_to: localhost
     register: create_network_check
-    check_mode: yes
+    check_mode: true
 
-  - assert:
+  - name: Assert if create_network_check has been changed
+    ansible.builtin.assert:
       that:
         - create_network_check is changed
         - create_network_check.data.name == "Jim Doe"
         - create_network_check.data.networks | length == 2
 
   - name: Create administrator with networks
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jim Doe
-      email: '{{email_prefix}}+jimdoe@{{email_domain}}'
+      email: '{{ email_prefix }}+jimdoe@{{ email_domain }}'
       orgAccess: none
       networks:
         - network: TestNet
@@ -223,43 +233,46 @@
     delegate_to: localhost
     register: create_network
 
-  - assert:
+  - name: Assert if create_network has been changed
+    ansible.builtin.assert:
       that:
         - create_network.changed == true
         - create_network.data.name == "Jim Doe"
         - create_network.data.networks | length == 2
 
   - name: Update administrator with check mode
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jim Doe
-      email: '{{email_prefix}}+jimdoe@{{email_domain}}'
+      email: '{{ email_prefix }}+jimdoe@{{ email_domain }}'
       orgAccess: none
       networks:
         - network: TestNet
           access: full
     delegate_to: localhost
     register: update_network_check
-    check_mode: yes
+    check_mode: true
 
-  - debug:
+  - name: Debug update_network_check
+    ansible.builtin.debug:
       var: update_network_check
 
-  - assert:
+  - name: Assert if update_network_check has been changed
+    ansible.builtin.assert:
       that:
         - update_network_check is changed
         - update_network_check.data.networks.0.access == "full"
         - update_network_check.data.networks | length == 1
 
   - name: Update administrator
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jim Doe
-      email: '{{email_prefix}}+jimdoe@{{email_domain}}'
+      email: '{{ email_prefix }}+jimdoe@{{ email_domain }}'
       orgAccess: none
       networks:
         - network: TestNet
@@ -267,41 +280,44 @@
     delegate_to: localhost
     register: update_network
 
-  - assert:
+  - name: Assert if update_network has been changed
+    ansible.builtin.assert:
       that:
         - update_network.changed == true
         - update_network.data.networks.0.access == "full"
         - update_network.data.networks | length == 1
 
   - name: Update administrator for idempotency check with check mode
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jim Doe
-      email: '{{email_prefix}}+jimdoe@{{email_domain}}'
+      email: '{{ email_prefix }}+jimdoe@{{ email_domain }}'
       orgAccess: none
       networks:
         - network: TestNet
           access: full
     delegate_to: localhost
     register: update_network_idempotent_check
-    check_mode: yes
+    check_mode: true
 
-  - debug:
+  - name: Debug update_network_idempotent_check
+    ansible.builtin.debug:
       var: update_network_idempotent_check
 
-  - assert:
+  - name: Assert if update_network_idempotent_check has not changed
+    ansible.builtin.assert:
       that:
         - update_network_idempotent_check is not changed
 
   - name: Update administrator for idempotency
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jim Doe
-      email: '{{email_prefix}}+jimdoe@{{email_domain}}'
+      email: '{{ email_prefix }}+jimdoe@{{ email_domain }}'
       orgAccess: none
       networks:
         - network: TestNet
@@ -309,96 +325,104 @@
     delegate_to: localhost
     register: update_network_idempotent
 
-  - assert:
+  - name: Assert if update_network_idempotent has been not changed
+    ansible.builtin.assert:
       that:
         - update_network_idempotent.changed == false
         - update_network_idempotent.data is defined
 
   - name: Create administrator with invalid network
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: John Doe
-      email: '{{email_prefix}}+John@{{email_domain}}'
+      email: '{{ email_prefix }}+John@{{ email_domain }}'
       orgAccess: none
       networks:
         - network: TestNetFake
           access: read-only
     delegate_to: localhost
     register: create_network_invalid
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - assert:
+  - name: Assert if message in create_network_invalid
+    ansible.builtin.assert:
       that:
         - '"No network found with the name" in create_network_invalid.msg'
         # - '"400" in create_network_invalid.msg'
 
   - name: Query all administrators
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
     delegate_to: localhost
     register: query_all
 
-  - debug:
+  - name: Debug query_all
+    ansible.builtin.debug:
       var: query_all
 
-  - assert:
+  - name: Assert query_all
+    ansible.builtin.assert:
       that:
         - query_all.data | length == 4
         - query_all.changed == False
 
   - name: Query admin by name
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       name: Jane Doe
     delegate_to: localhost
     register: query_name
 
   - name: Query admin by email
-    meraki_admin:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_admin:
+      auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
-      email: '{{email_prefix}}+janedoe@{{email_domain}}'
+      org_name: '{{ test_org_name }}'
+      email: '{{ email_prefix }}+janedoe@{{ email_domain }}'
     delegate_to: localhost
     register: query_email
 
-  - assert:
+  - name: Check the name and email of query_name, query_email
+    ansible.builtin.assert:
       that:
         - query_name.data.name == "Jane Doe"
-        - 'query_email.data.email == "{{email_prefix}}+janedoe@{{email_domain}}"'
+        - 'query_email.data.email == "{{ email_prefix }}+janedoe@{{ email_domain }}"'
 
   always:
   #############################################################################
   # Tear down starts here
   #############################################################################
-  - name: Delete administrators
-    meraki_admin:
-      auth_key: '{{auth_key}}'
-      state: absent
-      org_name: '{{test_org_name}}'
-      email: '{{item}}'
-    delegate_to: localhost
-    register: delete_all
-    ignore_errors: yes
-    loop:
-        - '{{email_prefix}}+janedoe@{{email_domain}}'
-        - '{{email_prefix}}+johndoe@{{email_domain}}'
-        - '{{email_prefix}}+jimdoe@{{email_domain}}'
+    - name: Delete administrators
+      cisco.meraki.meraki_admin:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        email: '{{ item }}'
+      delegate_to: localhost
+      register: delete_all
+      failed_when: false
+      changed_when: false
+      loop:
+        - '{{ email_prefix }}+janedoe@{{ email_domain }}'
+        - '{{ email_prefix }}+johndoe@{{ email_domain }}'
+        - '{{ email_prefix }}+jimdoe@{{ email_domain }}'
 
-  - name: Query all administrators
-    meraki_admin:
-      auth_key: '{{auth_key}}'
-      state: query
-      org_name: '{{test_org_name}}'
-    delegate_to: localhost
-    register: query_all_deleted
+    - name: Query all administrators
+      cisco.meraki.meraki_admin:
+        auth_key: '{{ auth_key }}'
+        state: query
+        org_name: '{{ test_org_name }}'
+      delegate_to: localhost
+      register: query_all_deleted
 
-  - assert:
-      that:
-        - query_all_deleted.data | length == 1
+    - name: Assert query_all_deleted
+      ansible.builtin.assert:
+        that:
+          - query_all_deleted.data | length == 1
