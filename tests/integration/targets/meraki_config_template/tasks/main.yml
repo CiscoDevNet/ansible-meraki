@@ -3,35 +3,38 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
+- name: Block of test
+  block:
   - name: Test an API key is provided
-    fail:
+    ansible.builtin.fail:
       msg: Please define an API key
     when: auth_key is not defined
 
   - name: Query all configuration templates
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
     register: get_all
 
   - name: Delete non-existant configuration template
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: absent
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       config_template: FakeConfigTemplate
     register: deleted
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - assert:
+  - name: Assert a delated.msg
+    ansible.builtin.assert:
       that:
         - '"No configuration template named" in deleted.msg'
 
   - name: Create a network
-    meraki_network:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
       state: present
       org_name: '{{ test_org_name }}'
       net_name: '{{ test_net_name }}'
@@ -39,158 +42,169 @@
     delegate_to: localhost
     register: net_info
 
-  - set_fact:
-      net_id: '{{net_info.data.id}}'
+  - name: Set fact net_id
+    ansible.builtin.set_fact:
+      net_id: '{{ net_info.data.id }}'
 
   - name: Bind a template to a network with check mode
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: present
       org_name: '{{ test_org_name }}'
       net_name: '{{ test_net_name }}'
-      config_template: '{{test_template_name}}'
-    check_mode: yes
+      config_template: '{{ test_template_name }}'
+    check_mode: true
     register: bind_check
 
   - name: Bind a template to a network
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: present
       org_name: '{{ test_org_name }}'
       net_name: '{{ test_net_name }}'
-      config_template: '{{test_template_name}}'
+      config_template: '{{ test_template_name }}'
     register: bind
 
-  - assert:
+  - name: Assert bind
+    ansible.builtin.assert:
       that:
         bind.changed == True
 
-  - assert:
+  - name: Assert if bind_check has been changed
+    ansible.builtin.assert:
       that:
         bind_check is changed
 
   - name: Bind a template to a network when it's already bound
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: present
       org_name: '{{ test_org_name }}'
       net_name: '{{ test_net_name }}'
-      config_template: '{{test_template_name}}'
+      config_template: '{{ test_template_name }}'
     register: bind_invalid
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - assert:
+  - name: Assert if bind_invalid has been not changed
+    ansible.builtin.assert:
       that:
         - bind_invalid.changed == False
 
   - name: Unbind a template from a network
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: absent
       org_name: '{{ test_org_name }}'
       net_name: '{{ test_net_name }}'
-      config_template: '{{test_template_name}}'
+      config_template: '{{ test_template_name }}'
     register: unbind
 
-  - assert:
+  - name: Assert if unbind has been changed
+    ansible.builtin.assert:
       that:
         unbind.changed == True
 
   - name: Unbind a template from a network when it's not bound
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: absent
       org_name: '{{ test_org_name }}'
       net_name: '{{ test_net_name }}'
-      config_template: '{{test_template_name}}'
+      config_template: '{{ test_template_name }}'
     register: unbind_invalid
 
-  - assert:
+  - name: Assert if unbind_invalid has been not changed
+    ansible.builtin.assert:
       that:
         unbind_invalid.changed == False
 
   - name: Bind a template to a network via id
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_id: '{{net_id}}'
-      config_template: '{{test_template_name}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net_id }}'
+      config_template: '{{ test_template_name }}'
     register: bind_id
 
-  - assert:
+  - name: Assert if bind_id has been changed
+    ansible.builtin.assert:
       that:
         bind_id.changed == True
 
   - name: Bind a template to a network via id for idempotency
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_id: '{{net_id}}'
-      config_template: '{{test_template_name}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net_id }}'
+      config_template: '{{ test_template_name }}'
     register: bind_id_idempotent
 
-  - assert:
+  - name: Assert bind_id_idempotent
+    ansible.builtin.assert:
       that:
         - bind_id_idempotent.changed == False
         - bind_id_idempotent.data is defined
 
   - name: Unbind a template from a network via id with check mode
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: absent
-      org_name: '{{test_org_name}}'
-      net_id: '{{net_id}}'
-      config_template: '{{test_template_name}}'
-    check_mode: yes
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net_id }}'
+      config_template: '{{ test_template_name }}'
+    check_mode: true
     register: unbind_id_check
 
-  - assert:
+  - name: Assert if unbind_id_check has been changed
+    ansible.builtin.assert:
       that:
         unbind_id_check is changed
 
   - name: Unbind a template from a network via id
-    meraki_config_template:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_config_template:
+      auth_key: '{{ auth_key }}'
       state: absent
-      org_name: '{{test_org_name}}'
-      net_id: '{{net_id}}'
-      config_template: '{{test_template_name}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net_id }}'
+      config_template: '{{ test_template_name }}'
     register: unbind_id
 
-  - assert:
+  - name: Assert if unbind_id_check has been changed
+    ansible.builtin.assert:
       that:
         unbind_id.changed == True
 
   # This is disabled by default since they can't be created via API
   # - name: Delete sacrificial template with check mode
-  #   meraki_config_template:
-  #     auth_key: '{{auth_key}}'
+  #   cisco.meraki.meraki_config_template:
+  #     auth_key: '{{ auth_key }}'
   #     state: absent
-  #     org_name: '{{test_org_name}}'
+  #     org_name: '{{ test_org_name }}'
   #     config_template: sacrificial_template
-  #   check_mode: yes
+  #   check_mode: true
   #   register: delete_template_check
 
   # This is disabled by default since they can't be created via API
   # - name: Delete sacrificial template
-  #   meraki_config_template:
-  #     auth_key: '{{auth_key}}'
+  #   cisco.meraki.meraki_config_template:
+  #     auth_key: '{{ auth_key }}'
   #     state: absent
-  #     org_name: '{{test_org_name}}'
+  #     org_name: '{{ test_org_name }}'
   #     config_template: sacrificial_template
   #     output_level: debug
   #   register: delete_template
 
-  # - debug:
+  # - ansible.builtin.debug:
   #     var: delete_template
 
   always:
-  - name: Delete network
-    meraki_network:
-      auth_key: '{{auth_key}}'
-      state: absent
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-    delegate_to: localhost
+    - name: Delete network
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+      delegate_to: localhost
