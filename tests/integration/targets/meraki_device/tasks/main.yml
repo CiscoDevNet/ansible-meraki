@@ -1,246 +1,265 @@
 ---
-- block:
+- name: Block of tests
+  block:
   # This is commented out because a device cannot be unclaimed via API
   # - name: Claim a device into an organization
-  #   meraki_device:
-  #     auth_key: '{{auth_key}}'
-  #     org_name: '{{test_org_name}}'
-  #     serial: '{{serial}}'
+  #   cisco.meraki.meraki_device:
+  #     auth_key: '{{ auth_key }}'
+  #     org_name: '{{ test_org_name }}'
+  #     serial: '{{ serial }}'
   #     state: present
   #   delegate_to: localhost
   #   register: claim_device_org
 
-  # - assert:
+  # - ansible.builtin.assert:
   #     that:
   #       - claim_device_org.changed == true
 
   - name: Create network
-    meraki_network:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
+    cisco.meraki.merak_network:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
       type: appliance
       state: present
     register: net_info
 
-  - set_fact:
-      net_id: '{{net_info.data.id}}'
+  - name: Set fact net_id
+    ansible.builtin.set_fact:
+      net_id: '{{ net_info.data.id }}'
 
   - name: Query status of all devices in an organization
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
       state: query
     delegate_to: localhost
     register: query_device_org
 
-  - debug:
-      msg: '{{query_device_org}}'
+  - name: Debug query_device_org
+    ansible.builtin.debug:
+      msg: '{{ query_device_org }}'
 
   - name: Claim a device into a network
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      serial: '{{serial}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
+      serial: '{{ serial }}'
       state: present
     delegate_to: localhost
     register: claim_device
 
-  - debug:
-      msg: '{{claim_device}}'
+  - name: Debug claim_device
+    ansible.builtin.debug:
+      msg: '{{ claim_device }}'
 
-  - assert:
+  - name: Assert if claim_device has been changed
+    ansible.builtin.assert:
       that:
         - claim_device.changed == true
 
   - name: Query all devices in one network by network ID
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_id: '{{net_id}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net_id }}'
       state: query
     delegate_to: localhost
     register: query_one_net_id
 
-  - debug:
-      msg: '{{query_one_net_id}}'
+  - name: Debug query_one_net_id
+    ansible.builtin.debug:
+      msg: '{{ query_one_net_id }}'
 
   - name: Query all devices in one network
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
       state: query
     delegate_to: localhost
     register: query_one_net
 
-  - debug:
-      msg: '{{query_one_net}}'
+  - name: Debug query_one_net
+    ansible.builtin.debug:
+      msg: '{{ query_one_net }}'
 
   - name: Query device by serial
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      serial: '{{serial}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      serial: '{{ serial }}'
       state: query
     delegate_to: localhost
     register: query_serial_no_net
 
-  - debug:
-      msg: '{{query_serial_no_net}}'
+  - name: Debug query_serial_no_net
+    ansible.builtin.debug:
+      msg: '{{ query_serial_no_net }}'
 
   - name: Query device by serial
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      serial: '{{serial}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
+      serial: '{{ serial }}'
       state: query
     delegate_to: localhost
     register: query_serial
 
-  - debug:
-      msg: '{{query_serial}}'
+  - name: Debug query_serial
+    ansible.builtin.debug:
+      msg: '{{ query_serial }}'
 
-  - assert:
+  - name: Assert if query_serial has been not changed
+    ansible.builtin.assert:
       that:
         - query_serial.changed == False
 
   - name: Query uplink information for a device
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      serial: '{{serial}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
+      serial: '{{ serial }}'
       state: query
       query: uplink
     delegate_to: localhost
     register: query_serial_uplink
 
-  - debug:
-      msg: '{{query_serial_uplink}}'
+  - name: Debug query_serial_uplink
+    ansible.builtin.debug:
+      msg: '{{ query_serial_uplink }}'
 
   - name: Query LLDP/CDP information about a device
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      serial: '{{serial}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
+      serial: '{{ serial }}'
       lldp_cdp_timespan: 6000
       state: query
       query: lldp_cdp
     delegate_to: localhost
     register: query_serial_lldp_cdp
 
-  - debug:
-      msg: '{{query_serial_lldp_cdp}}'
+  - name: Debug query_serial_lldp_cdp
+    ansible.builtin.debug:
+      msg: '{{ query_serial_lldp_cdp }}'
 
   - name: Query a device by hostname
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
       hostname: test-hostname
       state: query
     delegate_to: localhost
     register: query_hostname
 
-  - debug:
-      msg: '{{query_hostname}}'
+  - name: Debug query_hostname
+    ansible.builtin.debug:
+      msg: '{{ query_hostname }}'
 
   - name: Query a device by model
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
       model: MR26
       state: query
     delegate_to: localhost
     register: query_model
 
-  - debug:
-      msg: '{{query_model}}'
+  - name: Debug query_model
+    ansible.builtin.debug:
+      msg: '{{ query_model }}'
 
   - name: Change device name for future test
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      serial: '{{serial}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
+      serial: '{{ serial }}'
       hostname: mx60-temporary
       address: 1060 W. Addison St., Chicago, IL
       lat: 41.948038
       lng: -87.65568
       tags: recently-added
       state: present
-      move_map_marker: True
+      move_map_marker: true
       note: Test device notes
     delegate_to: localhost
     register: update_device
 
   - name: Update a device
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      serial: '{{serial}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
+      serial: '{{ serial }}'
       hostname: mx60
       address: 1060 W. Addison St., Chicago, IL
       lat: 41.948038
       lng: -87.65568
       tags: recently-added
       state: present
-      move_map_marker: True
+      move_map_marker: true
       note: Test device notes
     delegate_to: localhost
     register: update_device
 
-  - assert:
+  - name: Assert update_device
+    ansible.builtin.assert:
       that:
         - update_device.changed == true
         - update_device.data.0.notes == "Test device notes"
         - '"1060 W. Addison St., Chicago, IL" in update_device.data.0.address'
 
   - name: Update a device with idempotency
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      serial: '{{serial}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_net_name }}'
+      serial: '{{ serial }}'
       name: mx60
       address: 1060 W. Addison St., Chicago, IL
       lat: 41.948038
       lng: -87.65568
       tags: recently-added
       state: present
-      move_map_marker: True
+      move_map_marker: true
       note: Test device notes
     delegate_to: localhost
     register: update_device_idempotent
 
-  - debug:
-      msg: '{{update_device_idempotent}}'
+  - name: Debug update_device_idempotent
+    ansible.builtin.debug:
+      msg: '{{ update_device_idempotent }}'
 
-  - assert:
+  - name: Assert update_device_idempotent
+    ansible.builtin.assert:
       that:
         - update_device_idempotent.changed == False
         - update_device_idempotent.data is defined
 
   always:
-  - name: Remove a device from a network
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      serial: '{{serial}}'
-      state: absent
-    delegate_to: localhost
-    register: delete_device
+    - name: Remove a device from a network
+      cisco.meraki.meraki_device:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        serial: '{{ serial }}'
+        state: absent
+      delegate_to: localhost
+      register: delete_device
 
-  - debug:
-      msg: '{{delete_device}}'
+    - name: Debug delete_device
+      ansible.builtin.debug:
+        msg: '{{ delete_device }}'
 
-  - assert:
-      that:
-        - delete_device.changed == true
+    - name: Assert if delete_device has been changed
+      ansible.builtin.assert:
+        that:
+          - delete_device.changed == true
