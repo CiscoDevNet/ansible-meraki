@@ -80,11 +80,11 @@
       net_id: '{{ test_switch_net_name }}'
       serial: '{{ serial_switch }}'
     delegate_to: localhost
-    register: falsen_mx_network
+    register: non_mx_network
 
-  - name: Debug falsen_mx_network
+  - name: Debug non_mx_network
     ansible.builtin.debug:
-      var: falsen_mx_network
+      var: non_mx_network
 
   - name: Assert non_mx_network
     ansible.builtin.assert:
