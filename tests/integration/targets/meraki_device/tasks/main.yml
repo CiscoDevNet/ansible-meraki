@@ -16,7 +16,7 @@
   #       - claim_device_org.changed == true
 
   - name: Create network
-    cisco.meraki.merak_network:
+    cisco.meraki.meraki_network:
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_name: '{{ test_net_name }}'
