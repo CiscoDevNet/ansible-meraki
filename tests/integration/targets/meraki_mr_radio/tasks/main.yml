@@ -6,7 +6,7 @@
 - name: Block of tasks
   block:
   - name: Create network with type wireless
-    cisco.meraki.ansible.meraki_network:
+    cisco.meraki.meraki_network:
       auth_key: "{{ auth_key }}"
       state: present
       org_name: "{{ test_org_name }}"
@@ -153,7 +153,7 @@
 
   always:
     - name: Delete network
-      cisco.meraki.ansible.meraki_network:
+      cisco.meraki.meraki_network:
         auth_key: '{{ auth_key }}'
         state: absent
         org_name: '{{ test_org_name }}'
