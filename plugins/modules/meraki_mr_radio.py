@@ -55,6 +55,7 @@ options:
     description:
     - Manual radio settings for 5 GHz.
     type: dict
+    default: {}
     suboptions:
       target_power:
         description:
@@ -101,11 +102,11 @@ options:
         - 157
         - 161
         - 165
-    default:
   two_four_ghz_settings:
     description:
     - Manual radio settings for 2.4 GHz.
     type: dict
+    default: {}
     suboptions:
       target_power:
         description:
@@ -132,7 +133,6 @@ options:
         - 13
         - 14
         type: int
-    default:
 author:
 - Tyler Christiansen (@supertylerc)
 extends_documentation_fragment: cisco.meraki.meraki

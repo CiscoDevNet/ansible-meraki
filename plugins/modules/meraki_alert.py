@@ -60,6 +60,7 @@ options:
                 - A list of HTTP server IDs to send a Webhook to.
                 type: list
                 elements: str
+                default: []
     alerts:
         description:
         - Alert-specific configuration for each type.
@@ -79,6 +80,7 @@ options:
                 - A hash of specific configuration data for the alert. Only filters specific to the alert will be updated.
                 - No validation checks occur against C(filters).
                 type: raw
+                default: {}
             alert_destinations:
                 description:
                 - A hash of destinations for this specific alert.
@@ -102,6 +104,7 @@ options:
                         - A list of HTTP server IDs to send a Webhook to.
                         type: list
                         elements: str
+                        default: []
 
 author:
     - Kevin Breit (@kbreit)
