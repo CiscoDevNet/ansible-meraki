@@ -62,7 +62,7 @@
       profile_id: "{{ create.data.id }}"
 
   - name: Configure AP radios in check mode
-    ansible.cisco.meraki_mr_radio:
+    cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
       net_name: IntTestNetworkWireless
@@ -87,7 +87,7 @@
         - create_check is changed
 
   - name: Query a device radio
-    ansible.cisco.meraki_mr_radio:
+    cisco.meraki.meraki_mr_radio:
       auth_key: '{{ auth_key }}'
       serial: "{{ serial_wireless }}"
       state: query
@@ -100,7 +100,7 @@
         - query_one.data is defined
 
   - name: Configure AP radios
-    ansible.cisco.meraki_mr_radio:
+    cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
       net_name: IntTestNetworkWireless
@@ -124,7 +124,7 @@
         - update is changed
 
   - name: Configure AP radios
-    ansible.cisco.meraki_mr_radio:
+    cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
       net_name: IntTestNetworkWireless
