@@ -3,182 +3,199 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
+- name: Block of tasks
+  block:
   - name: Test an API key is provided
-    fail:
+    ansible.builtin.fail:
       msg: Please define an API key
     when: auth_key is not defined
 
-  - set_fact:
+  - name: Set fact net_name
+    ansible.builtin.set_fact:
       net_name: TestNet - Appliance
 
-  - name: 'Create test network {{net_name}}'
-    meraki_network:
-      auth_key: '{{auth_key}}'
+  - name: 'Create test network {{ net_name }}'
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_id: '{{test_org_id}}'
-      net_name: '{{net_name}}'
+      org_id: '{{ test_org_id }}'
+      net_name: '{{ net_name }}'
       type: appliance
     delegate_to: localhost
     register: net
 
-  - set_fact:
-      net_id: '{{net.data.id}}'
+  - name: Set fact net_id
+    ansible.builtin.set_fact:
+      net_id: '{{ net.data.id }}'
 
   - name: Test providing wan_enabled to an MS network
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_management_interface:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_id: '{{test_org_id}}'
-      net_id: '{{test_switch_net_name}}'
-      serial: '{{serial_switch}}'
+      org_id: '{{ test_org_id }}'
+      net_id: '{{ test_switch_net_name }}'
+      serial: '{{ serial_switch }}'
       wan1:
         wan_enabled: enabled
         using_static_ip: false
     delegate_to: localhost
     register: ms_not_configured
 
-  - debug:
+  - name: Debug ms_not_configured
+    ansible.builtin.debug:
       var: ms_not_configured
 
-  - assert:
+  - name: Assert ms_not_configured
+    ansible.builtin.assert:
       that:
         - ms_not_configured.data is defined
 
   - name: Set management interface on switch
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_management_interface:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_id: '{{test_org_id}}'
-      net_id: '{{test_switch_net_name}}'
-      serial: '{{serial_switch}}'
+      org_id: '{{ test_org_id }}'
+      net_id: '{{ test_switch_net_name }}'
+      serial: '{{ serial_switch }}'
       wan1:
-        using_static_ip: no
+        using_static_ip: false
         vlan: 3
     delegate_to: localhost
     register: set_switch_mgmt
 
-  - debug:
+  - name: Debug set_switch_mgmt
+    ansible.builtin.debug:
       var: set_switch_mgmt
 
-  - assert:
+  - name: Assert set_switch_mgmt has been defined
+    ansible.builtin.assert:
       that:
         - set_switch_mgmt.data is defined
 
   - name: Query non-MX network
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_management_interface:
+      auth_key: '{{ auth_key }}'
       state: query
-      org_id: '{{test_org_id}}'
-      net_id: '{{test_switch_net_name}}'
-      serial: '{{serial_switch}}'
+      org_id: '{{ test_org_id }}'
+      net_id: '{{ test_switch_net_name }}'
+      serial: '{{ serial_switch }}'
     delegate_to: localhost
     register: non_mx_network
 
-  - debug:
+  - name: Debug non_mx_network
+    ansible.builtin.debug:
       var: non_mx_network
 
-  - assert:
+  - name: Assert non_mx_network
+    ansible.builtin.assert:
       that:
         - non_mx_network.data is defined
 
   - name: Reset management interface on switch
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_management_interface:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_id: '{{test_org_id}}'
-      net_id: '{{test_switch_net_name}}'
-      serial: '{{serial_switch}}'
+      org_id: '{{ test_org_id }}'
+      net_id: '{{ test_switch_net_name }}'
+      serial: '{{ serial_switch }}'
       wan1:
-        using_static_ip: no
+        using_static_ip: false
         vlan: 1
     delegate_to: localhost
     register: reset_switch_mgmt
 
-  - debug:
+  - name: Debug reset_switch_mgmt
+    ansible.builtin.debug:
       var: reset_switch_mgmt
 
-  - assert:
+  - name: Assert reset_switch_mgmt
+    ansible.builtin.assert:
       that:
         - reset_switch_mgmt.data is defined
 
   - name: Set WAN1 as DHCP in check mode
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_management_interface:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_id: '{{test_org_id}}'
-      net_id: '{{net_id}}'
-      serial: '{{serial}}'
+      org_id: '{{ test_org_id }}'
+      net_id: '{{ net_id }}'
+      serial: '{{ serial }}'
       wan1:
         wan_enabled: enabled
-        using_static_ip: no
+        using_static_ip: false
         vlan: 1
     delegate_to: localhost
     register: set_wan1_check
-    check_mode: yes
+    check_mode: true
 
-  - debug:
+  - name: Debug set_wan1_check
+    ansible.builtin.debug:
       var: set_wan1_check
 
-  - assert:
+  - name: Assert set_wan1_check
+    ansible.builtin.assert:
       that:
         - set_wan1_check is changed
         - set_wan1_check.data is defined
 
   - name: Set WAN1 as DHCP
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_management_interface:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_id: '{{test_org_id}}'
-      net_id: '{{net_id}}'
-      serial: '{{serial}}'
+      org_id: '{{ test_org_id }}'
+      net_id: '{{ net_id }}'
+      serial: '{{ serial }}'
       wan1:
         wan_enabled: enabled
-        using_static_ip: no
+        using_static_ip: false
         vlan: 1
     delegate_to: localhost
     register: set_wan1
 
-  - debug:
+  - name: Debug set_wan1
+    ansible.builtin.debug:
       var: set_wan1
 
-  - assert:
+  - name: Assert set_wan1
+    ansible.builtin.assert:
       that:
         - set_wan1 is changed
         - set_wan1.data is defined
 
   - name: Set WAN1 as DHCP with idempotency
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_management_interface:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_id: '{{test_org_id}}'
-      net_id: '{{net_id}}'
-      serial: '{{serial}}'
+      org_id: '{{ test_org_id }}'
+      net_id: '{{ net_id }}'
+      serial: '{{ serial }}'
       wan1:
         wan_enabled: enabled
-        using_static_ip: no
+        using_static_ip: false
         vlan: 1
     delegate_to: localhost
     register: set_wan1_idempotent
 
-  - debug:
+  - name: Debug set_wan1_idempotent
+    ansible.builtin.debug:
       var: set_wan1_idempotent
 
-  - assert:
+  - name: Assert set_wan1_idempotent
+    ansible.builtin.assert:
       that:
         - set_wan1_idempotent is not changed
         - set_wan1_idempotent.data is defined
 
   - name: Set WAN2 as static IP
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_management_interface:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_id: '{{net_id}}'
-      serial: '{{serial}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net_id }}'
+      serial: '{{ serial }}'
       wan2:
         wan_enabled: enabled
-        using_static_ip: yes
+        using_static_ip: true
         static_ip: 192.168.16.195
         static_gateway_ip: 192.168.16.1
         static_subnet_mask: 255.255.255.0
@@ -188,24 +205,26 @@
     delegate_to: localhost
     register: set_wan2
 
-  - debug:
+  - name: Debug set_wan2
+    ansible.builtin.debug:
       var: set_wan2
 
-  - assert:
+  - name: Assert set_wan2
+    ansible.builtin.assert:
       that:
         - set_wan2 is changed
         - set_wan2.data is defined
 
   - name: Test too many DNS servers
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_management_interface:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_id: '{{test_org_id}}'
-      net_id: '{{net_id}}'
-      serial: '{{serial}}'
+      org_id: '{{ test_org_id }}'
+      net_id: '{{ net_id }}'
+      serial: '{{ serial }}'
       wan1:
         wan_enabled: enabled
-        using_static_ip: yes
+        using_static_ip: true
         static_ip: 192.0.1.2
         static_gateway_ip: 192.0.1.1
         static_subnet_mask: 255.255.255.0
@@ -216,29 +235,34 @@
         vlan: 1
     delegate_to: localhost
     register: too_many_dns
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - debug:
+  - name: Debug too_many_dns
+    ansible.builtin.debug:
       var: too_many_dns
 
-  - assert:
+  - name: Assert too_many_dns
+    ansible.builtin.assert:
       that:
         - 'too_many_dns.msg == "Maximum number of static DNS addresses is 2."'
 
   - name: Query management information
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_management_interface:
+      auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
-      net_id: '{{net_id}}'
-      serial: '{{serial}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net_id }}'
+      serial: '{{ serial }}'
     delegate_to: localhost
     register: query_mx
 
-  - debug:
+  - name: Debug query_mx
+    ansible.builtin.debug:
       var: query_mx
 
-  - assert:
+  - name: Assert query_mx
+    ansible.builtin.assert:
       that:
         - query_mx.data is defined
 
@@ -246,28 +270,29 @@
   ############################################################################
   # Tear down starts here
   ############################################################################
-  - name: Reset settings for all interfaces
-    meraki_management_interface:
-      auth_key: '{{auth_key}}'
-      state: present
-      org_id: '{{test_org_id}}'
-      net_id: '{{net_id}}'
-      serial: '{{serial}}'
-      wan1:
-        wan_enabled: disabled
-        using_static_ip: no
-      wan2:
-        wan_enabled: enabled
-        using_static_ip: no
-    delegate_to: localhost
-    ignore_errors: yes
+    - name: Reset settings for all interfaces
+      cisco.meraki.meraki_management_interface:
+        auth_key: '{{ auth_key }}'
+        state: present
+        org_id: '{{ test_org_id }}'
+        net_id: '{{ net_id }}'
+        serial: '{{ serial }}'
+        wan1:
+          wan_enabled: disabled
+          using_static_ip: false
+        wan2:
+          wan_enabled: enabled
+          using_static_ip: false
+      delegate_to: localhost
+      failed_when: false
+      changed_when: false
 
   # Network deletion is commented out since this requires a device in a network
   # - name: Delete network
-  #   meraki_network:
-  #     auth_key: '{{auth_key}}'
+  #   cisco.meraki.meraki_network:
+  #     auth_key: '{{ auth_key }}'
   #     state: absent
-  #     org_name: '{{test_org_name}}'
-  #     net_name: '{{net_name}}'
+  #     org_name: '{{ test_org_name }}'
+  #     net_name: '{{ net_name }}'
   #   delegate_to: localhost
   #   register: delete_network
