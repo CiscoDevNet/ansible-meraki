@@ -3,9 +3,10 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
+- name: Block of tasks
+  block:
   - name: Create network with type wireless
-    meraki_network:
+    cisco.meraki.meraki_network:
       auth_key: "{{ auth_key }}"
       state: present
       org_name: "{{ test_org_name }}"
@@ -15,7 +16,7 @@
     delegate_to: localhost
 
   - name: Add access points to network
-    meraki_device:
+    cisco.meraki.meraki_device:
       auth_key: "{{ auth_key }}"
       state: present
       org_name: "{{ test_org_name }}"
@@ -24,17 +25,17 @@
     delegate_to: localhost
 
   - name: Create RF profile
-    meraki_mr_rf_profile:
+    cisco.meraki.meraki_mr_rf_profile:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
       net_name: IntTestNetworkWireless
       state: present
       name: Test Profile
       band_selection_type: ap
-      client_balancing_enabled: True
+      client_balancing_enabled: true
       ap_band_settings:
-          mode: dual
-          band_steering_enabled: true
+        mode: dual
+        band_steering_enabled: true
       five_ghz_settings:
         max_power: 10
         min_bitrate: 12
@@ -56,11 +57,12 @@
     delegate_to: localhost
     register: create
 
-  - set_fact:
+  - name: Set fact create
+    ansible.builtin.set_fact:
       profile_id: "{{ create.data.id }}"
 
   - name: Configure AP radios in check mode
-    meraki_mr_radio:
+    cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
       net_name: IntTestNetworkWireless
@@ -78,25 +80,27 @@
     register: create_check
     check_mode: true
 
-  - assert:
+  - name: Assert create_check
+    ansible.builtin.assert:
       that:
         - create_check.data is defined
         - create_check is changed
 
   - name: Query a device radio
-    meraki_mr_radio:
+    cisco.meraki.meraki_mr_radio:
       auth_key: '{{ auth_key }}'
       serial: "{{ serial_wireless }}"
       state: query
     delegate_to: localhost
     register: query_one
 
-  - assert:
+  - name: Assert query_one
+    ansible.builtin.assert:
       that:
         - query_one.data is defined
 
   - name: Configure AP radios
-    meraki_mr_radio:
+    cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
       net_name: IntTestNetworkWireless
@@ -113,13 +117,14 @@
     delegate_to: localhost
     register: update
 
-  - assert:
+  - name: Assert update
+    ansible.builtin.assert:
       that:
         - update.data is defined
         - update is changed
 
   - name: Configure AP radios
-    meraki_mr_radio:
+    cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
       net_name: IntTestNetworkWireless
@@ -136,7 +141,8 @@
     delegate_to: localhost
     register: update_idempotent
 
-  - assert:
+  - name: Assert update_idempotent
+    ansible.builtin.assert:
       that:
         - update_idempotent.data is defined
         - update_idempotent is not changed
@@ -146,10 +152,10 @@
 #############################################################################
 
   always:
-  - name: Delete network
-    meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      org_name: '{{test_org_name}}'
-      net_name: IntTestNetworkWireless
-    delegate_to: localhost
+    - name: Delete network
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+      delegate_to: localhost
