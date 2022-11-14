@@ -148,6 +148,7 @@ options:
         - Enable that attribute for a RADIUS
         type: str
         choices: ["Filter-Id", ""]
+        default: ""
 author:
 - Marcin Woźniak (@y0rune)
 extends_documentation_fragment: cisco.meraki.meraki
