@@ -3,34 +3,38 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
+- name: Block of tasks
+  block:
   - name: Create wireless network
-    meraki_network:
+    cisco.meraki.meraki_network:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetWireless
       type: wireless
     delegate_to: localhost
     register: new_net
 
-  - set_fact:
-      net: '{{new_net.data.id}}'
+  - name: Set fact new_net
+    ansible.builtin.set_fact:
+      net: '{{ new_net.data.id }}'
 
   - name: Check rule values are lowercase
-    meraki_mr_l3_firewall:
+    cisco.meraki.meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetWireless
       state: query
       number: 0
     delegate_to: localhost
     register: query
 
-  - debug:
+  - name: Debug query
+    ansible.builtin.debug:
       var: query
-    
-  - assert:
+
+  - name: Assert query
+    ansible.builtin.assert:
       that:
         - query.data.rules.0.policy == 'deny'
         - query.data.rules.0.protocol == 'any'
@@ -44,11 +48,11 @@
         - query.data.rules.1.comment == 'Default rule'
 
   - name: Create single firewall rule with check mode
-    meraki_mr_l3_firewall:
+    cisco.meraki.meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_id: '{{net}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
       number: 1
       rules:
         - comment: Integration test rule
@@ -56,15 +60,17 @@
           protocol: tcp
           dest_port: 80
           dest_cidr: 192.0.2.0/24
-      allow_lan_access: no
+      allow_lan_access: false
     delegate_to: localhost
-    check_mode: yes
+    check_mode: true
     register: create_one_check
 
-  - debug:
-      msg: '{{create_one_check}}'
+  - name: Debug create_one_check
+    ansible.builtin.debug:
+      msg: '{{ create_one_check }}'
 
-  - assert:
+  - name: Assert create_one_check
+    ansible.builtin.assert:
       that:
         - create_one_check.data.0.comment == 'Integration test rule'
         - create_one_check.data.1.policy == 'deny'
@@ -72,11 +78,11 @@
         - create_one_check is changed
 
   - name: Create single firewall rule
-    meraki_mr_l3_firewall:
+    cisco.meraki.meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_id: '{{net}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
       number: 1
       rules:
         - comment: Integration test rule
@@ -84,60 +90,65 @@
           protocol: tcp
           dest_port: 80
           dest_cidr: 192.0.2.0/24
-      allow_lan_access: no
+      allow_lan_access: false
     delegate_to: localhost
     register: create_one
 
-  - debug:
-      msg: '{{create_one}}'
+  - name: Debug create_one
+    ansible.builtin.debug:
+      msg: '{{ create_one }}'
 
-  - assert:
+  - name: Assert create_one
+    ansible.builtin.assert:
       that:
         - create_one.data.rules.0.comment == 'Integration test rule'
         - create_one.data.rules.1.policy == 'deny'
         - create_one.data is defined
 
   - name: Enable local LAN access with check mode
-    meraki_mr_l3_firewall:
+    cisco.meraki.meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_id: '{{net}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
       number: 1
-      allow_lan_access: yes
+      allow_lan_access: true
     delegate_to: localhost
-    check_mode: yes
+    check_mode: true
     register: enable_lan_check
 
-  - debug:
+  - name: Debug enable_lan_check
+    ansible.builtin.debug:
       var: enable_lan_check
 
-  - assert:
+  - name: Assert enable_lan_check
+    ansible.builtin.assert:
       that:
         - enable_lan_check.data.rules.1.policy == 'allow'
         - enable_lan_check is changed
 
   - name: Enable local LAN access
-    meraki_mr_l3_firewall:
+    cisco.meraki.meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_id: '{{net}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
       number: 1
-      allow_lan_access: yes
+      allow_lan_access: true
     delegate_to: localhost
     register: enable_lan
 
-  - assert:
+  - name: Assert enable_lan
+    ansible.builtin.assert:
       that:
         - enable_lan.data.rules.1.policy == 'allow'
 
   - name: Update rules without specifying LAN access with check mode
-    meraki_mr_l3_firewall:
+    cisco.meraki.meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_id: '{{net}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
       number: 1
       rules:
         - comment: Integration test rule
@@ -148,28 +159,32 @@
     delegate_to: localhost
     register: update_one_check
 
-  - debug:
-      msg: '{{update_one_check}}'
+  - name: Debug update_one_check
+    ansible.builtin.debug:
+      msg: '{{ update_one_check }}'
 
-  - assert:
+  - name: Assert update_one_check
+    ansible.builtin.assert:
       that:
         - update_one_check.data.rules.0.comment == 'Integration test rule'
         - update_one_check.data is defined
 
   - name: Query firewall rules
-    meraki_mr_l3_firewall:
+    cisco.meraki.meraki_mr_l3_firewall:
       auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
-      net_id: '{{net}}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
       number: 1
     delegate_to: localhost
     register: query
 
-  - debug:
-      msg: '{{query}}'
+  - name: Debug query
+    ansible.builtin.debug:
+      msg: '{{ query }}'
 
-  - assert:
+  - name: Assert query
+    ansible.builtin.assert:
       that:
         - query.data.rules.1.comment == 'Wireless clients accessing LAN'
         - query.data.rules.2.comment == 'Default rule'
@@ -179,19 +194,19 @@
 # Tear down starts here
 ############################################################################
   always:
-  - name: Delete wireless SSID
-    meraki_ssid:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      org_name: '{{test_org_name}}'
-      net_id: '{{net}}'
-      number: 1
-    delegate_to: localhost
+    - name: Delete wireless SSID
+      cisco.meraki.meraki_ssid:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_id: '{{ net }}'
+        number: 1
+      delegate_to: localhost
 
-  - name: Delete wireless network
-    meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      org_name: '{{test_org_name}}'
-      net_id: '{{net}}'
-    delegate_to: localhost
+    - name: Delete wireless network
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_id: '{{ net }}'
+      delegate_to: localhost
