@@ -107,7 +107,7 @@
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
-        channel: 40
+        channel: 100
         channel_width: 20
         target_power: 10
       two_four_ghz_settings:
@@ -131,7 +131,7 @@
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
-        channel: 40
+        channel: 100
         channel_width: 20
         target_power: 10
       two_four_ghz_settings:
