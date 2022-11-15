@@ -1,0 +1,2 @@
+bugfixes:
+  - Add additional except of IndexError error during sanitizing of empty data in meraki_webhook
