@@ -9,12 +9,12 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 ---
 module: meraki_mr_l7_firewall
 short_description: Manage MR access point layer 7 firewalls in the Meraki cloud
@@ -101,9 +101,9 @@ options:
 author:
 - Joshua Coronado (@joshuajcoronado)
 extends_documentation_fragment: cisco.meraki.meraki
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Query firewall rules
   meraki_mr_l7_firewall:
     auth_key: abc123
@@ -145,9 +145,9 @@ EXAMPLES = r'''
         application:
           id: meraki:layer7/category/24
   delegate_to: localhost
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 data:
     description: Firewall rules associated to network SSID.
     returned: success
@@ -235,254 +235,269 @@ data:
                     returned: success
                     type: str
                     sample: layer7/category/1
-'''
+"""
 
 import copy
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import \
-    MerakiModule, meraki_argument_spec
+from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import (
+    MerakiModule,
+    meraki_argument_spec,
+)
 
 
 def get_applications(meraki, net_id):
-    path = meraki.construct_path('get_categories', net_id=net_id)
-    return meraki.request(path, method='GET')
+    path = meraki.construct_path("get_categories", net_id=net_id)
+    return meraki.request(path, method="GET")
 
 
 def lookup_application(meraki, net_id, application):
     response = get_applications(meraki, net_id)
-    for category in response['applicationCategories']:
-        if category['name'].lower() == application.lower():
-            return category['id']
-        for app in category['applications']:
-            if app['name'].lower() == application.lower():
-                return app['id']
+    for category in response["applicationCategories"]:
+        if category["name"].lower() == application.lower():
+            return category["id"]
+        for app in category["applications"]:
+            if app["name"].lower() == application.lower():
+                return app["id"]
     meraki.fail_json(
-        msg="No application or category named {0} found".format(application))
+        msg="No application or category named {0} found".format(application)
+    )
 
 
 def assemble_payload(meraki, net_id, rule):
     new_rule = {}
-    if rule['type'] == 'application':
-        new_rule = {'policy': rule['policy'],
-                    'type': 'application',
-                    }
-        if rule['application']['id']:
-            new_rule['value'] = {'id': rule['application']['id']}
-        elif rule['application']['name']:
-            new_rule['value'] = {'id': lookup_application(meraki, net_id,
-                                                          rule['application'][
-                                                              'name'])}
-    elif rule['type'] == 'application_category':
-        new_rule = {'policy': rule['policy'],
-                    'type': 'applicationCategory',
-                    }
-        if rule['application']['id']:
-            new_rule['value'] = {'id': rule['application']['id']}
-        elif rule['application']['name']:
-            new_rule['value'] = {'id': lookup_application(meraki, net_id,
-                                                          rule['application'][
-                                                              'name'])}
-    elif rule['type'] == 'ip_range':
-        new_rule = {'policy': rule['policy'],
-                    'type': 'ipRange',
-                    'value': rule['ip_range']}
-    elif rule['type'] == 'host':
-        new_rule = {'policy': rule['policy'],
-                    'type': rule['type'],
-                    'value': rule['host']}
-    elif rule['type'] == 'port':
-        new_rule = {'policy': rule['policy'],
-                    'type': rule['type'],
-                    'value': rule['port']}
+    if rule["type"] == "application":
+        new_rule = {
+            "policy": rule["policy"],
+            "type": "application",
+        }
+        if rule["application"]["id"]:
+            new_rule["value"] = {"id": rule["application"]["id"]}
+        elif rule["application"]["name"]:
+            new_rule["value"] = {
+                "id": lookup_application(meraki, net_id, rule["application"]["name"])
+            }
+    elif rule["type"] == "application_category":
+        new_rule = {
+            "policy": rule["policy"],
+            "type": "applicationCategory",
+        }
+        if rule["application"]["id"]:
+            new_rule["value"] = {"id": rule["application"]["id"]}
+        elif rule["application"]["name"]:
+            new_rule["value"] = {
+                "id": lookup_application(meraki, net_id, rule["application"]["name"])
+            }
+    elif rule["type"] == "ip_range":
+        new_rule = {
+            "policy": rule["policy"],
+            "type": "ipRange",
+            "value": rule["ip_range"],
+        }
+    elif rule["type"] == "host":
+        new_rule = {
+            "policy": rule["policy"],
+            "type": rule["type"],
+            "value": rule["host"],
+        }
+    elif rule["type"] == "port":
+        new_rule = {
+            "policy": rule["policy"],
+            "type": rule["type"],
+            "value": rule["port"],
+        }
     return new_rule
 
 
 def restructure_response(rules):
-    for rule in rules['rules']:
-        type = rule['type']
-        rule[type] = copy.deepcopy(rule['value'])
-        del rule['value']
+    for rule in rules["rules"]:
+        type = rule["type"]
+        rule[type] = copy.deepcopy(rule["value"])
+        del rule["value"]
     return rules
 
 
 def get_ssid_number(name, data):
     for ssid in data:
-        if name == ssid['name']:
-            return ssid['number']
+        if name == ssid["name"]:
+            return ssid["number"]
     return False
 
 
 def get_ssids(meraki, net_id):
-    path = meraki.construct_path('get_ssids', net_id=net_id)
-    return meraki.request(path, method='GET')
+    path = meraki.construct_path("get_ssids", net_id=net_id)
+    return meraki.request(path, method="GET")
 
 
 def get_rules(meraki, net_id, number):
-    path = meraki.construct_path('get_all', net_id=net_id,
-                                 custom={'number': number})
-    response = meraki.request(path, method='GET')
+    path = meraki.construct_path("get_all", net_id=net_id, custom={"number": number})
+    response = meraki.request(path, method="GET")
     if meraki.status == 200:
         return response
+
 
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
 
-    application_arg_spec = dict(id=dict(type='str'),
-                                name=dict(type='str'),
-                                )
+    application_arg_spec = dict(
+        id=dict(type="str"),
+        name=dict(type="str"),
+    )
 
     rule_arg_spec = dict(
-        policy=dict(type='str', choices=['deny'], default='deny'),
-        type=dict(type='str', choices=['application',
-                                       'application_category',
-                                       'host',
-                                       'ip_range',
-                                       'port']),
-        ip_range=dict(type='str'),
-        application=dict(type='dict', default=None,
-                         options=application_arg_spec),
-        host=dict(type='str'),
-        port=dict(type='str'),
-        )
+        policy=dict(type="str", choices=["deny"], default="deny"),
+        type=dict(
+            type="str",
+            choices=["application", "application_category", "host", "ip_range", "port"],
+        ),
+        ip_range=dict(type="str"),
+        application=dict(type="dict", default=None, options=application_arg_spec),
+        host=dict(type="str"),
+        port=dict(type="str"),
+    )
 
     argument_spec = meraki_argument_spec()
     argument_spec.update(
-        state=dict(type='str', choices=['present', 'query'], default='present'),
-        net_name=dict(type='str'),
-        net_id=dict(type='str'),
-        number=dict(type='str', aliases=['ssid_number']),
-        ssid_name=dict(type='str', aliases=['ssid']),
-        rules=dict(type='list', default=None, elements='dict',
-                   options=rule_arg_spec),
-        categories=dict(type='bool'),
-        )
+        state=dict(type="str", choices=["present", "query"], default="present"),
+        net_name=dict(type="str"),
+        net_id=dict(type="str"),
+        number=dict(type="str", aliases=["ssid_number"]),
+        ssid_name=dict(type="str", aliases=["ssid"]),
+        rules=dict(type="list", default=None, elements="dict", options=rule_arg_spec),
+        categories=dict(type="bool"),
+    )
 
     # the AnsibleModule object will be our abstraction working with Ansible
     # this includes instantiation, a couple of common attr would be the
     # args/params passed to the execution, as well as if the module
     # supports check mode
-    module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=True,
-                           )
-    meraki = MerakiModule(module, function='mr_l7_firewall')
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True,
+    )
+    meraki = MerakiModule(module, function="mr_l7_firewall")
 
     # check for argument completeness
-    if meraki.params['rules']:
-        for rule in meraki.params['rules']:
-            if rule['type'] == 'application' and rule['application'] is None:
+    if meraki.params["rules"]:
+        for rule in meraki.params["rules"]:
+            if rule["type"] == "application" and rule["application"] is None:
                 meraki.fail_json(
-                    msg="application argument is required when type is application.")
-            elif rule['type'] == 'application_category' and rule[
-                'application'] is None:
+                    msg="application argument is required when type is application."
+                )
+            elif rule["type"] == "application_category" and rule["application"] is None:
                 meraki.fail_json(
-                    msg="application argument is required when type is application_category.")
-            elif rule['type'] == 'host' and rule['host'] is None:
-                meraki.fail_json(
-                    msg="host argument is required when type is host.")
-            elif rule['type'] == 'port' and rule['port'] is None:
-                meraki.fail_json(
-                    msg="port argument is required when type is port.")
+                    msg="application argument is required when type is application_category."
+                )
+            elif rule["type"] == "host" and rule["host"] is None:
+                meraki.fail_json(msg="host argument is required when type is host.")
+            elif rule["type"] == "port" and rule["port"] is None:
+                meraki.fail_json(msg="port argument is required when type is port.")
 
-    meraki.params['follow_redirects'] = 'all'
+    meraki.params["follow_redirects"] = "all"
     query_ssids_urls = {"mr_l7_firewall": "/networks/{net_id}/wireless/ssids"}
     query_urls = {
-        'mr_l7_firewall': '/networks/{net_id}/wireless/ssids/{number}/firewall/l7FirewallRules'}
+        "mr_l7_firewall": "/networks/{net_id}/wireless/ssids/{number}/firewall/l7FirewallRules"
+    }
     update_urls = {
-        'mr_l7_firewall': '/networks/{net_id}/wireless/ssids/{number}/firewall/l7FirewallRules'}
+        "mr_l7_firewall": "/networks/{net_id}/wireless/ssids/{number}/firewall/l7FirewallRules"
+    }
     query_category_urls = {
-        'mr_l7_firewall': '/networks/{net_id}/trafficShaping/applicationCategories'}
+        "mr_l7_firewall": "/networks/{net_id}/trafficShaping/applicationCategories"
+    }
 
-    meraki.url_catalog['get_all'].update(query_urls)
-    meraki.url_catalog['get_categories'] = (query_category_urls)
-    meraki.url_catalog['get_ssids'] = (query_ssids_urls)
-    meraki.url_catalog['update'] = update_urls
+    meraki.url_catalog["get_all"].update(query_urls)
+    meraki.url_catalog["get_categories"] = query_category_urls
+    meraki.url_catalog["get_ssids"] = query_ssids_urls
+    meraki.url_catalog["update"] = update_urls
 
     payload = None
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
-    org_id = meraki.params['org_id']
+    org_id = meraki.params["org_id"]
     orgs = None
     if org_id is None:
         orgs = meraki.get_orgs()
         for org in orgs:
-            if org['name'] == meraki.params['org_name']:
-                org_id = org['id']
-    net_id = meraki.params['net_id']
+            if org["name"] == meraki.params["org_name"]:
+                org_id = org["id"]
+    net_id = meraki.params["net_id"]
     if net_id is None:
         if orgs is None:
             orgs = meraki.get_orgs()
-        net_id = meraki.get_net_id(net_name=meraki.params['net_name'],
-                                   data=meraki.get_nets(org_id=org_id))
-    number = meraki.params['number']
-    if meraki.params['ssid_name']:
+        net_id = meraki.get_net_id(
+            net_name=meraki.params["net_name"], data=meraki.get_nets(org_id=org_id)
+        )
+    number = meraki.params["number"]
+    if meraki.params["ssid_name"]:
         ssids = get_ssids(meraki, net_id)
-        number = get_ssid_number(meraki.params['ssid_name'], ssids)
+        number = get_ssid_number(meraki.params["ssid_name"], ssids)
 
-    if meraki.params['state'] == 'query':
-        if meraki.params['categories'] is True:  # Output only applications
-            meraki.result['data'] = get_applications(meraki, net_id)
+    if meraki.params["state"] == "query":
+        if meraki.params["categories"] is True:  # Output only applications
+            meraki.result["data"] = get_applications(meraki, net_id)
         else:
-            meraki.result['data'] = restructure_response(
-                get_rules(meraki, net_id, number))
-    elif meraki.params['state'] == 'present':
+            meraki.result["data"] = restructure_response(
+                get_rules(meraki, net_id, number)
+            )
+    elif meraki.params["state"] == "present":
         rules = get_rules(meraki, net_id, number)
-        path = meraki.construct_path('get_all', net_id=net_id,
-                                     custom={'number': number})
+        path = meraki.construct_path(
+            "get_all", net_id=net_id, custom={"number": number}
+        )
 
         # Detect if no rules are given, special case
-        if len(meraki.params['rules']) == 0:
+        if len(meraki.params["rules"]) == 0:
             # Conditionally wrap parameters in rules makes it comparable
-            if isinstance(meraki.params['rules'], list):
-                param_rules = {'rules': meraki.params['rules']}
+            if isinstance(meraki.params["rules"], list):
+                param_rules = {"rules": meraki.params["rules"]}
             else:
-                param_rules = meraki.params['rules']
+                param_rules = meraki.params["rules"]
             if meraki.is_update_required(rules, param_rules):
                 if meraki.module.check_mode is True:
-                    meraki.result['data'] = meraki.params['rules']
-                    meraki.result['changed'] = True
+                    meraki.result["data"] = meraki.params["rules"]
+                    meraki.result["changed"] = True
                     meraki.exit_json(**meraki.result)
-                payload = {'rules': []}
-                response = meraki.request(path, method='PUT',
-                                          payload=json.dumps(payload))
-                meraki.result['data'] = response
-                meraki.result['changed'] = True
+                payload = {"rules": []}
+                response = meraki.request(
+                    path, method="PUT", payload=json.dumps(payload)
+                )
+                meraki.result["data"] = response
+                meraki.result["changed"] = True
                 meraki.exit_json(**meraki.result)
             else:
-                meraki.result['data'] = param_rules
+                meraki.result["data"] = param_rules
                 meraki.exit_json(**meraki.result)
-        if meraki.params['rules']:
-            payload = {'rules': []}
-            for rule in meraki.params['rules']:
-                payload['rules'].append(assemble_payload(meraki, net_id, rule))
+        if meraki.params["rules"]:
+            payload = {"rules": []}
+            for rule in meraki.params["rules"]:
+                payload["rules"].append(assemble_payload(meraki, net_id, rule))
         else:
             payload = dict()
-        if meraki.is_update_required(rules, payload, force_include='id'):
+        if meraki.is_update_required(rules, payload, force_include="id"):
             if meraki.module.check_mode is True:
                 response = restructure_response(payload)
                 meraki.generate_diff(restructure_response(rules), response)
-                meraki.result['data'] = response
-                meraki.result['changed'] = True
+                meraki.result["data"] = response
+                meraki.result["changed"] = True
                 meraki.exit_json(**meraki.result)
-            response = meraki.request(path, method='PUT',
-                                      payload=json.dumps(payload))
+            response = meraki.request(path, method="PUT", payload=json.dumps(payload))
             response = restructure_response(response)
             if meraki.status == 200:
                 meraki.generate_diff(restructure_response(rules), response)
-                meraki.result['data'] = response
-                meraki.result['changed'] = True
+                meraki.result["data"] = response
+                meraki.result["changed"] = True
         else:
             if meraki.module.check_mode is True:
-                meraki.result['data'] = rules
-                meraki.result['changed'] = False
+                meraki.result["data"] = rules
+                meraki.result["changed"] = False
                 meraki.exit_json(**meraki.result)
-            meraki.result['data'] = payload
+            meraki.result["data"] = payload
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results
     meraki.exit_json(**meraki.result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
