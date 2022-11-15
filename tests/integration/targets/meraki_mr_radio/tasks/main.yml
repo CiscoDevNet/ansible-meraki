@@ -10,10 +10,11 @@
       auth_key: "{{ auth_key }}"
       state: present
       org_name: "{{ test_org_name }}"
-      net_id: '{{ test_net_id }}'
+      net_name: IntTestNetwork
       type: wireless
       timezone: America/Chicago
     delegate_to: localhost
+    register: created_network
 
   - name: Add access points to network
     cisco.meraki.meraki_device:
