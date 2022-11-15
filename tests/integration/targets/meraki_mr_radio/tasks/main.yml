@@ -16,6 +16,10 @@
     delegate_to: localhost
     register: created_network
 
+  - name: Setting the net_id
+    ansible.builtin.set_fact:
+      created_net_id: '{{ created_network.data.id }}'
+
   - name: Add access points to network
     cisco.meraki.meraki_device:
       auth_key: "{{ auth_key }}"
