@@ -10,7 +10,7 @@
       auth_key: "{{ auth_key }}"
       state: present
       org_name: "{{ test_org_name }}"
-      net_name: IntTestNetwork
+      net_name: IntTestNetworkWireless
       type: wireless
       timezone: America/Chicago
     delegate_to: localhost
@@ -25,7 +25,7 @@
       auth_key: "{{ auth_key }}"
       state: present
       org_name: "{{ test_org_name }}"
-      net_id: '{{ test_net_id }}'
+      net_id: '{{ created_net_id }}'
       serial: "{{ serial_wireless }}"
     delegate_to: localhost
 
@@ -33,7 +33,7 @@
     cisco.meraki.meraki_mr_rf_profile:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
-      net_id: '{{ test_net_id }}'
+      net_id: '{{ created_net_id }}'
       state: present
       name: Test Profile
       band_selection_type: ap
@@ -70,7 +70,7 @@
     cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
-      net_id: '{{ test_net_id }}'
+      net_id: '{{ created_net_id }}'
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
@@ -108,7 +108,7 @@
     cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
-      net_id: '{{ test_net_id }}'
+      net_id: '{{ created_net_id }}'
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
@@ -132,7 +132,7 @@
     cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
-      net_id: '{{ test_net_id }}'
+      net_id: '{{ created_net_id }}'
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
@@ -162,5 +162,5 @@
         auth_key: '{{ auth_key }}'
         state: absent
         org_name: '{{ test_org_name }}'
-        net_id: '{{ test_net_id }}'
+        net_id: '{{ created_net_id }}'
       delegate_to: localhost
