@@ -11,7 +11,8 @@
       org_name: '{{ test_org_name }}'
       net_name: TestNet
       state: present
-      type: appliance
+      type: wireless
+    register: new_net
 
   - name: Set fact new_net
     ansible.builtin.set_fact:
@@ -469,7 +470,6 @@
         org_name: '{{ test_org_name }}'
         net_id: '{{ net }}'
         number: 1
-      delegate_to: localhost
 
     - name: Delete wireless network
       cisco.meraki.meraki_network:
@@ -477,4 +477,3 @@
         state: absent
         org_name: '{{ test_org_name }}'
         net_id: '{{ net }}'
-      delegate_to: localhost
