@@ -14,13 +14,18 @@
       type: wireless
       timezone: America/Chicago
     delegate_to: localhost
+    register: created_network
+
+  - name: Setting the net_id
+    ansible.builtin.set_fact:
+      created_net_id: '{{ created_network.data.id }}'
 
   - name: Add access points to network
     cisco.meraki.meraki_device:
       auth_key: "{{ auth_key }}"
       state: present
       org_name: "{{ test_org_name }}"
-      net_name: IntTestNetworkWireless
+      net_id: '{{ created_net_id }}'
       serial: "{{ serial_wireless }}"
     delegate_to: localhost
 
@@ -28,7 +33,7 @@
     cisco.meraki.meraki_mr_rf_profile:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
-      net_name: IntTestNetworkWireless
+      net_id: '{{ created_net_id }}'
       state: present
       name: Test Profile
       band_selection_type: ap
@@ -65,7 +70,7 @@
     cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
-      net_name: IntTestNetworkWireless
+      net_id: '{{ created_net_id }}'
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
@@ -103,11 +108,11 @@
     cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
-      net_name: IntTestNetworkWireless
+      net_id: '{{ created_net_id }}'
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
-        channel: 40
+        channel: 100
         channel_width: 20
         target_power: 10
       two_four_ghz_settings:
@@ -127,11 +132,11 @@
     cisco.meraki.meraki_mr_radio:
       auth_key: "{{ auth_key }}"
       org_name: "{{ test_org_name }}"
-      net_name: IntTestNetworkWireless
+      net_id: '{{ created_net_id }}'
       state: present
       serial: "{{ serial_wireless }}"
       five_ghz_settings:
-        channel: 40
+        channel: 100
         channel_width: 20
         target_power: 10
       two_four_ghz_settings:
@@ -157,5 +162,5 @@
         auth_key: '{{ auth_key }}'
         state: absent
         org_name: '{{ test_org_name }}'
-        net_name: IntTestNetworkWireless
+        net_id: '{{ created_net_id }}'
       delegate_to: localhost
