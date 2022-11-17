@@ -1,0 +1,2 @@
+bugfixes:
+  - meraki_device - Fix URL for LLDP and CDP lookups 
