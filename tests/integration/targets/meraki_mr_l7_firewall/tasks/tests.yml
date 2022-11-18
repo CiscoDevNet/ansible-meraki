@@ -18,12 +18,21 @@
     ansible.builtin.set_fact:
       net: '{{ new_net.data.id }}'
 
+  - name: Create wireless SSID
+    cisco.meraki.meraki_ssid:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      name: TestSSID
+
   - name: Query firewall rules
     cisco.meraki.meraki_mr_l7_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: query
+      ssid: TestSSID
     register: query
 
   - name: Assert query.data is defined
@@ -52,6 +61,7 @@
       net_id: '{{ net }}'
       state: present
       rules: []
+      ssid: TestSSID
     register: empty_list
 
   - name: Debug query
@@ -70,6 +80,7 @@
       net_id: '{{ net }}'
       state: present
       rules: []
+      ssid: TestSSID
     register: empty_list_idempotent
 
   - name: Debug empty_list_idempotent
@@ -88,6 +99,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: ip_range
           ip_range: 10.11.12.0/24
@@ -109,6 +121,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: ip_range
           ip_range: 10.11.12.0/24
@@ -129,6 +142,7 @@
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
+      ssid: TestSSID
       state: present
       rules:
         - type: ip_range
@@ -146,6 +160,7 @@
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
+      ssid: TestSSID
       state: present
       rules:
         - type: ip_range
@@ -163,6 +178,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: ip_range
           ip_range: 10.11.12.1:23
@@ -183,6 +199,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: ip_range
           ip_range: 10.11.12.0/24
@@ -204,6 +221,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: ip_range
           ip_range: 10.11.12.0/24
@@ -221,6 +239,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: ip_range
           ip_range: 10.11.12.0/24
@@ -237,6 +256,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: application
           application:
@@ -255,6 +275,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: application
           application:
@@ -272,6 +293,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: application
           application:
@@ -285,6 +307,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: application_category
           application:
@@ -305,6 +328,7 @@
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
+      ssid: TestSSID
       state: present
       rules:
         - type: application_category
@@ -323,6 +347,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: application_category
           application:
@@ -339,6 +364,7 @@
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
+      ssid: TestSSID
       state: present
       rules:
         - type: host
@@ -356,6 +382,7 @@
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
       state: present
+      ssid: TestSSID
       rules:
         - type: port
           port: 1234
@@ -371,6 +398,7 @@
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
+      ssid: TestSSID
       state: present
       rules:
         - type: application_category
@@ -400,6 +428,7 @@
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
+      ssid: TestSSID
       state: present
       rules:
         - type: application_category
@@ -416,6 +445,7 @@
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
+      ssid: TestSSID
       state: present
       rules:
         - type: application
@@ -432,6 +462,7 @@
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
+      ssid: TestSSID
       state: present
       rules:
         - type: host
@@ -448,6 +479,7 @@
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
+      ssid: TestSSID
       state: present
       rules:
         - type: port
@@ -469,7 +501,7 @@
         state: absent
         org_name: '{{ test_org_name }}'
         net_id: '{{ net }}'
-        number: 1
+        name: TestSSID
 
     - name: Delete wireless network
       cisco.meraki.meraki_network:
