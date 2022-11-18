@@ -80,12 +80,24 @@ EXAMPLES = r"""
     name: Twitter
   delegate_to: localhost
 
+- name: Create payload template
+  meraki_webhook_payload_template:
+    auth_key: abc12345
+    org_name: YourOrg
+    state: query
+    name: TestTemplate
+    body: Testbody
+    headers:
+        - name: testheader
+          template: testheadertemplate
+  delegate_to: localhost
+
 - name: Delete a configuration template
   meraki_config_template:
     auth_key: abc123
     state: absent
     org_name: YourOrg
-    name: Twitter
+    name: TestTemplate
   delegate_to: localhost
 """
 
@@ -96,10 +108,34 @@ data:
     type: complex
     contains:
         name:
-          description: Name of webhook template.
-          returned: success
-          type: str
-          sample: YourTemplate
+            description:
+                - The name of the template
+            returned: success
+            type: str
+            sample: testTemplate
+        body:
+            description:
+                - The liquid template used for the body of the webhook message.
+            returned: success
+            type: str
+            sample: {"event_type":"{{alertTypeId}}","client_payload":{"text":"{{alertData}}"}}
+        headers:
+            description: List of the liquid templates used with the webhook headers.
+            returned: success
+            type: list
+            contains:
+                name:
+                    description:
+                        - The name of the template
+                    returned: success
+                    type: str
+                    sample: testTemplate
+                template:
+                    description:
+                        - The liquid template for the header
+                    returned: success
+                    type: str
+                    sample: "Bearer {{sharedSecret}}"
 """
 
 from ansible.module_utils.basic import AnsibleModule, json
