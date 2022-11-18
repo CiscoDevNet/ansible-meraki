@@ -1,5 +1,4 @@
 # Test code for the Meraki modules
-
 # Copyright: (c) 2022, Joshua Coronado (@joshuajcoronado) <joshua@coronado.io>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
@@ -222,9 +221,9 @@
       that:
         - 'error_no_body.msg == "template in header must be a string"'
 
-############################################################################
-# Tear down starts here
-############################################################################
+  ############################################################################
+  # Tear down starts here
+  ############################################################################
   always:
 
     - name: Delete wireless network
