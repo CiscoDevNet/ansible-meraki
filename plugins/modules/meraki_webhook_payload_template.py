@@ -261,7 +261,9 @@ def main():
                 meraki.result["data"] = templates[meraki.params["name"]]
             else:
                 meraki.fail_json(
-                    msg=f"Unable to get webhook payload template named: {meraki.params['name']}"
+                    msg="Unable to get webhook payload template named: {0}".format(
+                        meraki.params["name"]
+                    )
                 )
         else:
             meraki.result["data"] = templates
@@ -280,10 +282,14 @@ def main():
             for key in ["name", "template"]:
                 if key not in header:
                     meraki.fail_json(
-                        msg=f"{key} is a required parameter for a header"
+                        msg="{0} is a required parameter for a header".format(
+                            key
+                        )
                     )
                 if not header[key]:
-                    meraki.fail_json(msg=f"{key} in header must be a string")
+                    meraki.fail_json(
+                        msg="{0} in header must be a string".format(key)
+                    )
             headers.append(
                 dict(name=header["name"], template=header["template"])
             )
