@@ -165,6 +165,31 @@ releases:
     - ssid_test_fix.yml
     - sublime-utils.yml
     release_date: '2022-09-12'
+  2.12.0:
+    changes:
+      bugfixes:
+      - Update defaults in documentation for new sanity tests
+      - meraki_device - Fix URL for LLDP and CDP lookups
+      major_changes:
+      - meraki_webhook_payload_template - New module
+    fragments:
+    - 2.15-docs.yml
+    - 2.15-prep.yml
+    - device_lldp.yml
+    - fix-meraki-mr-radio-tests.yml
+    - meraki_ms_switch_pollicy_doc.yml
+    - meraki_webhook_payload_template.yml
+    - warnings-.yml
+    - warnings-meraki_action_batch.yml
+    - warnings-meraki_admin.yml
+    - warnings-meraki_alert.yml
+    - warnings-meraki_config_template.yml
+    - warnings-meraki_device.yml
+    - warnings-meraki_management_interface.yml
+    - warnings-meraki_mr_l3_firewall.yml
+    - warnings-meraki_mr_radio.yml
+    - warnings-meraki_mr_rf_profile.yml
+    release_date: '2022-11-21'
   2.2.0:
     changes:
       bugfixes:

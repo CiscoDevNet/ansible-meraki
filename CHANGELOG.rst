@@ -5,6 +5,20 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.12.0
+=======
+
+Major Changes
+-------------
+
+- meraki_webhook_payload_template - New module
+
+Bugfixes
+--------
+
+- Update defaults in documentation for new sanity tests
+- meraki_device - Fix URL for LLDP and CDP lookups
+
 v2.11.0
 =======
 

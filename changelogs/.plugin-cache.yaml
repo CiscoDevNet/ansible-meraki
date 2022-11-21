@@ -6,6 +6,7 @@ plugins:
   callback: {}
   cliconf: {}
   connection: {}
+  filter: {}
   httpapi: {}
   inventory: {}
   lookup: {}
@@ -210,8 +211,14 @@ plugins:
       name: meraki_webhook
       namespace: ''
       version_added: null
+    meraki_webhook_payload_template:
+      description: Manage webhook payload templates for a network in the Meraki cloud
+      name: meraki_webhook_payload_template
+      namespace: ''
+      version_added: null
   netconf: {}
   shell: {}
   strategy: {}
+  test: {}
   vars: {}
-version: 2.11.0
+version: 2.12.0
