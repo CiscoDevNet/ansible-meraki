@@ -190,6 +190,13 @@ releases:
     - warnings-meraki_mr_radio.yml
     - warnings-meraki_mr_rf_profile.yml
     release_date: '2022-11-21'
+  2.13.0:
+    changes:
+      major_changes:
+      - meraki_mr_l7_firewall - New module
+    fragments:
+    - meraki_mr_l7_firewall.yml
+    release_date: '2022-11-21'
   2.2.0:
     changes:
       bugfixes:

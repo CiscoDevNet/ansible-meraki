@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.13.0
+=======
+
+Major Changes
+-------------
+
+- meraki_mr_l7_firewall - New module
+
 v2.12.0
 =======
 

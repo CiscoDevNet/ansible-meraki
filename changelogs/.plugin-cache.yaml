@@ -51,6 +51,11 @@ plugins:
       name: meraki_mr_l3_firewall
       namespace: ''
       version_added: null
+    meraki_mr_l7_firewall:
+      description: Manage MR access point layer 7 firewalls in the Meraki cloud
+      name: meraki_mr_l7_firewall
+      namespace: ''
+      version_added: null
     meraki_mr_radio:
       description: Manage device radio settings for Meraki wireless networks
       name: meraki_mr_radio
@@ -221,4 +226,4 @@ plugins:
   strategy: {}
   test: {}
   vars: {}
-version: 2.12.0
+version: 2.13.0
