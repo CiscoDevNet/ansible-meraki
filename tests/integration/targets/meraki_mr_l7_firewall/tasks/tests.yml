@@ -14,6 +14,15 @@
       type: wireless
     register: new_net
 
+  - name: Query existing network
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: TestNet
+      state: present
+      type: wireless
+    register: new_net
+
   - name: Set fact new_net
     ansible.builtin.set_fact:
       net: '{{ new_net.data.id }}'
@@ -413,10 +422,10 @@
     ansible.builtin.debug:
       var: multiple_rules
 
-  - name: Assert multiple_rules.data.rules | length == 3
+  - name: Assert multiple_rules.data.rules | length == 2
     ansible.builtin.assert:
       that:
-        - multiple_rules.data.rules | length == 3
+        - multiple_rules.data.rules | length == 2
         - multiple_rules is changed
 
   #########################################
