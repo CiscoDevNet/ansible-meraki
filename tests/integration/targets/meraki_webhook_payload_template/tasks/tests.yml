@@ -1,0 +1,270 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2022, Joshua Coronado (@joshuajcoronado) <joshua@coronado.io>
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- name: Block of tasks
+  block:
+  - name: Create network
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: TestNet
+      state: present
+      type: wireless
+    register: new_net
+
+  - name: Set fact new_net
+    ansible.builtin.set_fact:
+      net: '{{ new_net.data.id }}'
+
+  - name: Query all webhook payload templates
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: query
+    register: query
+
+  - name: Assert query.data is defined
+    ansible.builtin.assert:
+      that:
+        - query.data is defined
+        - query.data | length > 1
+
+  - name: Create payload template with check mode
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      name: TestTemplate
+      body: "a fake body"
+    check_mode: yes
+    register: create_one_check
+
+  - ansible.builtin.debug:
+      var: create_one_check
+
+  - ansible.builtin.assert:
+      that:
+        - create_one_check is changed
+        - create_one_check.data is defined
+
+  - name: Create webhook payload template
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      name: TestTemplate
+      body: "a fake body"
+    register: basic_template
+
+  - name: Debug basic_template
+    ansible.builtin.debug:
+      var: basic_template
+
+  - name: Assert things were changed
+    ansible.builtin.assert:
+      that:
+        - basic_template.changed
+
+  - name: Query basic template
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: query
+      name: TestTemplate
+    register: query
+
+  - name: Debug query
+    ansible.builtin.debug:
+      var: query
+
+  - name: Assert basic template was created
+    ansible.builtin.assert:
+      that:
+        - query.data is defined
+        - not query.changed
+        - query.data.body == "a fake body"
+
+  - name: Update webhook payload template
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      name: TestTemplate
+      body: "a fake body"
+      headers:
+        - name: header1
+          template: "fake header1"
+    register: update_basic_template
+
+  - name: Debug update_basic_template
+    ansible.builtin.debug:
+      var: update_basic_template
+
+  - name: Assert update happened
+    ansible.builtin.assert:
+      that:
+        - update_basic_template.data is defined
+        - update_basic_template.changed
+        - update_basic_template.data.headers | length == 1
+
+  - name: Test idempotency by updating webhook payload template
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      name: TestTemplate
+      body: "a fake body"
+      headers:
+        - name: header1
+          template: "fake header1"
+    register: idempotent_update_basic_template
+
+  - name: Debug update_basic_template
+    ansible.builtin.debug:
+      var: idempotent_update_basic_template
+
+  - name: Assert nothing changed
+    ansible.builtin.assert:
+      that:
+        - not idempotent_update_basic_template.changed
+
+  - name: Delete webhook payload template in check mode
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: absent
+      name: TestTemplate
+    check_mode: yes
+    register: delete_check
+
+  - ansible.builtin.debug:
+      var: delete_check
+
+  - ansible.builtin.assert:
+      that:
+        - delete_check is changed
+
+  - name: Delete basic template
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: absent
+      name: TestTemplate
+    register: delete_template
+
+  - name: Debug delete_template
+    ansible.builtin.debug:
+      var: delete_template
+
+  - name: Assert the thing was deleted and changed
+    ansible.builtin.assert:
+      that:
+        - delete_template.changed
+
+  - name: Delete basic template idempotent
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: absent
+      name: TestTemplate
+    register: idempotent_delete_template
+
+  - name: Debug delete_template
+    ansible.builtin.debug:
+      var: idempotent_delete_template
+
+  - name: Assert nothing was changed
+    ansible.builtin.assert:
+      that:
+        - not idempotent_delete_template.changed
+
+  - name: Query deleted basic template
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: query
+      name: TestTemplate
+    register: deleted_template
+    ignore_errors: true
+
+  - name: Debug deleted_template
+    ansible.builtin.debug:
+      var: deleted_template
+
+  - name: Assert we hit an error
+    ansible.builtin.assert:
+      that:
+        - 'deleted_template.msg == "Unable to get webhook payload template named: TestTemplate"'
+
+  #########################################
+  ##  Tests for argument completeness    ##
+  #########################################
+  - name: Test body check
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      name: TestTemplate
+    register: error_no_body
+    ignore_errors: true
+
+  - name: Assert body is required when creating/updating a template
+    ansible.builtin.assert:
+      that:
+        - 'error_no_body.msg == "body is a required parameter when state is present"'
+
+  - name: Test name check
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+    register: error_no_name
+    ignore_errors: true
+
+  - name: Assert name is required when creating/updating/deleting a template
+    ansible.builtin.assert:
+      that:
+        - 'error_no_name.msg == "name is a required parameter"'
+
+  - name: Test headers args
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      name: Test
+      body: "fake body"
+      headers:
+        - name: test
+    register: header_args
+    ignore_errors: true
+
+  - name: Assert headers args are there
+    ansible.builtin.assert:
+      that:
+        - 'header_args.msg == "template in header must be a string"'
+
+  ############################################################################
+  # Tear down starts here
+  ############################################################################
+  always:
+
+    - name: Delete wireless network
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_id: '{{ net }}'
