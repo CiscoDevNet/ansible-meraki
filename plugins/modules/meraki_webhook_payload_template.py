@@ -181,11 +181,6 @@ def create_template(meraki, net_id, template):
 
 def update_template(meraki, net_id, template, payload):
     changed = False
-    path = meraki.construct_path(
-        "update",
-        net_id=net_id,
-        custom={"template_id": template["payloadTemplateId"]},
-    )
 
     if template["body"] != payload["body"]:
         changed = True
@@ -194,12 +189,23 @@ def update_template(meraki, net_id, template, payload):
         changed = True
 
     if changed:
-        response = meraki.request(
-            path, method="PUT", payload=json.dumps(payload)
-        )
-        if meraki.status != 200:
-            meraki.fail_json(msg="Unable to update webhook payload template")
-        return response, changed
+        meraki.generate_diff(template, payload)
+        if meraki.check_mode:
+            return payload, changed
+        else:
+            path = meraki.construct_path(
+                "update",
+                net_id=net_id,
+                custom={"template_id": template["payloadTemplateId"]},
+            )
+            response = meraki.request(
+                path, method="PUT", payload=json.dumps(payload)
+            )
+            if meraki.status != 200:
+                meraki.fail_json(
+                    msg="Unable to update webhook payload template"
+                )
+            return response, changed
 
     return template, changed
 
