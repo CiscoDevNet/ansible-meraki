@@ -1,0 +1,520 @@
+# Test code for the Meraki modules
+
+# Copyright: (c) 2022, Joshua Coronado (@joshuajcoronado) <joshua@coronado.io>
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- name: Block of tasks
+  block:
+  - name: Create network
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: TestNet
+      state: present
+      type: wireless
+    register: new_net
+
+  - name: Query existing network
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: TestNet
+      state: present
+      type: wireless
+    register: new_net
+
+  - name: Set fact new_net
+    ansible.builtin.set_fact:
+      net: '{{ new_net.data.id }}'
+
+  - name: Create wireless SSID
+    cisco.meraki.meraki_ssid:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      name: TestSSID
+
+  - name: Query firewall rules
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: query
+      ssid: TestSSID
+    register: query
+
+  - name: Assert query.data is defined
+    ansible.builtin.assert:
+      that:
+        - query.data is defined
+
+  - name: Query firewall application categories
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: query
+      categories: true
+    register: query_categories
+
+  - name: Assert query_categories.data is defined
+    ansible.builtin.assert:
+      that:
+        - query_categories.data is defined
+
+  - name: Set firewall rules to empty array
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      rules: []
+      ssid: TestSSID
+    register: empty_list
+
+  - name: Debug query
+    ansible.builtin.debug:
+      var: query
+
+  - name: Assert the rules are empty
+    ansible.builtin.assert:
+      that:
+        - empty_list.data.rules | length == 0
+
+  - name: Set firewall rules to empty array with idempotency
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      rules: []
+      ssid: TestSSID
+    register: empty_list_idempotent
+
+  - name: Debug empty_list_idempotent
+    ansible.builtin.debug:
+      var: empty_list_idempotent
+
+  - name: Assert rules list is still empty
+    ansible.builtin.assert:
+      that:
+        - empty_list_idempotent.data.rules | length == 0
+        - empty_list_idempotent is not changed
+
+  - name: Create firewall rule for IP range in check mode
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: ip_range
+          ip_range: 10.11.12.0/24
+    register: create_ip_range_check
+    check_mode: true
+
+  - name: Debug create_ip_range_check
+    ansible.builtin.debug:
+      var: create_ip_range_check
+
+  - name: Assert create_ip_range_check is changed
+    ansible.builtin.assert:
+      that:
+        - create_ip_range_check is changed
+
+  - name: Create firewall rule for IP range
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: ip_range
+          ip_range: 10.11.12.0/24
+    register: create_ip_range
+
+  - name: Debug create_ip_range
+    ansible.builtin.debug:
+      var: create_ip_range
+
+  - name: Assert firewalls rules have a single rule
+    ansible.builtin.assert:
+      that:
+        - create_ip_range is changed
+        - create_ip_range.data.rules | length == 1
+
+  - name: Create firewall rule for IP range with idempotency with check mode
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      ssid: TestSSID
+      state: present
+      rules:
+        - type: ip_range
+          ip_range: 10.11.12.0/24
+    register: create_ip_range_idempotent_check
+    check_mode: true
+
+  - name: Assert create_ip_range_idempotent_check is not changed
+    ansible.builtin.assert:
+      that:
+        - create_ip_range_idempotent_check is not changed
+
+  - name: Create firewall rule for IP range with idempotency
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      ssid: TestSSID
+      state: present
+      rules:
+        - type: ip_range
+          ip_range: 10.11.12.0/24
+    register: create_ip_range_idempotent
+
+  - name: Assert create_ip_range_idempotent is not changed
+    ansible.builtin.assert:
+      that:
+        - create_ip_range_idempotent is not changed
+
+  - name: Create firewall rule for IP and port
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: ip_range
+          ip_range: 10.11.12.1:23
+    register: create_ip_range_port
+
+  - name: Debug create_ip_range_port
+    ansible.builtin.debug:
+      var: create_ip_range_port
+
+  - name: Assert create_ip_range_port is changed
+    ansible.builtin.assert:
+      that:
+        - create_ip_range_port is changed
+
+  - name: Create firewall rule for IP range
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: ip_range
+          ip_range: 10.11.12.0/24
+    register: create_ip_range
+
+  - name: Debug create_ip_range
+    ansible.builtin.debug:
+      var: create_ip_range
+
+  - name: Assert create_ip_range has changed and has a rule
+    ansible.builtin.assert:
+      that:
+        - create_ip_range is changed
+        - create_ip_range.data.rules | length == 1
+
+  - name: Create firewall rule for IP range with idempotency with check mode
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: ip_range
+          ip_range: 10.11.12.0/24
+    register: create_ip_range_idempotent_check
+    check_mode: true
+
+  - name: Assert create_ip_range_idempotent_check is not changed
+    ansible.builtin.assert:
+      that:
+        - create_ip_range_idempotent_check is not changed
+
+  - name: Create firewall rule for IP range with idempotency
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: ip_range
+          ip_range: 10.11.12.0/24
+    register: create_ip_range_idempotent
+
+  - name: Assert create_ip_range_idempotent is not changed
+    ansible.builtin.assert:
+      that:
+        - create_ip_range_idempotent is not changed
+
+  - name: Create firewall rule for application
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: application
+          application:
+            name: facebook
+    register: application_rule
+
+  - name: Assert application_rule is changed
+    ansible.builtin.assert:
+      that:
+        - application_rule is changed
+        - application_rule.data.rules is defined
+
+  - name: Create firewall rule for application via ID
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: application
+          application:
+            id: meraki:layer7/application/205
+    register: application_rule_id
+
+  - name: Assert application_rule_id is changed
+    ansible.builtin.assert:
+      that:
+        - application_rule_id is changed
+
+  - name: Create firewall rule for invalid application
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: application
+          application:
+            name: ansible
+    register: application_rule_invalid
+    ignore_errors: true
+
+  - name: Create firewall rule for application category
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: application_category
+          application:
+            name: Advertising
+    register: application_category_rule
+
+  - name: Debug application_category_rule
+    ansible.builtin.debug:
+      var: application_category_rule
+
+  - name: Assert application_category_rule is changed
+    ansible.builtin.assert:
+      that:
+        - application_category_rule is changed
+
+  - name: Create firewall rule for application category with ID and conflict
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      ssid: TestSSID
+      state: present
+      rules:
+        - type: application_category
+          application:
+            id: meraki:layer7/category/27
+    register: application_category_rule_id_conflict
+
+  - name: Assert application_category_rule_id_conflict is not changed
+    ansible.builtin.assert:
+      that:
+        - application_category_rule_id_conflict is not changed
+
+  - name: Create firewall rule for application category with ID
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: application_category
+          application:
+            id: meraki:layer7/category/24
+    register: application_category_rule_id
+
+  - name: Assert application_category_rule_id is changed
+    ansible.builtin.assert:
+      that:
+        - application_category_rule_id is changed
+
+  - name: Create firewall rule for host
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      ssid: TestSSID
+      state: present
+      rules:
+        - type: host
+          host: asdf.com
+    register: host_rule
+
+  - name: Assert host_rule is changed
+    ansible.builtin.assert:
+      that:
+        - host_rule is changed
+
+  - name: Create firewall rule for port
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      ssid: TestSSID
+      rules:
+        - type: port
+          port: 1234
+    register: port_rule
+
+  - name: Assert port_rule is changed
+    ansible.builtin.assert:
+      that:
+        - port_rule is changed
+
+  - name: Create multiple firewall rules
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      ssid: TestSSID
+      state: present
+      rules:
+        - type: application_category
+          application:
+            id: meraki:layer7/category/27
+        - policy: deny
+          type: port
+          port: 8080
+    register: multiple_rules
+
+  - name: Debug multiple_rules
+    ansible.builtin.debug:
+      var: multiple_rules
+
+  - name: Assert multiple_rules.data.rules | length == 2
+    ansible.builtin.assert:
+      that:
+        - multiple_rules.data.rules | length == 2
+        - multiple_rules is changed
+
+  #########################################
+  ##  Tests for argument completeness    ##
+  #########################################
+
+  - name: Test application_category incomplete arguments
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      ssid: TestSSID
+      state: present
+      rules:
+        - type: application_category
+    register: error_app_cat
+    ignore_errors: true
+
+  - name: Assert application argument is required when type is application_category
+    ansible.builtin.assert:
+      that:
+        - 'error_app_cat.msg == "application argument is required when type is application_category."'
+
+  - name: Test application incomplete arguments
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      ssid: TestSSID
+      state: present
+      rules:
+        - type: application
+    register: error_app_cat
+    ignore_errors: true
+
+  - name: Assert application argument is required when type is application
+    ansible.builtin.assert:
+      that:
+        - 'error_app_cat.msg == "application argument is required when type is application."'
+
+  - name: Test host incomplete arguments
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      ssid: TestSSID
+      state: present
+      rules:
+        - type: host
+    register: error_app_cat
+    ignore_errors: true
+
+  - name: Assert host argument is required when type is host
+    ansible.builtin.assert:
+      that:
+        - 'error_app_cat.msg == "host argument is required when type is host."'
+
+  - name: Test port incomplete arguments
+    cisco.meraki.meraki_mr_l7_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      ssid: TestSSID
+      state: present
+      rules:
+        - type: port
+    register: error_app_cat
+    ignore_errors: true
+
+  - name: Assert port argument is required when type is port
+    ansible.builtin.assert:
+      that:
+        - 'error_app_cat.msg == "port argument is required when type is port."'
+
+############################################################################
+# Tear down starts here
+############################################################################
+  always:
+    - name: Delete wireless SSID
+      cisco.meraki.meraki_ssid:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_id: '{{ net }}'
+        name: TestSSID
+
+    - name: Delete wireless network
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_id: '{{ net }}'
