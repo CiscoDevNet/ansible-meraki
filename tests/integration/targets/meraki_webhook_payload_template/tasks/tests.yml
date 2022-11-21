@@ -32,7 +32,7 @@
         - query.data | length > 1
 
   - name: Create webhook payload template
-    cisco.meraki.meraki_mr_l7_firewall:
+    cisco.meraki.meraki_webhook_payload_template:
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
@@ -71,7 +71,7 @@
         - query.data.body == "a fake body"
 
   - name: Update webhook payload template
-    cisco.meraki.meraki_mr_l7_firewall:
+    cisco.meraki.meraki_webhook_payload_template:
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'
@@ -95,7 +95,7 @@
         - update_basic_template.data.headers | length == 1
 
   - name: Test idempotency by updating webhook payload template
-    cisco.meraki.meraki_mr_l7_firewall:
+    cisco.meraki.meraki_webhook_payload_template:
       auth_key: '{{ auth_key }}'
       org_name: '{{ test_org_name }}'
       net_id: '{{ net }}'

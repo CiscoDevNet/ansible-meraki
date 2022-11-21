@@ -317,7 +317,7 @@ def main():
                 )
                 meraki.result["changed"] = True
     elif meraki.params["state"] == "absent":
-        if meraki.params.get("name") in templates:
+        if meraki.params["name"]in templates:
             meraki.result["changed"] = True
 
             if meraki.check_mode:
