@@ -201,7 +201,7 @@
   - name: Assert name is required when creating/updating/deleting a template
     ansible.builtin.assert:
       that:
-        - 'error_no_body.msg == "name is a required parameter"'
+        - 'error_no_name.msg == "name is a required parameter"'
 
   - name: Test headers args
     cisco.meraki.meraki_webhook_payload_template:
@@ -219,7 +219,7 @@
   - name: Assert headers args are there
     ansible.builtin.assert:
       that:
-        - 'error_no_body.msg == "template in header must be a string"'
+        - 'header_args.msg == "template in header must be a string"'
 
   ############################################################################
   # Tear down starts here
