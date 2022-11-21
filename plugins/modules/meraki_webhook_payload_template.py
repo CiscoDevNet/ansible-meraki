@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright: (c) 2012, Joshua Coronado (@joshuajcoronado) <joshua@coronado.io>
+# Copyright: (c) 2022, Joshua Coronado (@joshuajcoronado) <joshua@coronado.io>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -153,31 +153,40 @@ def get_webhook_payload_templates(meraki, net_id):
 
 
 def delete_template(meraki, net_id, template_id):
-    path = meraki.construct_path(
-        "update", net_id=net_id, custom={"template_id": template_id}
-    )
-    response = meraki.request(path, method="DELETE")
-    if meraki.status != 204:
-        meraki.fail_json(msg="Unable to remove webhook payload templates")
-    return response
+    changed = True
+    if meraki.check_mode:
+        return {}, changed
+    else:
+        path = meraki.construct_path(
+            "update", net_id=net_id, custom={"template_id": template_id}
+        )
+        response = meraki.request(path, method="DELETE")
+        if meraki.status != 204:
+            meraki.fail_json(msg="Unable to remove webhook payload templates")
+        return response, changed
 
 
 def create_template(meraki, net_id, template):
-    path = meraki.construct_path("get_all", net_id=net_id)
-    response = meraki.request(path, "POST", payload=json.dumps(template))
-    if meraki.status != 201:
-        meraki.fail_json(msg="Unable to create webhook payload template")
-    return response
+    changed = True
+
+    if meraki.check_mode:
+        return template, changed
+    else:
+        path = meraki.construct_path("get_all", net_id=net_id)
+        response = meraki.request(path, "POST", payload=json.dumps(template))
+        if meraki.status != 201:
+            meraki.fail_json(msg="Unable to create webhook payload template")
+        return response, changed
 
 
 def update_template(meraki, net_id, template, payload):
-
+    changed = False
     path = meraki.construct_path(
         "update",
         net_id=net_id,
         custom={"template_id": template["payloadTemplateId"]},
     )
-    changed = False
+
     if template["body"] != payload["body"]:
         changed = True
 
@@ -276,6 +285,7 @@ def main():
             meraki.fail_json(
                 msg="body is a required parameter when state is present"
             )
+
         headers = []
 
         for header in meraki.params["headers"]:
@@ -300,34 +310,29 @@ def main():
             "headers": meraki.params["headers"],
         }
 
-        if meraki.check_mode:
-            meraki.result["data"] = payload
-            meraki.result["changed"] = False
+        if meraki.params["name"] in templates:
+            (
+                meraki.result["data"],
+                meraki.result["changed"],
+            ) = update_template(
+                meraki, net_id, templates[meraki.params["name"]], payload
+            )
         else:
-            if meraki.params["name"] in templates:
-                (
-                    meraki.result["data"],
-                    meraki.result["changed"],
-                ) = update_template(
-                    meraki, net_id, templates[meraki.params["name"]], payload
-                )
-            else:
-                meraki.result["data"] = create_template(
-                    meraki, net_id, payload
-                )
-                meraki.result["changed"] = True
+            (
+                meraki.result["data"],
+                meraki.result["changed"],
+            ) = create_template(meraki, net_id, payload)
+
     elif meraki.params["state"] == "absent":
         if meraki.params["name"] in templates:
-            meraki.result["changed"] = True
-
-            if meraki.check_mode:
-                meraki.result["data"] = {}
-            else:
-                meraki.result["data"] = delete_template(
-                    meraki,
-                    net_id,
-                    templates[meraki.params["name"]]["payloadTemplateId"],
-                )
+            (
+                meraki.result["data"],
+                meraki.result["changed"],
+            ) = delete_template(
+                meraki,
+                net_id,
+                templates[meraki.params["name"]]["payloadTemplateId"],
+            )
         else:
             meraki.result["changed"] = False
             meraki.result["data"] = {}

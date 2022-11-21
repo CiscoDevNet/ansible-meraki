@@ -31,6 +31,25 @@
         - query.data is defined
         - query.data | length > 1
 
+  - name: Create payload template with check mode
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      name: TestTemplate
+      body: "a fake body"
+    check_mode: yes
+    register: create_one_check
+
+  - ansible.builtin.debug:
+      var: create_one_check
+
+  - ansible.builtin.assert:
+      that:
+        - create_one_check is changed
+        - create_one_check.data is defined
+
   - name: Create webhook payload template
     cisco.meraki.meraki_webhook_payload_template:
       auth_key: '{{ auth_key }}'
@@ -115,6 +134,23 @@
     ansible.builtin.assert:
       that:
         - not idempotent_update_basic_template.changed
+
+  - name: Delete webhook payload template in check mode
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: absent
+      name: TestTemplate
+    check_mode: yes
+    register: delete_check
+
+  - ansible.builtin.debug:
+      var: delete_check
+
+  - ansible.builtin.assert:
+      that:
+        - delete_check is changed
 
   - name: Delete basic template
     cisco.meraki.meraki_webhook_payload_template:
