@@ -314,7 +314,9 @@ def main():
                 path = meraki.construct_path('update', net_id=net_id, custom={'hookid': webhook_id})
                 response = meraki.request(path, method='PUT', payload=json.dumps(payload))
                 if meraki.status == 200:
-                    meraki.generate_diff(original, response)
+                    # Not all fields are included so it needs to be checked to avoid comparing same thing
+                    if meraki.is_update_required(original, response):
+                        meraki.generate_diff(original, response)
                     sanitize_no_log_values(meraki)
                     meraki.result['data'] = response
                     meraki.result['changed'] = True
