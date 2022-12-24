@@ -92,14 +92,14 @@
         - query_one_id.data is defined
 
   - name: Create webhook payload template
-  cisco.meraki.meraki_webhook_payload_template:
-    auth_key: '{{ auth_key }}'
-    org_name: '{{ test_org_name }}'
-    net_id: '{{ net }}'
-    state: present
-    name: TestTemplate
-    body: "a fake body"
-  register: basic_template
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net }}'
+      state: present
+      name: TestTemplate
+      body: "a fake body"
+    register: basic_template
 
   - name: Update webhook with check mode
     meraki_webhook:
