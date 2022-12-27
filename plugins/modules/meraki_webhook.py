@@ -176,7 +176,7 @@ data:
           description: The payload template used when posting data to the HTTP server.
           returned: success
           type: str
-          sample: 
+          sample:
             payloadTemplateId: wpt_00001
             name: Meraki (included)
 """
