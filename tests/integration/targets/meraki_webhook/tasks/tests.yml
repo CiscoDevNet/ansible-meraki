@@ -91,16 +91,6 @@
       that:
         - query_one_id.data is defined
 
-  - name: Create webhook payload template
-    cisco.meraki.meraki_webhook_payload_template:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_id: '{{ net }}'
-      state: present
-      name: TestTemplate
-      body: "a fake body"
-    register: basic_template
-
   - name: Update webhook with check mode
     meraki_webhook:
       auth_key: '{{auth_key}}'
@@ -177,6 +167,58 @@
   #       - update_id is changed
   #       - update_id.data is defined
   #
+
+  - name: Create webhook payload template for a webhook
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      state: present
+      name: TestPayloadTemplate
+      body: "a fake body"
+    register: payload_template
+
+  - name: Debug payload_template
+    ansible.builtin.debug:
+      var: payload_template
+
+  - name: Create webhook with a payload template
+    meraki_webhook:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      payload_template_name: TestPayloadTemplate
+      name: Test_Hook_with_template
+      url: https://webhook.site/8eb5b76f-b167
+      shared_secret: shhhdonttellanyone
+    register: webhook_with_template
+
+  - debug:
+      var: webhook_with_template
+
+  - assert:
+      that:
+        - webhook_with_template is changed
+        - webhook_with_template.data is defined
+        - webhook_with_template.data.payload_template.name == "TestPayloadTemplate"
+
+  - name: Delete webhook with payload template
+    meraki_webhook:
+      auth_key: '{{auth_key}}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      name: Test_Hook_with_template
+    register: delete_hook_with_template
+
+  - debug:
+      var: delete_hook_with_template
+
+  - assert:
+      that:
+        - delete_hook_with_template is changed
+
   - name: Create test webhook
     meraki_webhook:
       auth_key: '{{auth_key}}'
@@ -276,6 +318,14 @@
   # Tear down starts here
   #############################################################################
   always:
+  - name: Delete webhook payload template for a webhook
+    cisco.meraki.meraki_webhook_payload_template:
+      auth_key: '{{auth_key}}'
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+      state: absent
+      name: TestPayloadTemplate
+
   - name: Delete test network
     meraki_network:
       auth_key: '{{auth_key}}'
