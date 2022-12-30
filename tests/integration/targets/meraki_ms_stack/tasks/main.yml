@@ -10,7 +10,7 @@
       auth_key: '{{ auth_key }}'
       state: present
       org_name: '{{ test_org_name }}'
-      net_name: ' {{ test_switch_net_name }}'
+      net_name: '{{ test_switch_net_name }}'
       type: switch
       timezone: America/Chicago
     delegate_to: localhost
@@ -35,11 +35,11 @@
       - "QBSB-D75G-PXCG"
 
   - name: Create new stack
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: present
       org_name: '{{ test_org_name }}'
-      net_name: ' {{ test_switch_net_name }}'
+      net_name: '{{ test_switch_net_name }}'
       name: Test stack
       serials:
         - "QBSB-BPR6-PRER"
@@ -61,11 +61,11 @@
         - create is changed
 
   - name: Add switch to stack
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: present
       org_name: '{{ test_org_name }}'
-      net_name: ' {{ test_switch_net_name }}'
+      net_name: '{{ test_switch_net_name }}'
       stack_id: '{{ stack_id }}'
       serials:
         - "QBSB-D75G-PXCG"
@@ -79,11 +79,11 @@
         - add_stack is changed
 
   - name: Add switch to stack idempotent
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: present
       org_name: '{{ test_org_name }}'
-      net_name: ' {{ test_switch_net_name }}'
+      net_name: '{{ test_switch_net_name }}'
       stack_id: '{{ stack_id }}'
       serials:
         - "QBSB-D75G-PXCG"
@@ -97,11 +97,11 @@
         - add_stack_idempotent is not changed
 
   - name: Remove switch from stack
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: absent
       org_name: '{{ test_org_name }}'
-      net_name: ' {{ test_switch_net_name }}'
+      net_name: '{{ test_switch_net_name }}'
       stack_id: '{{ stack_id }}'
       serials:
         - "QBSB-D75G-PXCG"
@@ -119,11 +119,11 @@
         - remove_from_stack is changed
 
   - name: Remove switch from stack idempotent
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: absent
       org_name: '{{ test_org_name }}'
-      net_name: ' {{ test_switch_net_name }}'
+      net_name: '{{ test_switch_net_name }}'
       stack_id: '{{ stack_id }}'
       serials:
         - "QBSB-D75G-PXCG"
@@ -141,11 +141,11 @@
         - remove_from_stack_idempotent is not changed
 
   - name: Query all stacks in the network
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: query
       org_name: '{{ test_org_name }}'
-      net_name: ' {{ test_switch_net_name }}'
+      net_name: '{{ test_switch_net_name }}'
     register: query_all
 
   - name: Debug query_all
@@ -159,11 +159,11 @@
         - query_all is not changed
 
   - name: Query one stack
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: query
       org_name: '{{ test_org_name }}'
-      net_name: ' {{ test_switch_net_name }}'
+      net_name: '{{ test_switch_net_name }}'
       stack_id: '{{ stack_id }}'
     register: query_one
 
@@ -178,11 +178,11 @@
         - query_one is not changed
 
   - name: Query one stack using name
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: query
       org_name: '{{ test_org_name }}'
-      net_name: ' {{ test_switch_net_name }}'
+      net_name: '{{ test_switch_net_name }}'
       name: Test stack
     register: query_one_name
 
@@ -198,11 +198,11 @@
 
   always:
     - name: Delete stack
-      meraki_switch_stack:
+      cisco.meraki.meraki_ms_stack:
         auth_key: '{{ auth_key }}'
         state: absent
         org_name: '{{ test_org_name }}'
-        net_name: ' {{ test_switch_net_name }}'
+        net_name: '{{ test_switch_net_name }}'
         stack_id: '{{ stack_id }}'
       register: delete
 
@@ -211,5 +211,5 @@
         auth_key: '{{ auth_key }}'
         state: absent
         org_name: '{{ test_org_name }}'
-        net_name: ' {{ test_switch_net_name }}'
+        net_name: '{{ test_switch_net_name }}'
       delegate_to: localhost
