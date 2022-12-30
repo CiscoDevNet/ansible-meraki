@@ -3,12 +3,13 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
+- name: Block of tests
+  block:
   - name: Create network with type switch
-    meraki_network:
+    cisco.meraki.meraki_network:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: IntTestNetworkSwitch
       type: switch
       timezone: America/Chicago
@@ -16,33 +17,36 @@
     register: create_net_switch
 
   - name: Claim a device into a network
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
       net_name: IntTestNetworkSwitch
       serial: '{{ serial_switch_l3 }}'
       state: present
     delegate_to: localhost
 
   - name: Query all l3 interfaces
-    meraki_ms_l3_interface:
+    cisco.meraki.meraki_ms_l3_interface:
       auth_key: '{{ auth_key }}'
       state: query
       serial: '{{ serial_switch_l3 }}'
     delegate_to: localhost
     register: query_all
 
-  - set_fact:
+  - name: Set fact interface_id_1
+    ansible.builtin.set_fact:
       interface_id_1: '{{query_all.data.1.interface_id}}'
-    ignore_errors: true
+    failed_when: false
+    changed_when: false
 
-  - assert:
+  - name: Assert query_all
+    ansible.builtin.assert:
       that:
         - query_all.data is defined
         - query_all.data | length > 0
 
   - name: Query one l3 interface
-    meraki_ms_l3_interface:
+    cisco.meraki.meraki_ms_l3_interface:
       auth_key: '{{ auth_key }}'
       state: query
       serial: '{{ serial_switch_l3 }}'
@@ -50,12 +54,13 @@
     delegate_to: localhost
     register: query_one
 
-  - assert:
+  - name: Assert query_one
+    ansible.builtin.assert:
       that:
         - query_one.data is defined
 
   - name: Create l3 interface in check mode
-    meraki_ms_l3_interface:
+    cisco.meraki.meraki_ms_l3_interface:
       auth_key: '{{ auth_key }}'
       state: present
       serial: '{{ serial_switch_l3 }}'
@@ -73,13 +78,14 @@
     check_mode: true
     register: create_check
 
-  - assert:
+  - name: Assert create_check
+    ansible.builtin.assert:
       that:
         - create_check.data is defined
         - create_check is changed
 
   - name: Create l3 interface
-    meraki_ms_l3_interface:
+    cisco.meraki.meraki_ms_l3_interface:
       auth_key: '{{ auth_key }}'
       state: present
       serial: '{{ serial_switch_l3 }}'
@@ -96,16 +102,18 @@
     delegate_to: localhost
     register: create
 
-  - set_fact:
-      interface_id_1: '{{create.data.interface_id}}'
+  - name: Set fact interface_id_1
+    ansible.builtin.set_fact:
+      interface_id_1: '{{ create.data.interface_id }}'
 
-  - assert:
+  - name: Assert create
+    ansible.builtin.assert:
       that:
         - create.data is defined
         - create is changed
 
   - name: Update l3 interface with check mode
-    meraki_ms_l3_interface:
+    cisco.meraki.meraki_ms_l3_interface:
       auth_key: '{{ auth_key }}'
       state: present
       serial: '{{ serial_switch_l3 }}'
@@ -122,13 +130,14 @@
     register: update_check
     check_mode: true
 
-  - assert:
+  - name: Assert update_check
+    ansible.builtin.assert:
       that:
         - update_check.data is defined
         - update_check is changed
 
   - name: Update l3 interface
-    meraki_ms_l3_interface:
+    cisco.meraki.meraki_ms_l3_interface:
       auth_key: '{{ auth_key }}'
       state: present
       serial: '{{ serial_switch_l3 }}'
@@ -144,13 +153,14 @@
     delegate_to: localhost
     register: update
 
-  - assert:
+  - name: Assert update
+    ansible.builtin.assert:
       that:
         - update.data is defined
         - update is changed
 
   - name: Update l3 interface idempotent
-    meraki_ms_l3_interface:
+    cisco.meraki.meraki_ms_l3_interface:
       auth_key: '{{ auth_key }}'
       state: present
       serial: '{{ serial_switch_l3 }}'
@@ -166,12 +176,13 @@
     delegate_to: localhost
     register: update_idempotent
 
-  - assert:
+  - name: Assert update_idempotent
+    ansible.builtin.assert:
       that:
         update_idempotent is not changed
 
   - name: Update l3 interface idempotent with check mode
-    meraki_ms_l3_interface:
+    cisco.meraki.meraki_ms_l3_interface:
       auth_key: '{{ auth_key }}'
       state: present
       serial: '{{ serial_switch_l3 }}'
@@ -188,7 +199,8 @@
     register: update_idempotent_check
     check_mode: true
 
-  - assert:
+  - name: Assert update_idempotent_check
+    ansible.builtin.assert:
       that:
         update_idempotent_check is not changed
 
@@ -198,39 +210,41 @@
 #############################################################################
 
   always:
-  - name: Delete l3 interface with check mode
-    meraki_ms_l3_interface:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      serial: '{{ serial_switch_l3 }}'
-      interface_id: '{{ item }}'
-    delegate_to: localhost
-    check_mode: true
-    register: delete_check
-    loop:
-      - '{{interface_id_1}}'
+    - name: Delete l3 interface with check mode
+      cisco.meraki.meraki_ms_l3_interface:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        serial: '{{ serial_switch_l3 }}'
+        interface_id: '{{ item }}'
+      delegate_to: localhost
+      check_mode: true
+      register: delete_check
+      loop:
+        - '{{ interface_id_1 }}'
 
-  - assert:
-      that:
-        - delete_check is changed
+    - name: Assert delete_check
+      ansible.builtin.assert:
+        that:
+          - delete_check is changed
 
-  - name: Delete l3 interface
-    meraki_ms_l3_interface:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      serial: '{{ serial_switch_l3 }}'
-      interface_id: '{{ interface_id_1 }}'
-    delegate_to: localhost
-    register: delete
+    - name: Delete l3 interface
+      cisco.meraki.meraki_ms_l3_interface:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        serial: '{{ serial_switch_l3 }}'
+        interface_id: '{{ interface_id_1 }}'
+      delegate_to: localhost
+      register: delete
 
-  - assert:
-      that:
-        - delete is changed
+    - name: Assert delete
+      ansible.builtin.assert:
+        that:
+          - delete is changed
 
   # - name: Delete network
   #   meraki_network:
   #     auth_key: '{{ auth_key }}'
   #     state: absent
-  #     org_name: '{{test_org_name}}'
+  #     org_name: '{{ test_org_name }}'
   #     net_name: IntTestNetworkSwitch
   #   delegate_to: localhost
