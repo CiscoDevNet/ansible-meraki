@@ -3,12 +3,13 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
+- name: Block of tests
+  block:
   - name: Create network with type switch
-    meraki_network:
+    cisco.meraki.meraki_network:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: IntTestNetworkSwitch
       type: switch
       timezone: America/Chicago
@@ -16,41 +17,41 @@
     register: create_net_switch
 
   - name: Claim a device into a network
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
       net_name: IntTestNetworkSwitch
-      serial: '{{serial_switch_l3}}'
+      serial: '{{ serial_switch_l3 }}'
       state: present
     delegate_to: localhost
 
   - name: Query OSPF settings
-    meraki_ms_ospf:
+    cisco.meraki.meraki_ms_ospf:
       auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: IntTestNetworkSwitch
       state: query
     delegate_to: localhost
     register: query_all
 
-
-  - assert:
+  - name: Assert query_all
+    ansible.builtin.assert:
       that:
         - query_all.data is defined
 
   - name: Enable OSPF with check mode
-    meraki_ms_ospf:
+    cisco.meraki.meraki_ms_ospf:
       auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: IntTestNetworkSwitch
       state: present
       enabled: true
       hello_timer: 20
       dead_timer: 60
       areas:
-        - area_id: 0
-          area_name: Backbone
-          area_type: normal
+        # - area_id: 0
+        #   area_name: Backbone
+        #   area_type: false rmal
         - area_id: 1
           area_name: Office
           area_type: nssa
@@ -61,23 +62,24 @@
     check_mode: true
     register: enable_check_mode
 
-  - assert:
+  - name: Assert enable_check_mode
+    ansible.builtin.assert:
       that:
         - enable_check_mode.data is defined
 
   - name: Enable OSPF
-    meraki_ms_ospf:
+    cisco.meraki.meraki_ms_ospf:
       auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: IntTestNetworkSwitch
       state: present
       enabled: true
       hello_timer: 20
       dead_timer: 60
       areas:
-        - area_id: 0
-          area_name: Backbone
-          area_type: normal
+        # - area_id: 0
+        #   area_name: Backbone
+        #   area_type: false rmal
         - area_id: 1
           area_name: Office
           area_type: nssa
@@ -87,23 +89,24 @@
         passphrase: 'secretpass'
     register: enable
 
-  - assert:
+  - name: Assert enable
+    ansible.builtin.assert:
       that:
         - enable.data is defined
 
   - name: Enable OSPF with idempotency
-    meraki_ms_ospf:
+    cisco.meraki.meraki_ms_ospf:
       auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: IntTestNetworkSwitch
       state: present
       enabled: true
       hello_timer: 20
       dead_timer: 60
       areas:
-        - area_id: 0
-          area_name: Backbone
-          area_type: normal
+        # - area_id: 0
+        #   area_name: Backbone
+        #   area_type: false rmal
         - area_id: 1
           area_name: Office
           area_type: nssa
@@ -114,10 +117,12 @@
     delegate_to: localhost
     register: enable_ospf_idempotent
 
-  - debug:
+  - name: Debug enable_ospf_idempotent
+    ansible.builtin.debug:
       var: enable_ospf_idempotent
 
-  - assert:
+  - name: Assert enable_ospf_idempotent
+    ansible.builtin.assert:
       that:
         - enable_ospf_idempotent is not changed
         - enable_ospf_idempotent.data is defined
@@ -131,6 +136,6 @@
   #   meraki_network:
   #     auth_key: '{{ auth_key }}'
   #     state: absent
-  #     org_name: '{{test_org_name}}'
+  #     org_name: '{{ test_org_name }}'
   #     net_name: IntTestNetworkSwitch
   #   delegate_to: localhost
