@@ -49,9 +49,9 @@
       hello_timer: 20
       dead_timer: 60
       areas:
-        # - area_id: 0
-        #   area_name: Backbone
-        #   area_type: false rmal
+        - area_id: 0
+          area_name: Backbone
+          area_type: normal
         - area_id: 1
           area_name: Office
           area_type: nssa
@@ -77,9 +77,9 @@
       hello_timer: 20
       dead_timer: 60
       areas:
-        # - area_id: 0
-        #   area_name: Backbone
-        #   area_type: false rmal
+        - area_id: 0
+          area_name: Backbone
+          area_type: normal
         - area_id: 1
           area_name: Office
           area_type: nssa
@@ -104,9 +104,9 @@
       hello_timer: 20
       dead_timer: 60
       areas:
-        # - area_id: 0
-        #   area_name: Backbone
-        #   area_type: false rmal
+        - area_id: 0
+          area_name: Backbone
+          area_type: normal
         - area_id: 1
           area_name: Office
           area_type: nssa
