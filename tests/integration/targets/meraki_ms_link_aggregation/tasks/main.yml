@@ -3,122 +3,128 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
+- name: Block of tests
+  block:
   - name: Test an API key is provided
-    fail:
+    ansible.builtin.fail:
       msg: Please define an API key
     when: auth_key is not defined
 
   - name: Create test network
-    meraki_network:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
       type: switch
     register: test_net
 
   - name: Add device to network
-    meraki_device:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-      serial: '{{serial_switch}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
+      serial: '{{ serial_switch }}'
     delegate_to: localhost
 
   - name: Create LAG
-    meraki_ms_link_aggregation:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_ms_link_aggregation:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
       switch_ports:
-        - serial: '{{serial_switch}}'
+        - serial: '{{ serial_switch }}'
           port_id: "1"
-        - serial: '{{serial_switch}}'
+        - serial: '{{ serial_switch }}'
           port_id: "2"
     delegate_to: localhost
     register: create_ports
 
-  - debug:
+  - name: Debug create_ports
+    ansible.builtin.debug:
       var: create_ports
 
-  - set_fact:
-      lag_id: '{{create_ports.data.id}}'
+  - name: Set fact create_ports
+    ansible.builtin.set_fact:
+      lag_id: '{{ create_ports.data.id }}'
 
   - name: Update LAG
-    meraki_ms_link_aggregation:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_ms_link_aggregation:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-      lag_id: '{{lag_id}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
+      lag_id: '{{ lag_id }}'
       switch_ports:
-        - serial: '{{serial_switch}}'
+        - serial: '{{ serial_switch }}'
           port_id: "1"
-        - serial: '{{serial_switch}}'
+        - serial: '{{ serial_switch }}'
           port_id: "2"
-        - serial: '{{serial_switch}}'
+        - serial: '{{ serial_switch }}'
           port_id: "3"
-        - serial: '{{serial_switch}}'
+        - serial: '{{ serial_switch }}'
           port_id: "4"
     delegate_to: localhost
     register: update_ports
 
-  - assert:
+  - name: Assert update_ports
+    ansible.builtin.assert:
       that:
         - update_ports is changed
 
   - name: Update LAG with idempotency
-    meraki_ms_link_aggregation:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_ms_link_aggregation:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-      lag_id: '{{lag_id}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
+      lag_id: '{{ lag_id }}'
       switch_ports:
-        - serial: '{{serial_switch}}'
+        - serial: '{{ serial_switch }}'
           port_id: "1"
-        - serial: '{{serial_switch}}'
+        - serial: '{{ serial_switch }}'
           port_id: "2"
-        - serial: '{{serial_switch}}'
+        - serial: '{{ serial_switch }}'
           port_id: "3"
-        - serial: '{{serial_switch}}'
+        - serial: '{{ serial_switch }}'
           port_id: "4"
     delegate_to: localhost
     register: update_ports_idempotent
 
-  - assert:
+  - name: Assert update_ports_idempotent
+    ansible.builtin.assert:
       that:
         - update_ports_idempotent is not changed
 
   - name: Query all LAGs
-    meraki_ms_link_aggregation:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_ms_link_aggregation:
+      auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
     delegate_to: localhost
     register: query_all
 
-  - debug:
+  - name: Debug query_all
+    ansible.builtin.debug:
       var: query_all
 
   always:
-  - name: Delete LAG
-    meraki_ms_link_aggregation:
-      auth_key: '{{auth_key}}'
-      state: absent
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-      lag_id: '{{lag_id}}'
-    delegate_to: localhost
+    - name: Delete LAG
+      cisco.meraki.meraki_ms_link_aggregation:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_switch_net_name }}'
+        lag_id: '{{ lag_id }}'
+      delegate_to: localhost
 
-  # - name: Delete test network
-  #   meraki_network:
-  #     auth_key: '{{auth_key}}'
-  #     state: absent
-  #     org_name: '{{test_org_name}}'
-  #     net_name: '{{test_switch_net_name}}'
-  #   register: delete_net
+    # - name: Delete test network
+    #   meraki_network:
+    #     auth_key: '{{ auth_key }}'
+    #     state: absent
+    #     org_name: '{{ test_org_name }}'
+    #     net_name: '{{ test_switch_net_name }}'
+    #   register: delete_net
