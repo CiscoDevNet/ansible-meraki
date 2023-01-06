@@ -497,7 +497,7 @@
       name: AnsibleSSID
       available_on_all_aps: false
     delegate_to: localhost
-    register: false_availability_tags
+    register: no_availability_tags
     failed_when: false
     changed_when: false
 
