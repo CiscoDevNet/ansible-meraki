@@ -4,56 +4,60 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
 - name: Test an API key is provided
-  fail:
+  ansible.builtin.fail:
     msg: Please define an API key
   when: auth_key is not defined
 
 - name: Query all switchports
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: query
     serial: '{{ serial_switch }}'
   delegate_to: localhost
   register: query_all
 
-- debug:
-    msg: '{{query_all}}'
+- name: Debug query_all
+  ansible.builtin.debug:
+    msg: '{{ query_all }}'
 
 - name: Query one switchport
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: query
     serial: '{{ serial_switch }}'
     number: 1
   delegate_to: localhost
   register: query_one
 
-- debug:
-    msg: '{{query_one}}'
+- name: Debug query_all
+  ansible.builtin.debug:
+    msg: '{{ query_one }}'
 
 - name: Enable switchport with check mode
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
     enabled: true
     name: Temporary
   delegate_to: localhost
-  check_mode: yes
+  check_mode: true
   register: update_port_true_check
 
-- debug:
-    msg: '{{update_port_true_check}}'
+- name: Debug update_port_true_check
+  ansible.builtin.debug:
+    msg: '{{ update_port_true_check }}'
 
-- assert:
+- name: Assert update_port_true_check
+  ansible.builtin.assert:
     that:
       - update_port_true_check is changed
       - update_port_true_check.data is defined
 
 - name: Enable switchport
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -61,16 +65,18 @@
   delegate_to: localhost
   register: update_port_true
 
-- debug:
-    msg: '{{update_port_true}}'
+- name: Debug update_port_true
+  ansible.builtin.debug:
+    msg: '{{ update_port_true }}'
 
-- assert:
+- name: Assert update_port_true
+  ansible.builtin.assert:
     that:
       - update_port_true.data.enabled == True
 
 - name: Disable switchport
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -78,17 +84,18 @@
   delegate_to: localhost
   register: update_port_false
 
-- debug:
-    msg: '{{update_port_false}}'
+- name: Debug update_port_false
+  ansible.builtin.debug:
+    msg: '{{ update_port_false }}'
 
-- assert:
+- name: Assert update_port_false
+  ansible.builtin.assert:
     that:
       - update_port_false.data.enabled == False
 
-
 - name: Name switchport
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -96,16 +103,18 @@
   delegate_to: localhost
   register: update_port_name
 
-- debug:
-    msg: '{{update_port_name}}'
+- name: Debug update_port_name
+  ansible.builtin.debug:
+    msg: '{{ update_port_name }}'
 
-- assert:
+- name: Assert update_port_name
+  ansible.builtin.assert:
     that:
       - update_port_name.data.name == 'Test Port'
 
 - name: Configure access port with check mode
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -115,20 +124,22 @@
     type: access
     vlan: 10
   delegate_to: localhost
-  check_mode: yes
+  check_mode: true
   register: update_access_port_changed
 
-- debug:
-    msg: '{{update_access_port_changed}}'
+- name: Debug update_access_port_changed
+  ansible.builtin.debug:
+    msg: '{{ update_access_port_changed }}'
 
-- assert:
+- name: Assert update_access_port_changed
+  ansible.builtin.assert:
     that:
       - update_access_port_changed is changed
       - update_access_port_changed.data is defined
 
 - name: Configure access port
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -140,16 +151,18 @@
   delegate_to: localhost
   register: update_access_port
 
-- debug:
-    msg: '{{update_access_port}}'
+- name: Debug update_access_port
+  ansible.builtin.debug:
+    msg: '{{ update_access_port }}'
 
-- assert:
+- name: Assert update_access_port
+  ansible.builtin.assert:
     that:
       - update_access_port.data.vlan == 10
 
 - name: Configure flexible stacking
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch_l3 }}'
     number: 7
@@ -158,16 +171,18 @@
   delegate_to: localhost
   register: flex_stacking_enabled
 
-- debug:
-    msg: '{{flex_stacking_enabled}}'
+- name: Debug flex_stacking_enabled
+  ansible.builtin.debug:
+    msg: '{{ flex_stacking_enabled }}'
 
-- assert:
+- name: Assert flex_stacking_enabled
+  ansible.builtin.assert:
     that:
       - flex_stacking_enabled.data.flexible_stacking_enabled == true
 
 # - name: Configure adaptive policy and SGT
-#   meraki_switchport:
-#     auth_key: '{{auth_key}}'
+#   cisco.meraki.meraki_ms_switchport:
+#     auth_key: '{{ auth_key }}'
 #     state: present
 #     serial: '{{ serial_switch_l3 }}'
 #     number: 7
@@ -177,17 +192,17 @@
 #   delegate_to: localhost
 #   register: adaptive_policy
 
-# - debug:
+# - ansible.builtin.debug:
 #     msg: '{{adaptive_policy}}'
 
-# - assert:
+# - ansible.builtin.assert:
 #     that:
 #       - adaptive_policy.data.adaptive_policy_group_id == "1234"
 #       - adaptive_policy.data.peer_sgt_capable == true
 
 - name: Configure port as trunk
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 8
@@ -199,8 +214,8 @@
   delegate_to: localhost
 
 - name: Remove VLAN on switchport
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 8
@@ -210,16 +225,18 @@
   delegate_to: localhost
   register: remove_vlan
 
-- debug:
-    msg: '{{remove_vlan}}'
+- name: Debug remove_vlan
+  ansible.builtin.debug:
+    msg: '{{ remove_vlan }}'
 
-- assert:
+- name: Assert remove_vlan
+  ansible.builtin.assert:
     that:
       - remove_vlan.data.vlan == None
 
 - name: Convert trunk port to access
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 8
@@ -230,8 +247,8 @@
   delegate_to: localhost
 
 - name: Test converted port for idempotency
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 8
@@ -242,13 +259,14 @@
   delegate_to: localhost
   register: convert_idempotent
 
-- assert:
+- name: Assert convert_idempotent
+  ansible.builtin.assert:
     that:
       - convert_idempotent.changed == False
 
 - name: Change voice VLAN for next task
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -262,8 +280,8 @@
   register: update_port_vvlan
 
 - name: Configure access port with voice VLAN
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -276,17 +294,19 @@
   delegate_to: localhost
   register: update_port_vvlan
 
-- debug:
-    msg: '{{update_port_vvlan}}'
+- name: Debug update_port_vvlan
+  ansible.builtin.debug:
+    msg: '{{ update_port_vvlan }}'
 
-- assert:
+- name: Assert update_port_vvlan
+  ansible.builtin.assert:
     that:
       - update_port_vvlan.data.voice_vlan == 11
       - update_port_vvlan.changed == True
 
 - name: Check access port for idempotenty
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -299,17 +319,19 @@
   delegate_to: localhost
   register: update_port_access_idempotent
 
-- debug:
-    msg: '{{update_port_access_idempotent}}'
+- name: Debug update_port_access_idempotent
+  ansible.builtin.debug:
+    msg: '{{ update_port_access_idempotent }}'
 
-- assert:
+- name: Assert update_port_access_idempotent
+  ansible.builtin.assert:
     that:
       - update_port_access_idempotent.changed == False
       - update_port_access_idempotent.data is defined
 
 - name: Configure access port removing voice VLAN
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -322,17 +344,19 @@
   delegate_to: localhost
   register: update_port_remove_vvlan
 
-- debug:
+- name: Debut update_port_remove_vvlan
+  ansible.builtin.debug:
     msg: '{{ update_port_remove_vvlan }}'
 
-- assert:
+- name: Assert
+  ansible.builtin.assert:
     that:
       - update_port_remove_vvlan.data.voice_vlan == None
       - update_port_remove_vvlan.changed == True
 
 - name: Configure trunk port
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -345,18 +369,20 @@
   delegate_to: localhost
   register: update_trunk
 
-- debug:
-    msg: '{{update_trunk}}'
+- name: Debug update_trunk
+  ansible.builtin.debug:
+    msg: '{{ update_trunk }}'
 
-- assert:
+- name: Assert update_trunk
+  ansible.builtin.assert:
     that:
       - update_trunk.data.tags.0 == 'server'
       - update_trunk.data.type == 'trunk'
       - update_trunk.data.allowed_vlans == 'all'
 
 - name: Configure trunk port with specific VLANs
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -372,18 +398,20 @@
   delegate_to: localhost
   register: update_trunk
 
-- debug:
-    msg: '{{update_trunk}}'
+- name: Debug update_trunk
+  ansible.builtin.debug:
+    msg: '{{ update_trunk }}'
 
-- assert:
+- name: Assert update_trunk
+  ansible.builtin.assert:
     that:
       - update_trunk.data.tags.0 == 'server'
       - update_trunk.data.type == 'trunk'
       - update_trunk.data.allowed_vlans == '8,10,15,20'
 
 - name: Configure trunk port with specific VLANs and native VLAN
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -399,18 +427,20 @@
   delegate_to: localhost
   register: update_trunk
 
-- debug:
-    msg: '{{update_trunk}}'
+- name: Debug update_trunk
+  ansible.builtin.debug:
+    msg: '{{ update_trunk }}'
 
-- assert:
+- name: Assert update_trunk
+  ansible.builtin.assert:
     that:
       - update_trunk.data.tags.0 == 'server'
       - update_trunk.data.type == 'trunk'
       - update_trunk.data.allowed_vlans == '2,10,15,20'
 
 - name: Check for idempotency on trunk port
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -426,17 +456,19 @@
   delegate_to: localhost
   register: update_trunk_idempotent
 
-- debug:
-    msg: '{{update_trunk_idempotent}}'
+- name: Debug update_trunk_idempotent
+  ansible.builtin.debug:
+    msg: '{{ update_trunk_idempotent }}'
 
-- assert:
+- name: Assert update_trunk_idempotent
+  ansible.builtin.assert:
     that:
       - update_trunk_idempotent.changed == False
       - update_trunk_idempotent.data is defined
 
 - name: Enable Sticky MAC Using Replace
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -451,17 +483,19 @@
   delegate_to: localhost
   register: sticky_mac_allow_replace
 
-- debug:
-    msg: '{{sticky_mac_allow_replace}}'
+- name: Debug sticky_mac_allow_replace
+  ansible.builtin.debug:
+    msg: '{{ sticky_mac_allow_replace }}'
 
-- assert:
+- name: Assert sticky_mac_allow_replace
+  ansible.builtin.assert:
     that:
       - sticky_mac_allow_replace.data.sticky_mac_allow_list_limit == 1
       - sticky_mac_allow_replace.data.sticky_mac_allow_list == ["aa:aa:bb:bb:cc:cc"]
 
 - name: Enable Sticky MAC Using Replace Idempotent
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -476,17 +510,19 @@
   delegate_to: localhost
   register: idempotent_sticky_mac_allow_replace
 
-- debug:
-    msg: '{{idempotent_sticky_mac_allow_replace}}'
+- name: Debug idempotent_sticky_mac_allow_replace
+  ansible.builtin.debug:
+    msg: '{{ idempotent_sticky_mac_allow_replace }}'
 
-- assert:
+- name: Assert idempotent_mac_allow_replace
+  ansible.builtin.assert:
     that:
       - idempotent_sticky_mac_allow_replace.changed == False
       - idempotent_sticky_mac_allow_replace.data is defined
 
 - name: Enable Sticky MAC Using Merge
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -501,17 +537,19 @@
   delegate_to: localhost
   register: sticky_mac_allow_merge
 
-- debug:
-    msg: '{{sticky_mac_allow_merge}}'
+- name: Debug sticky_mac_allow_merge
+  ansible.builtin.debug:
+    msg: '{{ sticky_mac_allow_merge }}'
 
-- assert:
+- name: Assert sticky_mac_allow_merge
+  ansible.builtin.assert:
     that:
       - sticky_mac_allow_merge.data.sticky_mac_allow_list_limit == 2
       - sticky_mac_allow_merge.data.sticky_mac_allow_list == ["aa:aa:bb:bb:cc:cc", "11:aa:bb:bb:cc:cc"]
 
 - name: Enable Sticky MAC Using Merge Idempotent
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -526,17 +564,19 @@
   delegate_to: localhost
   register: idempotent_sticky_mac_allow_merge
 
-- debug:
-    msg: '{{idempotent_sticky_mac_allow_merge}}'
+- name: Debug idempotent_sticky_mac_allow_merge
+  ansible.builtin.debug:
+    msg: '{{ idempotent_sticky_mac_allow_merge }}'
 
-- assert:
+- name: Assert idempotent_sticky_mac_allow_merge
+  ansible.builtin.assert:
     that:
       - idempotent_sticky_mac_allow_merge.changed == False
       - idempotent_sticky_mac_allow_merge.data is defined
 
 - name: Delete Sticky MAC From Allow List
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -551,17 +591,19 @@
   delegate_to: localhost
   register: delete_sticky_mac
 
-- debug:
-    msg: '{{delete_sticky_mac}}'
+- name: Debug delete_sticky_mac
+  ansible.builtin.debug:
+    msg: '{{ delete_sticky_mac }}'
 
-- assert:
+- name: Assert delete_sticky_mac
+  ansible.builtin.assert:
     that:
       - delete_sticky_mac.data.sticky_mac_allow_list_limit == 2
       - delete_sticky_mac.data.sticky_mac_allow_list == ["aa:aa:bb:bb:cc:cc"]
 
 - name: Delete Sticky MAC Idempotent
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -576,17 +618,19 @@
   delegate_to: localhost
   register: idempotent_delete_sticky_mac
 
-- debug:
-    msg: '{{idempotent_delete_sticky_mac}}'
+- name: Debug idempotent_delete_sticky_mac
+  ansible.builtin.debug:
+    msg: '{{ idempotent_delete_sticky_mac }}'
 
-- assert:
+- name: Assert idempotent_delete_sticky_mac
+  ansible.builtin.assert:
     that:
       - idempotent_delete_sticky_mac.changed == False
       - idempotent_delete_sticky_mac.data is defined
 
 - name: Enable MAC Allow Using Replace
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -600,16 +644,18 @@
   delegate_to: localhost
   register: mac_allow_replace
 
-- debug:
-    msg: '{{mac_allow_replace}}'
+- name: Debug mac_allow_replace
+  ansible.builtin.debug:
+    msg: '{{ mac_allow_replace }}'
 
-- assert:
+- name: Assert mac_allow_replace
+  ansible.builtin.assert:
     that:
       - mac_allow_replace.data.mac_allow_list == ["aa:aa:bb:bb:cc:cc"]
 
 - name: Enable MAC Allow Using Replace Idempotent
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -623,17 +669,19 @@
   delegate_to: localhost
   register: idempotent_mac_allow_replace
 
-- debug:
-    msg: '{{idempotent_mac_allow_replace}}'
+- name: Debug idempotent_mac_allow_replace
+  ansible.builtin.debug:
+    msg: '{{ idempotent_mac_allow_replace }}'
 
-- assert:
+- name: Assert idempotent_mac_allow_replace
+  ansible.builtin.assert:
     that:
       - idempotent_mac_allow_replace.changed == False
       - idempotent_mac_allow_replace.data is defined
 
 - name: Enable MAC Allow Using Merge
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -647,16 +695,18 @@
   delegate_to: localhost
   register: mac_allow_merge
 
-- debug:
-    msg: '{{mac_allow_merge}}'
+- name: Debug mac_allow_merge
+  ansible.builtin.debug:
+    msg: '{{ mac_allow_merge }}'
 
-- assert:
+- name: Assert mac_allow_merge
+  ansible.builtin.assert:
     that:
       - mac_allow_merge.data.mac_allow_list == ["aa:aa:bb:bb:cc:cc", "11:aa:bb:bb:cc:cc"]
 
 - name: Enable MAC Allow Using Merge Idempotent
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -670,17 +720,19 @@
   delegate_to: localhost
   register: idempotent_mac_allow_merge
 
-- debug:
-    msg: '{{idempotent_mac_allow_merge}}'
+- name: Debug idempotent_mac_allow_merge
+  ansible.builtin.debug:
+    msg: '{{ idempotent_mac_allow_merge }}'
 
-- assert:
+- name: Assert idempotent_mac_allow_merge
+  ansible.builtin.assert:
     that:
       - idempotent_mac_allow_merge.changed == False
       - idempotent_mac_allow_merge.data is defined
 
 - name: Delete MAC From Allow List
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -694,16 +746,18 @@
   delegate_to: localhost
   register: delete_mac
 
-- debug:
-    msg: '{{delete_mac}}'
+- name: Debug delete_mac
+  ansible.builtin.debug:
+    msg: '{{ delete_mac }}'
 
-- assert:
+- name: Assert delete_mac
+  ansible.builtin.assert:
     that:
       - delete_mac.data.mac_allow_list == ["aa:aa:bb:bb:cc:cc"]
 
 - name: Delete MAC Idempotent
-  meraki_switchport:
-    auth_key: '{{auth_key}}'
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: '{{ auth_key }}'
     state: present
     serial: '{{ serial_switch }}'
     number: 7
@@ -717,10 +771,12 @@
   delegate_to: localhost
   register: idempotent_delete_mac
 
-- debug:
-    msg: '{{idempotent_delete_mac}}'
+- name: Debug idempotent_delete_mac
+  ansible.builtin.debug:
+    msg: '{{ idempotent_delete_mac }}'
 
-- assert:
+- name: Assert idempotent_delete_mac
+  ansible.builtin.assert:
     that:
       - idempotent_delete_mac.changed == False
       - idempotent_delete_mac.data is defined
