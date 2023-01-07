@@ -3,107 +3,114 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
-
-  - set_fact:
+- name: Block of the test
+  block:
+  - name: Set fact wpa_enable to false
+    ansible.builtin.set_fact:
       wpa_enabled: false
 
   - name: Test an API key is provided
-    fail:
+    ansible.builtin.fail:
       msg: Please define an API key
     when: auth_key is not defined
 
   - name: Create test network
-    meraki_network:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       type: wireless
     register: test_net
 
-  - debug: 
-      msg: '{{test_net}}'
+  - name: Debug test_net
+    ansible.builtin.debug:
+      msg: '{{ test_net }}'
 
   - name: Add access points to network
-    meraki_device:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
-      serial: '{{serial_wireless}}'
+      serial: '{{ serial_wireless }}'
     delegate_to: localhost
 
   - name: Query all SSIDs
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
     delegate_to: localhost
     register: query_all
 
   - name: Enable and name SSID with check mode
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       enabled: true
     delegate_to: localhost
     register: enable_name_ssid_check
-    check_mode: yes
+    check_mode: true
 
-  - assert:
+  - name: Assert enable_name_ssid_check
+    ansible.builtin.assert:
       that:
         - enable_name_ssid_check is changed
         - enable_name_ssid_check.data is defined
 
   - name: Enable and name SSID
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       enabled: true
     delegate_to: localhost
     register: enable_name_ssid
 
-  - debug:
+  - name: Debug enable_name_ssid
+    ansible.builtin.debug:
       msg: '{{ enable_name_ssid }}'
 
-  - assert:
+  - name: Assert query_all
+    ansible.builtin.assert:
       that:
         - query_all.data | length == 15
         - query_all.data.0.name == 'TestNetSSID WiFi'
         - enable_name_ssid.data.name == 'AnsibleSSID'
 
   - name: Check for idempotency
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       enabled: true
     delegate_to: localhost
     register: enable_name_ssid_idempotent
 
-  - debug:
+  - name: Debug enable_name_ssid_idempotent
+    ansible.builtin.debug:
       msg: '{{ enable_name_ssid_idempotent }}'
 
-  - assert:
+  - name: Assert enable_name_ssid_idempotent
+    ansible.builtin.assert:
       that:
         - enable_name_ssid_idempotent.changed == False
         - enable_name_ssid_idempotent.data is defined
 
   - name: Set splash portal with sponsor domain
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       splash_page: Sponsored guest
@@ -112,102 +119,112 @@
     delegate_to: localhost
     register: splash_guest_sponsor_domain
 
-  - debug:
+  - name: Debug splash_guest_sponsor_domain
+    ansible.builtin.debug:
       msg: '{{ splash_guest_sponsor_domain }}'
 
-  - assert:
+  - name: Assert splash_guest_sponsor_domain
+    ansible.builtin.assert:
       that:
-        - splash_guest_sponsor_domain.changed == True
+        - splash_guest_sponsor_domain.changed == true
         - splash_guest_sponsor_domain.data is defined
 
   - name: Query one SSIDs
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
     delegate_to: localhost
     register: query_one
 
-  - debug:
-      msg: '{{query_one}}'
+  - name: Debug query_one
+    ansible.builtin.debug:
+      msg: '{{ query_one }}'
 
-  - assert:
+  - name: Assert query_one
+    ansible.builtin.assert:
       that:
         - query_one.data.name == 'AnsibleSSID'
 
   - name: Query one SSID with number
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       number: 1
     delegate_to: localhost
     register: query_one_number
 
-  - debug:
-      msg: '{{query_one_number}}'
+  - name: Debug query_one_number
+    ansible.builtin.debug:
+      msg: '{{ query_one_number }}'
 
-  - assert:
+  - name: Assert query_one_number
+    ansible.builtin.assert:
       that:
         - query_one_number.data.name == 'AnsibleSSID'
 
   - name: Disable SSID without specifying number
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       enabled: false
     delegate_to: localhost
     register: disable_ssid
 
-  - debug:
+  - name: Debug disable_ssid
+    ansible.builtin.debug:
       msg: '{{ disable_ssid.data.enabled }}'
 
-  - assert:
+  - name: Assert disable_ssid
+    ansible.builtin.assert:
       that:
         - disable_ssid.data.enabled == False
 
   - name: Enable SSID with number
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       number: 1
       enabled: true
     delegate_to: localhost
     register: enable_ssid_number
 
-  - debug:  
+  - name: Debug enable_ssid_number
+    ansible.builtin.debug:
       msg: '{{ enable_ssid_number.data.enabled }}'
 
-  - assert:
+  - name: Assert enable_ssid_number
+    ansible.builtin.assert:
       that:
-        - enable_ssid_number.data.enabled == True
+        - enable_ssid_number.data.enabled == true
 
   - name: Configure sponsor portal
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       number: 1
-      splash_page: Sponsored guest      
+      splash_page: Sponsored guest
 
   - name: Set VLAN arg spec
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       number: 1
-      use_vlan_tagging: yes
-      visible: yes
+      use_vlan_tagging: true
+      visible: true
       ip_assignment_mode: Bridge mode
       default_vlan_id: 1
       ap_tags_vlan_ids:
@@ -216,21 +233,23 @@
     delegate_to: localhost
     register: set_vlan_arg
 
-  - debug:  
+  - name: Debug set_vlan_org
+    ansible.builtin.debug:
       var: set_vlan_arg
 
-  - assert:
+  - name: Assert set_vlan_arg
+    ansible.builtin.assert:
       that: set_vlan_arg is changed
 
   - name: Set VLAN arg spec
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       number: 1
-      use_vlan_tagging: yes
-      visible: yes
+      use_vlan_tagging: true
+      visible: true
       ip_assignment_mode: Bridge mode
       default_vlan_id: 1
       ap_tags_vlan_ids:
@@ -239,18 +258,19 @@
     delegate_to: localhost
     register: set_vlan_arg_idempotent
 
-  - debug:  
+  - name: Debug set_vlan_arg_idempotent
+    ansible.builtin.debug:
       var: set_vlan_arg_idempotent
 
-  - assert:
+  - name: Assert set_vlan_org_idempotent
+    ansible.builtin.assert:
       that: set_vlan_arg_idempotent is not changed
 
-
   - name: Set PSK
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       auth_mode: psk
@@ -259,20 +279,22 @@
     delegate_to: localhost
     register: psk
 
-  - debug:
+  - name: Debug psk
+    ansible.builtin.debug:
       msg: '{{ psk }}'
 
-  - assert:
+  - name: Assert psk
+    ansible.builtin.assert:
       that:
         - psk.data.auth_mode == 'psk'
         - psk.data.encryption_mode == 'wpa'
         - psk.data.wpa_encryption_mode == 'WPA2 only'
 
   - name: Set PSK with idempotency
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       auth_mode: psk
@@ -281,10 +303,12 @@
     delegate_to: localhost
     register: psk_idempotent
 
-  - debug:
+  - name: Debug psk_idempotent
+    ansible.builtin.debug:
       msg: '{{ psk_idempotent }}'
 
-  - assert:
+  - name: Assert psk_idempotent
+    ansible.builtin.assert:
       that:
         - psk_idempotent is not changed
 
@@ -292,10 +316,10 @@
   # Check WPA3 Transition Mode
   #
   - name: Set WPA3 Transition Mode
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       auth_mode: psk
@@ -304,24 +328,26 @@
       wpa_encryption_mode: WPA3 Transition Mode
     delegate_to: localhost
     register: psk_wpa3_transition_mode
-    when: wpa_enabled == true
+    when: wpa_enabled
 
-  - debug:
+  - name: Debug psk_wpa3_transition_mode
+    ansible.builtin.debug:
       msg: '{{ psk_wpa3_transition_mode }}'
-    when: wpa_enabled == True
+    when: wpa_enabled
 
-  - assert:
+  - name: Assert psk_wpa3_transition_mode
+    ansible.builtin.assert:
       that:
         - psk_wpa3_transition_mode.data.auth_mode == 'psk'
         - psk_wpa3_transition_mode.data.encryption_mode == 'wpa'
         - psk_wpa3_transition_mode.data.wpa_encryption_mode == 'WPA3 Transition Mode'
-    when: wpa_enabled == True
+    when: wpa_enabled
 
   - name: Set WPA3 Transition Mode with Idempotency
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       auth_mode: psk
@@ -330,84 +356,92 @@
       wpa_encryption_mode: WPA3 Transition Mode
     delegate_to: localhost
     register: psk_wpa3_transition_mode_idempotent
-    when: wpa_enabled == True
+    when: wpa_enabled
 
-  - debug:
+  - name: Debug wpa_enabled
+    ansible.builtin.debug:
       msg: '{{ psk_wpa3_transition_mode_idempotent }}'
-    when: wpa_enabled == True
+    when: wpa_enabled
 
-  - assert:
+  - name: Assert psk_wpa3_transition_mode_idempotent
+    ansible.builtin.assert:
       that:
         - psk_wpa3_transition_mode_idempotent is not changed
-    when: wpa_enabled == True
+    when: wpa_enabled
 
   - name: Enable click-through splash page
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       splash_page: Click-through splash page
     delegate_to: localhost
     register: splash_click
 
-  - debug:
+  - name: Debug splash_click
+    ansible.builtin.debug:
       msg: '{{ splash_click }}'
 
-  - assert:
+  - name: Assert splash_click
+    ansible.builtin.assert:
       that:
         - splash_click.data.splash_page == 'Click-through splash page'
 
   - name: Set walled garden
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
-      walled_garden_enabled: yes
+      walled_garden_enabled: true
       walled_garden_ranges:
         - 192.168.0.0/24
         - '*.ansible.com'
     delegate_to: localhost
     register: walled_garden
 
-  - debug:
+  - name: Debug walled_garden
+    ansible.builtin.debug:
       msg: '{{ walled_garden }}'
 
-  - assert:
+  - name: Assert walled_garden
+    ansible.builtin.assert:
       that:
-        - 'walled_garden.data.walled_garden_enabled == True'
+        - 'walled_garden.data.walled_garden_enabled == true'
         - walled_garden is changed
 
   - name: Set walled garden with idempotency
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
-      walled_garden_enabled: yes
+      walled_garden_enabled: true
       walled_garden_ranges:
         - 192.168.0.0/24
         - '*.ansible.com'
     delegate_to: localhost
     register: walled_garden_idempotent
 
-  - debug:
+  - name: Debug walled_garden_idempotent
+    ansible.builtin.debug:
       msg: '{{ walled_garden_idempotent }}'
 
-  - assert:
+  - name: Assert walled_garden_idempotent
+    ansible.builtin.assert:
       that:
         - walled_garden_idempotent.data is defined
         - walled_garden_idempotent is not changed
 
   - name: Configure RADIUS servers
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       auth_mode: open-with-radius
@@ -418,18 +452,20 @@
     delegate_to: localhost
     register: set_radius_server
 
-  - debug:
+  - name: Debug set_radius_server
+    ansible.builtin.debug:
       msg: '{{ set_radius_server }}'
 
-  - assert:
+  - name: Assert set_radius_server
+    ansible.builtin.assert:
       that:
         - set_radius_server.data.radius_servers.0.host == '192.0.1.200'
 
   - name: Configure RADIUS servers with idempotency
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       auth_mode: open-with-radius
@@ -440,10 +476,12 @@
     delegate_to: localhost
     register: set_radius_server_idempotent
 
-  - debug:
+  - name: Debug set_radius_server_idempotent
+    ansible.builtin.debug:
       var: set_radius_server_idempotent
 
-  - assert:
+  - name: Assert set_radius_server_idempotent
+    ansible.builtin.assert:
       that:
         - set_radius_server_idempotent is not changed
 
@@ -451,29 +489,32 @@
   # Error testing #
   #################
   - name: Set available on all aps to false without also setting availability tags
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       available_on_all_aps: false
     delegate_to: localhost
     register: no_availability_tags
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - debug:
+  - name: Debug no_availability_tags
+    ansible.builtin.debug:
       msg: '{{ no_availability_tags }}'
 
-  - assert:
+  - name: Assert no_availability_tags
+    ansible.builtin.assert:
       that:
         - no_availability_tags.msg == 'available_on_all_aps is only allowed to be false when ap_availability_tags is defined'
 
   - name: Set ap availability tags without setting available on all aps to false
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       available_on_all_aps: true
@@ -481,60 +522,69 @@
         - "test"
     delegate_to: localhost
     register: available_on_all_aps_true_with_tags
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - debug:
+  - name: Debug available_on_all_aps_true_with_tags
+    ansible.builtin.debug:
       msg: '{{ available_on_all_aps_true_with_tags }}'
 
-  - assert:
+  - name: Assert available_on_all_aps_true_with_tags
+    ansible.builtin.assert:
       that:
         - available_on_all_aps_true_with_tags.msg == 'ap_availability_tags is only allowed when available_on_all_aps is false'
 
   - name: Set LAN isolation without Bridge mode
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       ip_assignment_mode: "NAT mode"
       lan_isolation_enabled: true
     delegate_to: localhost
     register: lan_isolation_invalid
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - debug:
+  - name: Debug lan_isolation_invalid
+    ansible.builtin.debug:
       msg: '{{ lan_isolation_invalid }}'
 
-  - assert:
+  - name: Assert lan_isolation_invalid
+    ansible.builtin.assert:
       that:
         - lan_isolation_invalid.msg == 'lan_isolation_enabled is only allowed when ip_assignment_mode is Bridge mode'
 
   - name: Set PSK with wrong mode
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       auth_mode: open
       psk: abc1234
     delegate_to: localhost
     register: psk_invalid
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - debug:
+  - name: Debug psk_invalid
+    ansible.builtin.debug:
       msg: '{{ psk_invalid }}'
 
-  - assert:
+  - name: Assert psk_invalid
+    ansible.builtin.assert:
       that:
         - psk_invalid.msg == 'PSK is only allowed when auth_mode is set to psk'
 
   - name: Set PSK with invalid encryption mode
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       auth_mode: psk
@@ -542,20 +592,23 @@
       encryption_mode: eap
     delegate_to: localhost
     register: psk_invalid_mode
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - debug:
+  - name: Debug psk_invalid_mode
+    ansible.builtin.debug:
       msg: '{{ psk_invalid_mode }}'
 
-  - assert:
+  - name: Assert psk_invalid_mode
+    ansible.builtin.assert:
       that:
         - psk_invalid_mode.msg == 'PSK requires encryption_mode be set to wpa'
 
   - name: Error for PSK and RADIUS servers
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleSSID
       auth_mode: psk
@@ -565,23 +618,26 @@
           secret: abc98765
     delegate_to: localhost
     register: err_radius_server_psk
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - debug:
+  - name: Debug err_radius_server_psk
+    ansible.builtin.debug:
       var: err_radius_server_psk
 
-  - assert:
+  - name: Assert err_radius_server_psk.msg
+    ansible.builtin.assert:
       that:
         - 'err_radius_server_psk.msg == "radius_servers requires auth_mode to be open-with-radius or 8021x-radius"'
 
   - name: Set VLAN arg without default VLAN error
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       number: 1
-      use_vlan_tagging: yes
+      use_vlan_tagging: true
       visible: true
       ip_assignment_mode: Bridge mode
       ap_tags_vlan_ids:
@@ -589,94 +645,103 @@
           vlan_id: 2
     delegate_to: localhost
     register: set_vlan_arg_err
-    ignore_errors: yes
+    failed_when: false
+    changed_when: false
 
-  - debug:  
+  - name: Debug set_vlan_arg_err
+    ansible.builtin.debug:
       var: set_vlan_arg_err
 
-  - assert:
-      that: 
+  - name: Assert set_vlan_arg_err.msg
+    ansible.builtin.assert:
+      that:
         - 'set_vlan_arg_err.msg == "default_vlan_id is required when use_vlan_tagging is True"'
 
   - name: Create SSID to Test SSID Delete Idempotency
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleIdempotentDeleteSSID
       enabled: true
     delegate_to: localhost
 
   - name: Remove SSID to Test SSID Delete Idempotency
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: absent
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleIdempotentDeleteSSID
     delegate_to: localhost
     register: deleted_ssid
 
-  - assert:
+  - name: Assert deleted_ssid
+    ansible.builtin.assert:
       that:
         - deleted_ssid is changed
 
   - name: Remove SSID to Test SSID Delete Idempotency
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
+    cisco.meraki.meraki_mr_ssid:
+      auth_key: '{{ auth_key }}'
       state: absent
-      org_name: '{{test_org_name}}'
+      org_name: '{{ test_org_name }}'
       net_name: TestNetSSID
       name: AnsibleIdempotentDeleteSSID
     delegate_to: localhost
     register: deleted_ssid
 
-  - assert:
+  - name: Assert deleted_ssid
+    ansible.builtin.assert:
       that:
         - deleted_ssid is not changed
 
   always:
-  - name: Delete SSID with check mode
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
-      state: absent
-      org_name: '{{test_org_name}}'
-      net_name: TestNetSSID
-      name: AnsibleSSID
-    delegate_to: localhost
-    register: delete_ssid_check
-    check_mode: yes
+    - name: Delete SSID with check mode
+      cisco.meraki.meraki_mr_ssid:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: TestNetSSID
+        name: AnsibleSSID
+      delegate_to: localhost
+      register: delete_ssid_check
+      check_mode: true
 
-  - assert:
-      that:
-        - delete_ssid_check is changed
-        - delete_ssid_check.data is defined
+    - name: Assert delete_ssid_check
+      ansible.builtin.assert:
+        that:
+          - delete_ssid_check is changed
+          - delete_ssid_check.data is defined
 
-  - name: Delete SSID
-    meraki_ssid:
-      auth_key: '{{auth_key}}'
-      state: absent
-      org_name: '{{test_org_name}}'
-      net_name: TestNetSSID
-      name: AnsibleSSID
-    delegate_to: localhost
-    register: delete_ssid
+    - name: Delete SSID
+      cisco.meraki.meraki_mr_ssid:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: TestNetSSID
+        name: AnsibleSSID
+      delegate_to: localhost
+      register: delete_ssid
 
-  - debug:
-      msg: '{{ delete_ssid }}'
+    - name: Debug delete_ssid
+      ansible.builtin.debug:
+        msg: '{{ delete_ssid }}'
 
-  - assert:
-      that:
-        - delete_ssid.data.name == 'Unconfigured SSID 2'
+    - name: Assert delete_ssid
+      ansible.builtin.assert:
+        that:
+          - delete_ssid.data.name == 'Unconfigured SSID 2'
 
-  - name: Delete test network
-    meraki_network:
-      auth_key: '{{auth_key}}'
-      state: absent
-      org_name: '{{test_org_name}}'
-      net_name: TestNetSSID
-    register: delete_net
+    - name: Delete test network
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: TestNetSSID
+      register: delete_net
 
-  - debug: 
-      msg: '{{delete_net}}'
+    - name: Debug delete_net
+      ansible.builtin.debug:
+        msg: '{{ delete_net }}'
