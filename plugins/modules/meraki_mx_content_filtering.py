@@ -233,11 +233,17 @@ def main():
     if module.params['state'] == 'present':
         payload = dict()
         if meraki.params['allowed_urls']:
-            payload['allowedUrlPatterns'] = meraki.params['allowed_urls']
+            if meraki.params['allowed_urls'] == ['None']:  # Corner case for resetting
+                payload['allowedUrlPatterns'] = []
+            else:
+                payload['allowedUrlPatterns'] = meraki.params['allowed_urls']
         if meraki.params['blocked_urls']:
-            payload['blockedUrlPatterns'] = meraki.params['blocked_urls']
+            if meraki.params['blocked_urls'] == ['None']:  # Corner case for resetting
+                payload['blockedUrlPatterns'] = []
+            else:
+                payload['blockedUrlPatterns'] = meraki.params['blocked_urls']
         if meraki.params['blocked_categories']:
-            if len(meraki.params['blocked_categories']) == 0:  # Corner case for resetting
+            if meraki.params['blocked_categories'] == ['None']:  # Corner case for resetting
                 payload['blockedUrlCategories'] = []
             else:
                 category_path = meraki.construct_path('categories', net_id=net_id)
