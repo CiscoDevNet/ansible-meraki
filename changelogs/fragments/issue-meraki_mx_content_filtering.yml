@@ -1,2 +1,2 @@
 bugfixes:
-  - Resolved issue #407 - with restarting policy and idempotency
+  - Resolved issue #407 - with restarting policy and idempotency in module mx_content_filtering
