@@ -155,7 +155,7 @@ data:
 
 
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
+from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec, recursive_diff
 from copy import deepcopy
 
 
@@ -279,8 +279,12 @@ def main():
                 meraki.exit_json(**meraki.result)
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             meraki.result['data'] = response
-            meraki.result['changed'] = True
-            meraki.generate_diff(current, response)
+            if recursive_diff(current, response) is None:
+                meraki.result['changed'] = False
+                meraki.result['data'] = str(recursive_diff(current, response))
+            else:
+                meraki.result['changed'] = True
+                meraki.generate_diff(current, response)
         else:
             meraki.result['data'] = current
             if module.check_mode:
