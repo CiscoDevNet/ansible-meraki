@@ -234,6 +234,10 @@ def main():
         comparable = deepcopy(original)
         comparable.update(payload)
         if meraki.is_update_required(original, payload):
+            if meraki.check_mode is True:
+                meraki.result['changed'] = True
+                meraki.result['data'] = payload
+                meraki.exit_json(**meraki.result)
             path = meraki.construct_path('update', net_id=net_id)
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             meraki.result['changed'] = True
