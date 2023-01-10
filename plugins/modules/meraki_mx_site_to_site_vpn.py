@@ -98,6 +98,22 @@ EXAMPLES = r'''
   delegate_to: localhost
   register: set_spoke
 
+- name: Set hub mode
+  meraki_site_to_site_vpn:
+    auth_key: abc123
+    state: present
+    org_name: YourOrg
+    net_name: hub_network
+    mode: hub
+    hubs:
+      - hub_id: N_1234
+        use_default_route: false
+    subnets:
+      - local_subnet: 192.168.1.0/24
+        use_vpn: true
+  delegate_to: localhost
+  register: set_hub
+
 - name: Query rules for hub
   meraki_site_to_site_vpn:
     auth_key: abc123
