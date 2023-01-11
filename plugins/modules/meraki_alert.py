@@ -55,6 +55,7 @@ options:
                 - A list of emails that will recieve the alert(s).
                 type: list
                 elements: str
+                default: []
             http_server_ids:
                 description:
                 - A list of HTTP server IDs to send a Webhook to.
@@ -99,6 +100,7 @@ options:
                         - A list of emails that will recieve the alert(s).
                         type: list
                         elements: str
+                        default: []
                     http_server_ids:
                         description:
                         - A list of HTTP server IDs to send a Webhook to.
@@ -141,10 +143,7 @@ EXAMPLES = r"""
           period: 1200
           threshold: 104857600
         alert_destinations:
-          emails:
-          - 'youremail@yourcorp'
-          - 'youremail2@yourcorp'
-          all_admins: yes
+          all_admins: no
           snmp: no
 
 - name: Query all settings
