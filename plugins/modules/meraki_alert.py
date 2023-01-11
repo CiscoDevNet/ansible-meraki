@@ -266,7 +266,7 @@ def main():
     destinations_arg_spec = dict(
         all_admins=dict(type="bool"),
         snmp=dict(type="bool"),
-        emails=dict(type="list", elements="str"),
+        emails=dict(type="list", elements="str", default=[]),
         http_server_ids=dict(type="list", elements="str", default=[]),
     )
 
