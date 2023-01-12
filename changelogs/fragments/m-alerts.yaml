@@ -1,0 +1,2 @@
+minor_changes:
+  - Made email addresses optional for alerts as they are not always used.
