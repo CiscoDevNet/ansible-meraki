@@ -98,7 +98,7 @@ EXAMPLES = r'''
   delegate_to: localhost
   register: set_spoke
 
-- name: Add subnet to hub for VPN. Hub is required. 
+- name: Add subnet to hub for VPN. Hub is required.
   meraki_site_to_site_vpn:
     auth_key: abc123
     state: present
