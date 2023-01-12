@@ -24,8 +24,7 @@ options:
     state:
         description:
         - Create or modify an organization.
-        choices: [ absent, present, query ]
-        default: present
+        choices: [present, query ]
         type: str
     net_name:
         description:
@@ -61,12 +60,20 @@ options:
                     enabled:
                         description:
                             - Set whether local status page authentication is enabled.
-                        type: str
+                        type: bool
                     password:
                         description:
                             - Set password on local status page.
                         type: str
-
+    secure_port:
+        description:
+            - Configuration of SecureConnect options applied to the network.
+        type: dict
+        suboptions:
+            enabled:
+                description:
+                    - Set whether SecureConnect is enabled on the network.
+                type: bool
 author:
     - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
@@ -81,36 +88,6 @@ data:
     returned: info
     type: complex
     contains:
-      id:
-        description: Identification string of network.
-        returned: success
-        type: str
-        sample: N_12345
-      name:
-        description: Written name of network.
-        returned: success
-        type: str
-        sample: YourNet
-      organization_id:
-        description: Organization ID which owns the network.
-        returned: success
-        type: str
-        sample: 0987654321
-      tags:
-        description: Space delimited tags assigned to network.
-        returned: success
-        type: list
-        sample: ['production']
-      time_zone:
-        description: Timezone where network resides.
-        returned: success
-        type: str
-        sample: America/Chicago
-      type:
-        description: Functional type of network.
-        returned: success
-        type: list
-        sample: ['switch']
       local_status_page_enabled:
         description: States whether U(my.meraki.com) and other device portals should be enabled.
         returned: success
@@ -121,6 +98,58 @@ data:
         returned: success
         type: bool
         sample: true
+      expire_data_older_than:
+        description: The number of days, weeks, or months in Epoch time to expire the data before
+        returned: success
+        type: int
+        sample: 1234
+      fips:
+        description: A hash of FIPS options applied to the Network.
+        returned: success
+        type: complex
+        contains:
+          enabled:
+            description: Enables/disables FIPS on the network.
+            returned: success
+            type: bool
+            sample: true
+      local_status_page:
+        description: A hash of Local Status Page(s) authentication options applied to the Network.
+        returned: success
+        type: complex
+        contains:
+          authentication:
+            description: A hash of Local Status Pages' authentication options applied to the Network.
+            type: complex
+            contains:
+              username:
+                description: The username used for Local Status Pages.
+                type: str
+                returned: success
+                sample: admin
+              enabled:
+                description: Enables/Disables the authenticaiton on Local Status Pages.
+                type: bool
+                returned: success
+            sample: true
+      secure_port:
+        description: A hash of SecureConnect options applied to the Network.
+        type: complex
+        contains:
+          enabled:
+            description: Enables/disables SecureConnect on the network.
+            type: bool
+            returned: success
+            sample: true
+      named_vlans:
+        description: A hash of Named VLANs options applied to the Network.
+        type: complex
+        contains:
+          enabled:
+            description: Enables/disables Named VLANs on the network.
+            type: bool
+            returned: success
+            sample: true
 """
 
 from ansible.module_utils.basic import AnsibleModule, json
@@ -156,7 +185,7 @@ def construct_payload(params):
     if params["remote_status_page_enabled"] is not None:
         payload["remoteStatusPageEnabled"] = params["remote_status_page_enabled"]
     if params["local_status_page"] is not None:
-        payload["localStatusPage"] = dict() 
+        payload["localStatusPage"] = dict()
         if params["local_status_page"]["authentication"] is not None:
             payload["localStatusPage"]["authentication"] = {}
             if params["local_status_page"]["authentication"]["enabled"] is not None:
@@ -168,6 +197,7 @@ def construct_payload(params):
         if params["secure_port"]["enabled"] is not None:
             payload["securePort"]["enabled"] = params["secure_port"]["enabled"]
     return payload
+
 
 def main():
 
@@ -190,7 +220,7 @@ def main():
     argument_spec = meraki_argument_spec()
     argument_spec.update(
         state=dict(type="str", choices=["query", "present"]),
-        net_name=dict(type="str"),
+        net_name=dict(type="str", aliases=["name", "network"]),
         net_id=dict(type="str"),
         local_status_page_enabled=dict(type="bool"),
         remote_status_page_enabled=dict(type="bool"),
@@ -258,7 +288,7 @@ def main():
                     del payload["local_status_page"]["authentication"]["password"]
                 except KeyError:
                     pass
-                meraki.result["data"] = payload 
+                meraki.result["data"] = payload
                 meraki.result["changed"] = True
                 meraki.exit_json(**meraki.result)
             path = meraki.construct_path("update_settings", net_id=net_id)
