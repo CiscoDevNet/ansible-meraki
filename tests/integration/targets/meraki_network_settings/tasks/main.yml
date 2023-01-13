@@ -15,9 +15,6 @@
     delegate_to: localhost
     register: create_net_switch
 
-  - set_fact:
-      switch_net_id: '{{ create_net_switch.data.id }}'
-
   - name: Get network settings
     cisco.meraki.meraki_network_settings:
       auth_key: '{{ auth_key }}'
@@ -26,9 +23,6 @@
       net_name: NetworkSettingsTestNet
     delegate_to: localhost
     register: query_net
-
-  - debug:
-      var: query_net
 
   - name: Update network settings with check mode
     cisco.meraki.meraki_network_settings:

@@ -24,8 +24,9 @@ options:
     state:
         description:
         - Create or modify an organization.
-        choices: [present, query ]
+        choices: [present, query]
         type: str
+        default: query
     net_name:
         description:
         - Name of a network.
@@ -80,6 +81,35 @@ extends_documentation_fragment: cisco.meraki.meraki
 """
 
 EXAMPLES = r"""
+  - name: Get network settings
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+    delegate_to: localhost
+
+  - name: Update network settings
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: false
+    delegate_to: localhost
+
+  - name: Enable password on local page
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: true
+      local_status_page:
+        authentication:
+          enabled: true
+          password: abc123
+    delegate_to: localhost
 """
 
 RETURN = r"""
@@ -219,7 +249,7 @@ def main():
 
     argument_spec = meraki_argument_spec()
     argument_spec.update(
-        state=dict(type="str", choices=["query", "present"]),
+        state=dict(type="str", choices=["query", "present"], default="query"),
         net_name=dict(type="str", aliases=["name", "network"]),
         net_id=dict(type="str"),
         local_status_page_enabled=dict(type="bool"),
