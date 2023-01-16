@@ -757,6 +757,7 @@
     access_policy_type: "Custom access policy"
     access_policy_number: 1
   delegate_to: localhost
+  register: port_update
 
 - name: Query switchports
   meraki_switchport:
