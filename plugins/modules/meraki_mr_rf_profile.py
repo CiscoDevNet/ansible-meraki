@@ -100,6 +100,10 @@ options:
                 - It is strongly recommended to use RX-SOP only after consulting a wireless expert.
                 - RX-SOP can be configured in the range of -65 to -95 (dBm).
                 type: int
+            ax_enabled:
+                description:
+                - Determines whether ax radio on 5Ghz band is on or off.
+                type: bool
             channel_width:
                 description:
                 - Sets channel width (MHz) for 5Ghz band.
@@ -195,6 +199,7 @@ EXAMPLES = r'''
       min_power: 8
       rxsop: -65
       channel_width: 20
+      ax_enabled: false
       valid_auto_channels:
         - 36
         - 40
@@ -244,6 +249,7 @@ EXAMPLES = r'''
       min_power: 8
       rxsop: -65
       channel_width: 20
+      ax_enabled: false
       valid_auto_channels:
         - 36
         - 44
@@ -361,6 +367,12 @@ data:
                     type: str
                     returned: success
                     sample: auto
+                ax_enabled:
+                    description:
+                    - Determines whether ax radio on 5Ghz band is on or off.
+                    type: bool
+                    returned: success
+                    sample: true
                 valid_auto_channels:
                     description:
                     - Sets valid auto channels for 5Ghz band.
@@ -449,6 +461,8 @@ def construct_payload(meraki):
             payload['fiveGhzSettings']['rxsop'] = meraki.params['five_ghz_settings']['rxsop']
         if meraki.params['five_ghz_settings']['channel_width'] is not None:
             payload['fiveGhzSettings']['channelWidth'] = meraki.params['five_ghz_settings']['channel_width']
+        if meraki.params['five_ghz_settings']['ax_enabled'] is not None:
+            payload['fiveGhzSettings']['axEnabled'] = meraki.params['five_ghz_settings']['ax_enabled']
         if meraki.params['five_ghz_settings']['valid_auto_channels'] is not None:
             payload['fiveGhzSettings']['validAutoChannels'] = meraki.params['five_ghz_settings']['valid_auto_channels']
     if meraki.params['two_four_ghz_settings'] is not None:
@@ -481,6 +495,7 @@ def main():
                          min_power=dict(type='int'),
                          rxsop=dict(type='int'),
                          channel_width=dict(type='str', choices=['auto', '20', '40', '80']),
+                         ax_enabled=dict(type='bool'),
                          valid_auto_channels=dict(type='list', elements='int', choices=[36,
                                                                                         40,
                                                                                         44,

@@ -47,6 +47,7 @@
         min_power: 8
         rxsop: -65
         channel_width: 20
+        ax_enabled: false
         valid_auto_channels:
           - 36
           - 40

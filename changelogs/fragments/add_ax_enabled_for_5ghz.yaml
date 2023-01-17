@@ -1,0 +1,2 @@
+minor_changes:
+  - meraki_mr_rf_profile - Add ax_enabled for 5Ghz band

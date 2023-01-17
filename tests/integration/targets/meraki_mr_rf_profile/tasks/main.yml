@@ -33,6 +33,7 @@
         min_power: 8
         rxsop: -65
         channel_width: 20
+        ax_enabled: false
         valid_auto_channels:
           - 36
           - 40
@@ -73,6 +74,7 @@
         min_power: 8
         rxsop: -65
         channel_width: 20
+        ax_enabled: false
         valid_auto_channels:
           - 36
           - 40
@@ -124,6 +126,7 @@
         min_power: 8
         rxsop: -65
         channel_width: 20
+        ax_enabled: false
         valid_auto_channels:
           - 36
           - 44
@@ -163,6 +166,7 @@
         min_power: 8
         rxsop: -65
         channel_width: 20
+        ax_enabled: false
         valid_auto_channels:
           - 36
           - 44
@@ -201,6 +205,7 @@
         min_power: 8
         rxsop: -65
         channel_width: 20
+        ax_enabled: false
         valid_auto_channels:
           - 36
           - 44
@@ -280,6 +285,7 @@
           mode: 'dual'
         five_ghz_settings:
           channel_width: 40
+          ax_enabled: 'no'
         two_four_ghz_settings:
           ax_enabled: 'no'
         state: present
@@ -302,6 +308,7 @@
           mode: 'dual'
         five_ghz_settings:
           channel_width: 40
+          ax_enabled: 'no'
         two_four_ghz_settings:
           ax_enabled: 'no'
         state: present
