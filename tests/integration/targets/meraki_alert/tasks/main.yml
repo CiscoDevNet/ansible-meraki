@@ -100,9 +100,6 @@
     delegate_to: localhost
     register: update
 
-  - debug:
-      var: update
-
   - name: Assert update
     ansible.builtin.assert:
       that:
@@ -184,9 +181,6 @@
     delegate_to: localhost
     register: removeemailupdate
 
-  - debug:
-      var: removeemailupdate
-
   - name: Assert remove email update
     ansible.builtin.assert:
       that:
@@ -194,7 +188,6 @@
         - removeemailupdate.diff is defined
         - removeemailupdate is changed
         - removemeailupdate.data.default_destinations.email is not defined
-
         
   - name: Remove email settings idempotent
     cisco.meraki.meraki_alert:
@@ -260,9 +253,6 @@
     delegate_to: localhost
     register: set_default_lists
 
-  - debug:
-      var: set_default_lists
-
   - name: Assert default destination items
     ansible.builtin.assert:
       that:
@@ -270,6 +260,52 @@
         - set_default_lists is changed
         - set_default_lists.data.default_destinations.emails | length == 2
         - set_default_lists.data.default_destinations.http_server_ids| length == 1
+
+  - name: Update default destinations without HTTP server IDs for testing purposes
+    cisco.meraki.meraki_alert:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: IntTestNetworkWireless
+      state: present
+      default_destinations:
+        all_admins: false
+        snmp: false
+        emails:
+          - '{{ email_prefix }}@{{ email_domain }}'
+          - '{{ email_prefix }}2@{{ email_domain }}'
+    delegate_to: localhost
+
+  - name: Query all settings
+    cisco.meraki.meraki_alert:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: IntTestNetworkWireless
+      state: query
+    delegate_to: localhost
+    register: query_for_webhook
+
+  - name: Check for HTTP server IDs 
+    ansible.builtin.assert:
+      that:
+        - query_for_webhook.data.default_destinations.http_server_ids | length == 1
+
+  - name: Clear default destination email addresses
+    cisco.meraki.meraki_alert:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: IntTestNetworkWireless
+      state: present
+      default_destinations:
+        all_admins: false
+        snmp: false
+        emails:
+          -
+    delegate_to: localhost
+    register: clear_emails
+
+  - ansible.builtin.assert:
+      that:
+        - clear_emails.data.default_destinations.emails | length == 0
 
   - name: Query all settings
     cisco.meraki.meraki_alert:

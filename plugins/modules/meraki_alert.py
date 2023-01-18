@@ -250,6 +250,10 @@ def construct_payload(meraki, current):
             payload["defaultDestinations"]["snmp"] = meraki.params["default_destinations"]["snmp"]
         if meraki.params["default_destinations"]["emails"] is not None:
             payload["defaultDestinations"]["emails"] = meraki.params["default_destinations"]["emails"]
+            if len(payload["defaultDestinations"]["emails"]) > 0 and payload["defaultDestinations"]["emails"][0] == "None":
+                # Ansible is setting the first item to be "None" so we need to clear this
+                # This happens when an empty list is provided to clear emails
+                del payload["defaultDestinations"]["emails"][0]
         if meraki.params["default_destinations"]["http_server_ids"] is not None:
             payload["defaultDestinations"]["httpServerIds"] = meraki.params["default_destinations"]["http_server_ids"]
     if meraki.params["alerts"] is not None:
@@ -279,6 +283,10 @@ def construct_payload(meraki, current):
                         alert_temp["alertDestinations"]["snmp"] = alert["alert_destinations"]["snmp"]
                     if alert["alert_destinations"]["emails"] is not None:
                         alert_temp["alertDestinations"]["emails"] = alert["alert_destinations"]["emails"]
+                        if len(alert_temp["alertDestinations"]["emails"]) > 0 and alert_temp["alertDestinations"]["emails"][0] == "None":
+                            # Ansible is setting the first item to be "None" so we need to clear this
+                            # This happens when an empty list is provided to clear emails
+                            del alert_temp["defaultDestinations"]["emails"][0]
                     if alert["alert_destinations"]["http_server_ids"] is not None:
                         alert_temp["alertDestinations"]["httpServerIds"] = alert["alert_destinations"]["http_server_ids"]
                 payload["alerts"].append(alert_temp)
@@ -294,7 +302,7 @@ def main():
         all_admins=dict(type="bool"),
         snmp=dict(type="bool"),
         emails=dict(type="list", elements="str"),
-        http_server_ids=dict(type="list", elements="str", default=[]),
+        http_server_ids=dict(type="list", elements="str"),
     )
 
     alerts_arg_spec = dict(
