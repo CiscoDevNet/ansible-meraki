@@ -278,7 +278,7 @@ def construct_payload(meraki, current):
                 if alert["filters"] is not None:
                     alert_temp["filters"] = alert["filters"]
                 if alert["alert_destinations"] is not None:
-                    alert_temp["alertDestinations"] = dict() 
+                    alert_temp["alertDestinations"] = dict()
                     if alert["alert_destinations"]["all_admins"] is not None:
                         alert_temp["alertDestinations"]["allAdmins"] = alert["alert_destinations"]["all_admins"]
                     if alert["alert_destinations"]["snmp"] is not None:
