@@ -253,7 +253,7 @@ def construct_payload(meraki, current):
         if meraki.params["default_destinations"]["http_server_ids"] is not None:
             payload["defaultDestinations"]["httpServerIds"] = meraki.params["default_destinations"]["http_server_ids"]
     if meraki.params["alerts"] is not None:
-        payload["alerts"] = [] 
+        payload["alerts"] = []
         # All data should be resubmitted, otherwise it will clear the alert
         # Also, the order matters so it should go in the same order as current
         modified_types = [type["alert_type"] for type in meraki.params["alerts"]]
@@ -264,7 +264,7 @@ def construct_payload(meraki, current):
               payload["alerts"].append(current_alert)
             else:
                 alert = get_alert_by_type(current_alert["type"], meraki)
-                alert_temp = {"type": None} 
+                alert_temp = {"type": None}
                 if alert["alert_type"] is not None:
                     alert_temp["type"] = alert["alert_type"]
                 if alert["enabled"] is not None:
@@ -355,9 +355,6 @@ def main():
         path = meraki.construct_path("get_all", net_id=net_id)
         original = meraki.request(path, method="GET")
         payload = construct_payload(meraki, original)
-        # meraki.fail_json(msg="Compare", original=original, payload=payload)
-        # meraki.fail_json(msg="Length", original=len(original["alerts"]), payload=len(payload["alerts"]))
-        # meraki.fail_json(msg=payload)
         if meraki.is_update_required(original, payload):
             if meraki.check_mode is True:
                 meraki.generate_diff(original, payload)
