@@ -188,7 +188,7 @@
         - removeemailupdate.diff is defined
         - removeemailupdate is changed
         - removemeailupdate.data.default_destinations.email is not defined
-        
+
   - name: Remove email settings idempotent
     cisco.meraki.meraki_alert:
       auth_key: '{{ auth_key }}'
@@ -284,7 +284,7 @@
     delegate_to: localhost
     register: query_for_webhook
 
-  - name: Check for HTTP server IDs 
+  - name: Check for HTTP server IDs
     ansible.builtin.assert:
       that:
         - query_for_webhook.data.default_destinations.http_server_ids | length == 1
@@ -318,7 +318,7 @@
         all_admins: false
         snmp: false
         http_server_ids:
-          - 
+          -
     delegate_to: localhost
     register: clear_http_ids
 
