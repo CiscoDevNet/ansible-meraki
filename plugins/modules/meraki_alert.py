@@ -256,6 +256,10 @@ def construct_payload(meraki, current):
                 del payload["defaultDestinations"]["emails"][0]
         if meraki.params["default_destinations"]["http_server_ids"] is not None:
             payload["defaultDestinations"]["httpServerIds"] = meraki.params["default_destinations"]["http_server_ids"]
+            if len(payload["defaultDestinations"]["emails"]) > 0 and payload["defaultDestinations"]["emails"][0] == "None":
+                # Ansible is setting the first item to be "None" so we need to clear this
+                # This happens when an empty list is provided to clear server IDs
+                del payload["defaultDestinations"]["emails"][0]
     if meraki.params["alerts"] is not None:
         payload["alerts"] = []
         # All data should be resubmitted, otherwise it will clear the alert
@@ -289,6 +293,10 @@ def construct_payload(meraki, current):
                             del alert_temp["defaultDestinations"]["emails"][0]
                     if alert["alert_destinations"]["http_server_ids"] is not None:
                         alert_temp["alertDestinations"]["httpServerIds"] = alert["alert_destinations"]["http_server_ids"]
+                        if len(alert_temp["alertDestinations"]["emails"]) > 0 and alert_temp["alertDestinations"]["emails"][0] == "None":
+                            # Ansible is setting the first item to be "None" so we need to clear this
+                            # This happens when an empty list is provided to clear server IDs
+                            del alert_temp["defaultDestinations"]["emails"][0]
                 payload["alerts"].append(alert_temp)
     return payload
 
