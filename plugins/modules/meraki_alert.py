@@ -267,7 +267,7 @@ def construct_payload(meraki, current):
         # for alert in meraki.params["alerts"]:
         for current_alert in current["alerts"]:
             if current_alert["type"] not in modified_types:
-              payload["alerts"].append(current_alert)
+                payload["alerts"].append(current_alert)
             else:
                 alert = get_alert_by_type(current_alert["type"], meraki)
                 alert_temp = {"type": None}
