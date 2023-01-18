@@ -60,7 +60,6 @@ options:
                 - A list of HTTP server IDs to send a Webhook to.
                 type: list
                 elements: str
-                default: []
     alerts:
         description:
         - Alert-specific configuration for each type.
@@ -104,7 +103,6 @@ options:
                         - A list of HTTP server IDs to send a Webhook to.
                         type: list
                         elements: str
-                        default: []
 
 author:
     - Kevin Breit (@kbreit)
