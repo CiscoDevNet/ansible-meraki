@@ -303,9 +303,29 @@
     delegate_to: localhost
     register: clear_emails
 
-  - ansible.builtin.assert:
+  - name: Assert emails were cleared
+    ansible.builtin.assert:
       that:
         - clear_emails.data.default_destinations.emails | length == 0
+
+  - name: Clear default destination HTTP server IDs
+    cisco.meraki.meraki_alert:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_name: IntTestNetworkWireless
+      state: present
+      default_destinations:
+        all_admins: false
+        snmp: false
+        http_server_ids:
+          - 
+    delegate_to: localhost
+    register: clear_http_ids
+
+  - name: Assert that HTTP servers were cleared
+    ansible.builtin.assert:
+      that:
+        - clear_http_ids.data.default_destinations.http_server_ids | length == 0
 
   - name: Query all settings
     cisco.meraki.meraki_alert:
