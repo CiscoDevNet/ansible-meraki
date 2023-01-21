@@ -247,8 +247,7 @@
           - 10.0.1.0/24
     check_mode: true
     register: included_missing
-    failed_when: false
-    changed_when: false
+    ignore_errors: true
 
   - name: Assert included_missing
     ansible.builtin.assert:
@@ -269,8 +268,7 @@
           - 10.0.1.0/24
     check_mode: true
     register: excluded_missing
-    failed_when: false
-    changed_when: false
+    ignore_errors: true
 
   - name: Assert excluded_missing
     ansible.builtin.assert:
