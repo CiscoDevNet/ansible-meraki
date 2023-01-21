@@ -1,2 +1,2 @@
 trivial:
-  - Added new workflow checker for a changes tests via ansible-lint - #426, #421
+  - Added new workflow checker for a changes tests via ansible-lint - #421, #426, #430
