@@ -15,6 +15,18 @@
         timezone: America/Chicago
       delegate_to: localhost
 
+    - name: Create webhook
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        name: Test webhook
+        url: "https://webhook.site/f113313e-fbad-464d-9fbe-ed2392e1ee8c"
+        shared_secret: "abc123"
+      delegate_to: localhost
+      register: webhook
+
     - name: Update settings with check mode
       cisco.meraki.meraki_alert:
         auth_key: '{{ auth_key }}'
@@ -223,18 +235,6 @@
         that:
           - removeemailupdate_idempotent.data is defined
           - removeemailupdate_idempotent is not changed
-
-    - name: Create webhook
-      cisco.meraki.meraki_webhook:
-        auth_key: '{{ auth_key }}'
-        org_name: '{{ test_org_name }}'
-        net_name: IntTestNetworkWireless
-        state: present
-        name: Test webhook
-        url: "https://webhook.site/f113313e-fbad-464d-9fbe-ed2392e1ee8c"
-        shared_secret: "abc123"
-      delegate_to: localhost
-      register: webhook
 
     - name: Set default destination email address and HTTP server ID
       cisco.meraki.meraki_alert:
