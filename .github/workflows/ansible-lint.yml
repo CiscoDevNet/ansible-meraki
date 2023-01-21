@@ -1,0 +1,53 @@
+name: Checking the tests files via ansible-lint
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      contains: none
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+
+      - name: Get changed files in the docs folder
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v35
+        with:
+          files: tests/*
+
+      - name: Run step if any file(s) in the docs folder change
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: |
+          echo "One or more files in the docs folder has changed."
+          echo "List all the files that have changed: ${{ steps.changed-files-specific.outputs.all_changed_files }}"
+
+      - name: Set up Python
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: actions/setup-python@v4
+
+      - name: Install ansible-base (devel)
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: pip install ansible --pre --force
+
+      - name: Install ansible-lint (devel)
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: pip install ansible-lint --pre --force
+
+      - name: Show ansible-base version
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: ansible --version
+
+      - name: Show ansible-lint version
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: ansible-lint --version
+
+      - name: Checking the changes files via ansible-lint
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: |
+          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
+              ansible-lint $file
+          done
