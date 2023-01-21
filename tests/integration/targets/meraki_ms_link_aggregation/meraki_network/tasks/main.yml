@@ -5,429 +5,429 @@
 ---
 - name: Block of tasks
   block:
-  - name: Create network without type
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetwork
-      timezone: America/Chicago
-    delegate_to: localhost
-    register: create_net_no_type
-    ignore_errors: true
+    - name: Create network without type
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetwork
+        timezone: America/Chicago
+      delegate_to: localhost
+      register: create_net_no_type
+      ignore_errors: true
 
-  - name: Assert create_net_no_type
-    ansible.builtin.assert:
-      that:
-        - create_net_no_type.msg == 'type parameter is required when creating a network.'
+    - name: Assert create_net_no_type
+      ansible.builtin.assert:
+        that:
+          - create_net_no_type.msg == 'type parameter is required when creating a network.'
 
-  - name: Create network without organization
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      net_name: IntTestNetwork
-      timezone: America/Chicago
-    delegate_to: localhost
-    register: create_net_no_org
-    ignore_errors: true
+    - name: Create network without organization
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        net_name: IntTestNetwork
+        timezone: America/Chicago
+      delegate_to: localhost
+      register: create_net_no_org
+      ignore_errors: true
 
-  - name: Create network with type switch with check mode
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkSwitch
-      type: switch
-      timezone: America/Chicago
-    delegate_to: localhost
-    check_mode: true
-    register: create_net_switch_check
+    - name: Create network with type switch with check mode
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkSwitch
+        type: switch
+        timezone: America/Chicago
+      delegate_to: localhost
+      check_mode: true
+      register: create_net_switch_check
 
-  - name: Debug create_net_switch_check
-    ansible.builtin.debug:
-      var: create_net_switch_check
+    - name: Debug create_net_switch_check
+      ansible.builtin.debug:
+        var: create_net_switch_check
 
-  - name: Debug create_net_switch_check
-    ansible.builtin.debug:
-      var: create_net_switch_check.data.organization_id
+    - name: Debug create_net_switch_check
+      ansible.builtin.debug:
+        var: create_net_switch_check.data.organization_id
 
-  - name: Assert create_net_switch_check
-    ansible.builtin.assert:
-      that:
-        - create_net_switch_check is changed
-        - create_net_switch_check.data is defined
-        - create_net_switch_check.data.organization_id == "{{ test_org_id | string }}"
+    - name: Assert create_net_switch_check
+      ansible.builtin.assert:
+        that:
+          - create_net_switch_check is changed
+          - create_net_switch_check.data is defined
+          - create_net_switch_check.data.organization_id == "{{ test_org_id | string }}"
 
-  - name: Create network with type switch
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkSwitch
-      type: switch
-      timezone: America/Chicago
-    delegate_to: localhost
-    register: create_net_switch
+    - name: Create network with type switch
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkSwitch
+        type: switch
+        timezone: America/Chicago
+      delegate_to: localhost
+      register: create_net_switch
 
-  - name: Create network with type switch by org ID
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_id: '{{ test_org_id }}'
-      net_name: IntTestNetworkSwitchOrgID
-      type: switch
-      timezone: America/Chicago
-    delegate_to: localhost
-    register: create_net_switch_org_id
+    - name: Create network with type switch by org ID
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_id: "{{ test_org_id }}"
+        net_name: IntTestNetworkSwitchOrgID
+        type: switch
+        timezone: America/Chicago
+      delegate_to: localhost
+      register: create_net_switch_org_id
 
-  - name: Create network with type appliance and no timezone
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkAppliance
-      type: appliance
-    delegate_to: localhost
-    register: create_net_appliance_no_tz
+    - name: Create network with type appliance and no timezone
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkAppliance
+        type: appliance
+      delegate_to: localhost
+      register: create_net_appliance_no_tz
 
-  - name: Enable VLAN support on appliance network with check mode
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkAppliance
-      enable_vlans: true
-    delegate_to: localhost
-    check_mode: true
-    register: enable_vlan_check
+    - name: Enable VLAN support on appliance network with check mode
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkAppliance
+        enable_vlans: true
+      delegate_to: localhost
+      check_mode: true
+      register: enable_vlan_check
 
-  - name: Assert enable_vlan_check
-    ansible.builtin.assert:
-      that:
-        - enable_vlan_check.data.enabled == True
-        - enable_vlan_check is changed
+    - name: Assert enable_vlan_check
+      ansible.builtin.assert:
+        that:
+          - enable_vlan_check.data.enabled == True
+          - enable_vlan_check is changed
 
-  - name: Enable VLAN support on appliance network
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkAppliance
-      enable_vlans: true
-    delegate_to: localhost
-    register: enable_vlan
+    - name: Enable VLAN support on appliance network
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkAppliance
+        enable_vlans: true
+      delegate_to: localhost
+      register: enable_vlan
 
-  - name: Assert enable_vlan
-    ansible.builtin.assert:
-      that:
-        - enable_vlan.data.enabled == True
+    - name: Assert enable_vlan
+      ansible.builtin.assert:
+        that:
+          - enable_vlan.data.enabled == True
 
-  - name: Enable VLAN support on appliance network with idempotency
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkAppliance
-      enable_vlans: true
-    delegate_to: localhost
-    register: enable_vlan_idempotent
+    - name: Enable VLAN support on appliance network with idempotency
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkAppliance
+        enable_vlans: true
+      delegate_to: localhost
+      register: enable_vlan_idempotent
 
-  - name: Debug enable_vlan_idempotent
-    ansible.builtin.debug:
-      var: enable_vlan_idempotent
+    - name: Debug enable_vlan_idempotent
+      ansible.builtin.debug:
+        var: enable_vlan_idempotent
 
-  - name: Assert enable_vlan_idempotent
-    ansible.builtin.assert:
-      that:
-        - enable_vlan_idempotent is not changed
-        - enable_vlan_idempotent.data is defined
+    - name: Assert enable_vlan_idempotent
+      ansible.builtin.assert:
+        that:
+          - enable_vlan_idempotent is not changed
+          - enable_vlan_idempotent.data is defined
 
-  - name: Disable VLAN support on appliance network
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkAppliance
-      enable_vlans: false
-    delegate_to: localhost
-    register: disable_vlan
+    - name: Disable VLAN support on appliance network
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkAppliance
+        enable_vlans: false
+      delegate_to: localhost
+      register: disable_vlan
 
-  - name: Assert disable_vlan
-    ansible.builtin.assert:
-      that:
-        - disable_vlan.data.enabled == False
+    - name: Assert disable_vlan
+      ansible.builtin.assert:
+        that:
+          - disable_vlan.data.enabled == False
 
-  - name: Disable VLAN support on appliance network with idempotency
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkAppliance
-      enable_vlans: false
-    delegate_to: localhost
-    register: disable_vlan_idempotent
+    - name: Disable VLAN support on appliance network with idempotency
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkAppliance
+        enable_vlans: false
+      delegate_to: localhost
+      register: disable_vlan_idempotent
 
-  - name: Assert disable_vlan_idempotent
-    ansible.builtin.assert:
-      that:
-        - disable_vlan_idempotent is not changed
-        - disable_vlan_idempotent.data is defined
+    - name: Assert disable_vlan_idempotent
+      ansible.builtin.assert:
+        that:
+          - disable_vlan_idempotent is not changed
+          - disable_vlan_idempotent.data is defined
 
-  - name: Create network with type wireless
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkWireless
-      type: wireless
-      timezone: America/Chicago
-    delegate_to: localhost
-    register: create_net_wireless
+    - name: Create network with type wireless
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkWireless
+        type: wireless
+        timezone: America/Chicago
+      delegate_to: localhost
+      register: create_net_wireless
 
-  - name: Create network with type wireless, and check for idempotency
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkWireless
-      type: wireless
-      timezone: America/Chicago
-    delegate_to: localhost
-    register: create_net_wireless_idempotent
+    - name: Create network with type wireless, and check for idempotency
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkWireless
+        type: wireless
+        timezone: America/Chicago
+      delegate_to: localhost
+      register: create_net_wireless_idempotent
 
-  - name: Assert create_net_wireless_idempotent
-    ansible.builtin.assert:
-      that:
-        - create_net_wireless_idempotent.data is defined
+    - name: Assert create_net_wireless_idempotent
+      ansible.builtin.assert:
+        that:
+          - create_net_wireless_idempotent.data is defined
 
-  - name: Create network with type combined and disable my.meraki.com
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkCombined
-      type:
-        - appliance
-        - switch
-      timezone: America/Chicago
-      local_status_page_enabled: false
-    delegate_to: localhost
-    register: create_net_combined
+    - name: Create network with type combined and disable my.meraki.com
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkCombined
+        type:
+          - appliance
+          - switch
+        timezone: America/Chicago
+        local_status_page_enabled: false
+      delegate_to: localhost
+      register: create_net_combined
 
-  - name: Reenable my.meraki.com with check mode
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkCombined
-      local_status_page_enabled: true
-    delegate_to: localhost
-    register: enable_meraki_com_check
-    check_mode: true
+    - name: Reenable my.meraki.com with check mode
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkCombined
+        local_status_page_enabled: true
+      delegate_to: localhost
+      register: enable_meraki_com_check
+      check_mode: true
 
-  - name: Assert enable_meraki_com_check
-    ansible.builtin.assert:
-      that:
-        - enable_meraki_com_check is changed
-        - enable_meraki_com_check.data is defined
+    - name: Assert enable_meraki_com_check
+      ansible.builtin.assert:
+        that:
+          - enable_meraki_com_check is changed
+          - enable_meraki_com_check.data is defined
 
-  - name: Reenable my.meraki.com
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkCombined
-      local_status_page_enabled: true
-    delegate_to: localhost
-    register: enable_meraki_com
+    - name: Reenable my.meraki.com
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkCombined
+        local_status_page_enabled: true
+      delegate_to: localhost
+      register: enable_meraki_com
 
-  - name: Disable my.meraki.com for next test
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkCombined
-      local_status_page_enabled: false
-    delegate_to: localhost
+    - name: Disable my.meraki.com for next test
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkCombined
+        local_status_page_enabled: false
+      delegate_to: localhost
 
-  - name: Enable remote status page
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkCombined
-      remote_status_page_enabled: true
-    delegate_to: localhost
-    register: disable_remote_status
+    - name: Enable remote status page
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkCombined
+        remote_status_page_enabled: true
+      delegate_to: localhost
+      register: disable_remote_status
 
-  - name: Debug disable_remote_status
-    ansible.builtin.debug:
-      msg: '{{ disable_remote_status }}'
+    - name: Debug disable_remote_status
+      ansible.builtin.debug:
+        msg: "{{ disable_remote_status }}"
 
-  - name: Assert disable_remote_status
-    ansible.builtin.assert:
-      that:
-        - disable_remote_status.data.disable_remote_status_page == False
+    - name: Assert disable_remote_status
+      ansible.builtin.assert:
+        that:
+          - disable_remote_status.data.disable_remote_status_page == False
 
-  - name: Disable remote status page
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkCombined
-      remote_status_page_enabled: false
-    delegate_to: localhost
-    register: enable_remote_status
+    - name: Disable remote status page
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkCombined
+        remote_status_page_enabled: false
+      delegate_to: localhost
+      register: enable_remote_status
 
-  - name: Debug enable_remote_status
-    ansible.builtin.debug:
-      msg: '{{ enable_remote_status }}'
+    - name: Debug enable_remote_status
+      ansible.builtin.debug:
+        msg: "{{ enable_remote_status }}"
 
-  - name: Assert enable_remote_status
-    ansible.builtin.assert:
-      that:
-        - enable_remote_status.data.disable_remote_status_page == True
+    - name: Assert enable_remote_status
+      ansible.builtin.assert:
+        that:
+          - enable_remote_status.data.disable_remote_status_page == True
 
-  - name: Test status pages are mutually exclusive when on
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkCombined
-      local_status_page_enabled: true
-      remote_status_page_enabled: false
-    delegate_to: localhost
-    register: status_exclusivity
-    ignore_errors: true
+    - name: Test status pages are mutually exclusive when on
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkCombined
+        local_status_page_enabled: true
+        remote_status_page_enabled: false
+      delegate_to: localhost
+      register: status_exclusivity
+      ignore_errors: true
 
-  - name: Assert status_exclusivity
-    ansible.builtin.assert:
-      that:
-        - '"must be true when setting" in status_exclusivity.msg'
+    - name: Assert status_exclusivity
+      ansible.builtin.assert:
+        that:
+          - '"must be true when setting" in status_exclusivity.msg'
 
-  - name: Create network with one tag
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkTag
-      type: switch
-      timezone: America/Chicago
-      tags: first_tag
-    delegate_to: localhost
-    register: create_net_tag
+    - name: Create network with one tag
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkTag
+        type: switch
+        timezone: America/Chicago
+        tags: first_tag
+      delegate_to: localhost
+      register: create_net_tag
 
-  - name: Create network with two tags
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkTags
-      type: switch
-      timezone: America/Chicago
-      tags:
-        - first_tag
-        - second_tag
-    delegate_to: localhost
-    register: create_net_tags
+    - name: Create network with two tags
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkTags
+        type: switch
+        timezone: America/Chicago
+        tags:
+          - first_tag
+          - second_tag
+      delegate_to: localhost
+      register: create_net_tags
 
-  - name: Set fact tag_net_id
-    ansible.builtin.set_fact:
-      tag_net_id: '{{ create_net_tags.data.id }}'
+    - name: Set fact tag_net_id
+      ansible.builtin.set_fact:
+        tag_net_id: "{{ create_net_tags.data.id }}"
 
-  - name: Modify network by net_id
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_id: '{{ tag_net_id }}'
-      type: switch
-      timezone: America/Chicago
-      tags:
-        - first_tag
-        - second_tag
-        - third_tag
-    delegate_to: localhost
-    register: create_net_modified
+    - name: Modify network by net_id
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_id: "{{ tag_net_id }}"
+        type: switch
+        timezone: America/Chicago
+        tags:
+          - first_tag
+          - second_tag
+          - third_tag
+      delegate_to: localhost
+      register: create_net_modified
 
-  - name: Modify network with idempotency
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkTags
-      type: switch
-      timezone: America/Chicago
-      tags:
-        - first_tag
-        - second_tag
-        - third_tag
-    delegate_to: localhost
-    register: create_net_modified_idempotent
+    - name: Modify network with idempotency
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkTags
+        type: switch
+        timezone: America/Chicago
+        tags:
+          - first_tag
+          - second_tag
+          - third_tag
+      delegate_to: localhost
+      register: create_net_modified_idempotent
 
-  - name: Assert create_net_modified_idempotent
-    ansible.builtin.assert:
-      that:
-        - create_net_modified_idempotent.data is defined
+    - name: Assert create_net_modified_idempotent
+      ansible.builtin.assert:
+        that:
+          - create_net_modified_idempotent.data is defined
 
-  - name: Present assertions
-    ansible.builtin.assert:
-      that:
-        - create_net_combined.data.type == 'combined'
-        - '"org_name or org_id parameters are required" in create_net_no_org.msg'
-        - '"IntTestNetworkAppliance" in create_net_appliance_no_tz.data.name'
-        - create_net_appliance_no_tz.changed == True
-        - '"IntTestNetworkSwitch" in create_net_switch.data.name'
-        - '"IntTestNetworkSwitchOrgID" in create_net_switch_org_id.data.name'
-        - '"IntTestNetworkWireless" in create_net_wireless.data.name'
-        - create_net_wireless_idempotent.changed == False
-        - create_net_wireless_idempotent.data is defined
-        - '"first_tag" in create_net_tag.data.tags'
-        - '"second_tag" in create_net_tags.data.tags'
-        - '"third_tag" in create_net_modified.data.tags'
-        - create_net_modified.changed == True
-        - create_net_modified_idempotent.changed == False
-        - create_net_modified_idempotent.data is defined
+    - name: Present assertions
+      ansible.builtin.assert:
+        that:
+          - create_net_combined.data.type == 'combined'
+          - '"org_name or org_id parameters are required" in create_net_no_org.msg'
+          - '"IntTestNetworkAppliance" in create_net_appliance_no_tz.data.name'
+          - create_net_appliance_no_tz.changed == True
+          - '"IntTestNetworkSwitch" in create_net_switch.data.name'
+          - '"IntTestNetworkSwitchOrgID" in create_net_switch_org_id.data.name'
+          - '"IntTestNetworkWireless" in create_net_wireless.data.name'
+          - create_net_wireless_idempotent.changed == False
+          - create_net_wireless_idempotent.data is defined
+          - '"first_tag" in create_net_tag.data.tags'
+          - '"second_tag" in create_net_tags.data.tags'
+          - '"third_tag" in create_net_modified.data.tags'
+          - create_net_modified.changed == True
+          - create_net_modified_idempotent.changed == False
+          - create_net_modified_idempotent.data is defined
 
-  - name: Query all networks
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: query
-      org_name: '{{ test_org_name }}'
-    delegate_to: localhost
-    register: net_query_all
+    - name: Query all networks
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+      delegate_to: localhost
+      register: net_query_all
 
-  - name: Query a configuration template
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: query
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_template_name }}'
-    delegate_to: localhost
-    register: query_config_template
+    - name: Query a configuration template
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_template_name }}"
+      delegate_to: localhost
+      register: query_config_template
 
-  - name: Query one network
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: query
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkSwitch
-    delegate_to: localhost
-    register: net_query_one
+    - name: Query one network
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: IntTestNetworkSwitch
+      delegate_to: localhost
+      register: net_query_one
 
-  - name: Query assertions
-    ansible.builtin.assert:
-      that:
-        - 'net_query_one.data.name == "IntTestNetworkSwitch"'
-        - 'query_config_template.data.name == "{{ test_template_name }}"'
+    - name: Query assertions
+      ansible.builtin.assert:
+        that:
+          - 'net_query_one.data.name == "IntTestNetworkSwitch"'
+          - 'query_config_template.data.name == "{{ test_template_name }}"'
 
-#############################################################################
-# Tear down starts here
-#############################################################################
+  #############################################################################
+  # Tear down starts here
+  #############################################################################
   always:
     - name: Delete network without org
       cisco.meraki.meraki_network:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: absent
         net_name: IntTestNetworkSwitch
       delegate_to: localhost
@@ -436,9 +436,9 @@
 
     - name: Delete network by org ID and check mode
       cisco.meraki.meraki_network:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: absent
-        org_id: '{{ test_org_id }}'
+        org_id: "{{ test_org_id }}"
         net_name: IntTestNetworkSwitchOrgID
       delegate_to: localhost
       check_mode: true
@@ -452,27 +452,27 @@
 
     - name: Delete network by org ID
       cisco.meraki.meraki_network:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: absent
-        org_id: '{{ test_org_id }}'
+        org_id: "{{ test_org_id }}"
         net_name: IntTestNetworkSwitchOrgID
       delegate_to: localhost
       register: delete_net_org_id
 
     - name: Query after delete with org ID
       cisco.meraki.meraki_network:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: query
-        org_name: '{{ test_org_name }}'
+        org_name: "{{ test_org_name }}"
       delegate_to: localhost
       register: query_deleted_org_id
 
     - name: Delete all networks
       cisco.meraki.meraki_network:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: absent
-        org_name: '{{ test_org_name }}'
-        net_name: '{{ item }}'
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ item }}"
       delegate_to: localhost
       register: delete_all
       ignore_errors: true
