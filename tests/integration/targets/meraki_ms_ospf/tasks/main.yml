@@ -131,11 +131,11 @@
 # Tear down starts here
 #############################################################################
 
-  # always:
-  # - name: Delete network
-  #   meraki_network:
-  #     auth_key: '{{ auth_key }}'
-  #     state: absent
-  #     org_name: '{{ test_org_name }}'
-  #     net_name: IntTestNetworkSwitch
-  #   delegate_to: localhost
+  always:
+    - name: Delete network
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkSwitch
+      delegate_to: localhost
