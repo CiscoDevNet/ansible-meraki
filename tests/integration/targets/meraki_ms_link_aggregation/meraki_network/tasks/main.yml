@@ -14,8 +14,7 @@
       timezone: America/Chicago
     delegate_to: localhost
     register: create_net_no_type
-    failed_when: false
-    changed_when: false
+    ignore_errors: true
 
   - name: Assert create_net_no_type
     ansible.builtin.assert:
@@ -30,8 +29,7 @@
       timezone: America/Chicago
     delegate_to: localhost
     register: create_net_no_org
-    failed_when: false
-    changed_when: false
+    ignore_errors: true
 
   - name: Create network with type switch with check mode
     cisco.meraki.meraki_network:
@@ -300,8 +298,7 @@
       remote_status_page_enabled: false
     delegate_to: localhost
     register: status_exclusivity
-    failed_when: false
-    changed_when: false
+    ignore_errors: true
 
   - name: Assert status_exclusivity
     ansible.builtin.assert:
@@ -435,8 +432,7 @@
         net_name: IntTestNetworkSwitch
       delegate_to: localhost
       register: delete_all_no_org
-      failed_when: false
-      changed_when: false
+      ignore_errors: true
 
     - name: Delete network by org ID and check mode
       cisco.meraki.meraki_network:
@@ -479,8 +475,7 @@
         net_name: '{{ item }}'
       delegate_to: localhost
       register: delete_all
-      failed_when: false
-      changed_when: false
+      ignore_errors: true
       loop:
         - IntTestNetworkSwitch
         - IntTestNetworkWireless
