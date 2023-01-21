@@ -98,6 +98,22 @@ EXAMPLES = r'''
   delegate_to: localhost
   register: set_spoke
 
+- name: Add subnet to hub for VPN. Hub is required.
+  meraki_site_to_site_vpn:
+    auth_key: abc123
+    state: present
+    org_name: YourOrg
+    net_name: hub_network
+    mode: hub
+    hubs:
+      - hub_id: N_1234
+        use_default_route: false
+    subnets:
+      - local_subnet: 192.168.1.0/24
+        use_vpn: true
+  delegate_to: localhost
+  register: set_hub
+
 - name: Query rules for hub
   meraki_site_to_site_vpn:
     auth_key: abc123
@@ -234,6 +250,10 @@ def main():
         comparable = deepcopy(original)
         comparable.update(payload)
         if meraki.is_update_required(original, payload):
+            if meraki.check_mode is True:
+                meraki.result['changed'] = True
+                meraki.result['data'] = payload
+                meraki.exit_json(**meraki.result)
             path = meraki.construct_path('update', net_id=net_id)
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             meraki.result['changed'] = True
