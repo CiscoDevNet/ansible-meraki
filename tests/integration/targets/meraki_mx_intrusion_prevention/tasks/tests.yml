@@ -5,275 +5,275 @@
 ---
 - name: Block of tests
   block:
-  - name: Test an API key is provided
-    ansible.builtin.fail:
-      msg: Please define an API key
-    when: auth_key is not defined
+    - name: Test an API key is provided
+      ansible.builtin.fail:
+        msg: Please define an API key
+      when: auth_key is not defined
 
-  - name: Create test network
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }} - IPS'
-      type: appliance
-    register: net
+    - name: Create test network
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }} - IPS"
+        type: appliance
+      register: net
 
-  - name: Debug net
-    ansible.builtin.debug:
-      var: net
+    - name: Debug net
+      ansible.builtin.debug:
+        var: net
 
-  - name: Set allowed rules for organization in check mode
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      allowed_rules:
-        - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
-          rule_message: Test rule
-    check_mode: true
-    register: create_org_check
+    - name: Set allowed rules for organization in check mode
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        allowed_rules:
+          - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
+            rule_message: Test rule
+      check_mode: true
+      register: create_org_check
 
-  - name: Assert create_org_check
-    ansible.builtin.assert:
-      that:
-        - create_org_check is changed
-        - create_org_check.data is defined
+    - name: Assert create_org_check
+      ansible.builtin.assert:
+        that:
+          - create_org_check is changed
+          - create_org_check.data is defined
 
-  - name: Set allowed rules for organization
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_id: '{{ test_org_id }}'
-      allowed_rules:
-        - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
-          rule_message: Test rule
-    register: create_org
+    - name: Set allowed rules for organization
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_id: "{{ test_org_id }}"
+        allowed_rules:
+          - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
+            rule_message: Test rule
+      register: create_org
 
-  - name: Assert create_org
-    ansible.builtin.assert:
-      that:
-        - create_org is changed
-        - create_org.data is defined
-        - create_org.data.allowed_rules | length == 1
+    - name: Assert create_org
+      ansible.builtin.assert:
+        that:
+          - create_org is changed
+          - create_org.data is defined
+          - create_org.data.allowed_rules | length == 1
 
-  - name: Set allowed rules for organization with idempotency
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_id: '{{ test_org_id }}'
-      allowed_rules:
-        - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
-          rule_message: Test rule
-    register: create_org_idempotent
+    - name: Set allowed rules for organization with idempotency
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_id: "{{ test_org_id }}"
+        allowed_rules:
+          - rule_id: "meraki:intrusion/snort/GID/01/SID/5805"
+            rule_message: Test rule
+      register: create_org_idempotent
 
-  - name: Assert create_org_idempotent
-    ansible.builtin.assert:
-      that:
-        - create_org_idempotent is not changed
-        - create_org_idempotent.data is defined
+    - name: Assert create_org_idempotent
+      ansible.builtin.assert:
+        that:
+          - create_org_idempotent is not changed
+          - create_org_idempotent.data is defined
 
-  - name: Query IPS info for organization
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: query
-      org_name: '{{ test_org_name }}'
-    register: query_org
+    - name: Query IPS info for organization
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+      register: query_org
 
-  - name: Assert query_org
-    ansible.builtin.assert:
-      that:
-        - query_org.data.allowed_rules is defined
+    - name: Assert query_org
+      ansible.builtin.assert:
+        that:
+          - query_org.data.allowed_rules is defined
 
-  - name: Set mode to prevention with check mode
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }} - IPS'
-      mode: prevention
-    check_mode: true
-    register: mode_check
+    - name: Set mode to prevention with check mode
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }} - IPS"
+        mode: prevention
+      check_mode: true
+      register: mode_check
 
-  - name: Assert mode_check
-    ansible.builtin.assert:
-      that:
-        - mode_check is changed
-        - mode_check.data is defined
+    - name: Assert mode_check
+      ansible.builtin.assert:
+        that:
+          - mode_check is changed
+          - mode_check.data is defined
 
-  - name: Set mode to prevention
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }} - IPS'
-      mode: prevention
-    register: mode
+    - name: Set mode to prevention
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }} - IPS"
+        mode: prevention
+      register: mode
 
-  - name: Debug mode
-    ansible.builtin.debug:
-      var: mode
+    - name: Debug mode
+      ansible.builtin.debug:
+        var: mode
 
-  - name: Assert mode
-    ansible.builtin.assert:
-      that:
-        - mode is changed
-        - mode.data.mode is defined
+    - name: Assert mode
+      ansible.builtin.assert:
+        that:
+          - mode is changed
+          - mode.data.mode is defined
 
-  - name: Set mode to prevention with idempotency
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }} - IPS'
-      mode: prevention
-    register: mode_idempotent
+    - name: Set mode to prevention with idempotency
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }} - IPS"
+        mode: prevention
+      register: mode_idempotent
 
-  - name: Debug mode_idempotent
-    ansible.builtin.debug:
-      var: mode_idempotent
+    - name: Debug mode_idempotent
+      ansible.builtin.debug:
+        var: mode_idempotent
 
-  - name: Assert mode_idempotent
-    ansible.builtin.assert:
-      that:
-        - mode_idempotent is not changed
-        - mode_idempotent.data.mode is defined
+    - name: Assert mode_idempotent
+      ansible.builtin.assert:
+        that:
+          - mode_idempotent is not changed
+          - mode_idempotent.data.mode is defined
 
-  - name: Set full ruleset with check mode
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }} - IPS'
-      mode: prevention
-      ids_rulesets: security
-      protected_networks:
-        use_default: true
-        included_cidr:
-          - 192.0.1.0/24
-        excluded_cidr:
-          - 10.0.1.0/24
-    check_mode: true
-    register: full_check
+    - name: Set full ruleset with check mode
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }} - IPS"
+        mode: prevention
+        ids_rulesets: security
+        protected_networks:
+          use_default: true
+          included_cidr:
+            - 192.0.1.0/24
+          excluded_cidr:
+            - 10.0.1.0/24
+      check_mode: true
+      register: full_check
 
-  - name: Debug full_check
-    ansible.builtin.debug:
-      var: full_check
+    - name: Debug full_check
+      ansible.builtin.debug:
+        var: full_check
 
-  - name: Assert full_check
-    ansible.builtin.assert:
-      that:
-        - full_check is changed
-        - full_check.data.mode is defined
+    - name: Assert full_check
+      ansible.builtin.assert:
+        that:
+          - full_check is changed
+          - full_check.data.mode is defined
 
-  # Meraki says protectedNetworks isn't supported on layer 3 firewalls
-  # Passthrough mode cannot be set via API
-  # - name: Set full ruleset
-  #   cisco.meraki.meraki_mx_intrusion_prevention:
-  #     auth_key: '{{ auth_key }}'
-  #     state: present
-  #     org_name: '{{ test_org_name }}'
-  #     net_name: '{{ test_net_name }} - IPS'
-  #     mode: detection
-  #     ids_rulesets: security
-  #     protected_networks:
-  #       use_default: true
-  #       included_cidr:
-  #         - 192.0.1.0/24
-  #       excluded_cidr:
-  #         - 10.0.1.0/24
-  #   delegate_to: localhost
-  #   register: full
+    # Meraki says protectedNetworks isn't supported on layer 3 firewalls
+    # Passthrough mode cannot be set via API
+    # - name: Set full ruleset
+    #   cisco.meraki.meraki_mx_intrusion_prevention:
+    #     auth_key: '{{ auth_key }}'
+    #     state: present
+    #     org_name: '{{ test_org_name }}'
+    #     net_name: '{{ test_net_name }} - IPS'
+    #     mode: detection
+    #     ids_rulesets: security
+    #     protected_networks:
+    #       use_default: true
+    #       included_cidr:
+    #         - 192.0.1.0/24
+    #       excluded_cidr:
+    #         - 10.0.1.0/24
+    #   delegate_to: localhost
+    #   register: full
 
-  # - ansible.builtin.debug:
-  #     var: full
+    # - ansible.builtin.debug:
+    #     var: full
 
-  # - ansible.builtin.assert:
-  #     that:
-  #       - full is changed
-  #       - full.data.mode is defined
+    # - ansible.builtin.assert:
+    #     that:
+    #       - full is changed
+    #       - full.data.mode is defined
 
-  # Meraki says protectedNetworks isn't supported on layer 3 firewalls
-  # Passthrough mode cannot be set via API
-  # - name: Set full ruleset with idempotency
-  #   cisco.meraki.meraki_mx_intrusion_prevention:
-  #     auth_key: '{{ auth_key }}'
-  #     state: present
-  #     org_name: '{{ test_org_name }}'
-  #     net_name: '{{ test_net_name }} - IPS'
-  #     mode: prevention
-  #     ids_rulesets: security
-  #     protected_networks:
-  #       use_default: true
-  #       included_cidr:
-  #         - 192.0.1.0/24
-  #       excluded_cidr:
-  #         - 10.0.1.0/24
-  #   delegate_to: localhost
-  #   register: full_idempotent
+    # Meraki says protectedNetworks isn't supported on layer 3 firewalls
+    # Passthrough mode cannot be set via API
+    # - name: Set full ruleset with idempotency
+    #   cisco.meraki.meraki_mx_intrusion_prevention:
+    #     auth_key: '{{ auth_key }}'
+    #     state: present
+    #     org_name: '{{ test_org_name }}'
+    #     net_name: '{{ test_net_name }} - IPS'
+    #     mode: prevention
+    #     ids_rulesets: security
+    #     protected_networks:
+    #       use_default: true
+    #       included_cidr:
+    #         - 192.0.1.0/24
+    #       excluded_cidr:
+    #         - 10.0.1.0/24
+    #   delegate_to: localhost
+    #   register: full_idempotent
 
-  # - ansible.builtin.debug:
-  #     var: full_idempotent
+    # - ansible.builtin.debug:
+    #     var: full_idempotent
 
-  # - ansible.builtin.assert:
-  #     that:
-  #       - full_idempotent is not changed
-  #       - full_idempotent.data.mode is defined
+    # - ansible.builtin.assert:
+    #     that:
+    #       - full_idempotent is not changed
+    #       - full_idempotent.data.mode is defined
 
-  - name: Query IPS info for network
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: query
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }} - IPS'
-    register: query_net
+    - name: Query IPS info for network
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }} - IPS"
+      register: query_net
 
-  - name: Assert query_net
-    ansible.builtin.assert:
-      that:
-        - query_net is defined
+    - name: Assert query_net
+      ansible.builtin.assert:
+        that:
+          - query_net is defined
 
-  - name: Test use_default error with included_cidr
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }} - IPS'
-      mode: prevention
-      ids_rulesets: security
-      protected_networks:
-        use_default: false
-        excluded_cidr:
-          - 10.0.1.0/24
-    check_mode: true
-    register: included_missing
-    ignore_errors: true
+    - name: Test use_default error with included_cidr
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }} - IPS"
+        mode: prevention
+        ids_rulesets: security
+        protected_networks:
+          use_default: false
+          excluded_cidr:
+            - 10.0.1.0/24
+      check_mode: true
+      register: included_missing
+      ignore_errors: true
 
-  - name: Assert included_missing
-    ansible.builtin.assert:
-      that:
-        - 'included_missing.msg == "included_cidr is required when use_default is False."'
+    - name: Assert included_missing
+      ansible.builtin.assert:
+        that:
+          - 'included_missing.msg == "included_cidr is required when use_default is False."'
 
-  - name: Test use_default error with included_cidr
-    cisco.meraki.meraki_mx_intrusion_prevention:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }} - IPS'
-      mode: prevention
-      ids_rulesets: security
-      protected_networks:
-        use_default: false
-        included_cidr:
-          - 10.0.1.0/24
-    check_mode: true
-    register: excluded_missing
-    ignore_errors: true
+    - name: Test use_default error with included_cidr
+      cisco.meraki.meraki_mx_intrusion_prevention:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }} - IPS"
+        mode: prevention
+        ids_rulesets: security
+        protected_networks:
+          use_default: false
+          included_cidr:
+            - 10.0.1.0/24
+      check_mode: true
+      register: excluded_missing
+      ignore_errors: true
 
-  - name: Assert excluded_missing
-    ansible.builtin.assert:
-      that:
-        - 'excluded_missing.msg == "excluded_cidr is required when use_default is False."'
+    - name: Assert excluded_missing
+      ansible.builtin.assert:
+        that:
+          - 'excluded_missing.msg == "excluded_cidr is required when use_default is False."'
 
   # #############################################################################
   # # Tear down starts here
@@ -281,17 +281,17 @@
   always:
     - name: Delete network
       cisco.meraki.meraki_network:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: absent
-        org_name: '{{ test_org_name }}'
-        net_name: '{{ test_net_name }} - IPS'
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }} - IPS"
       register: delete_net
 
     - name: Clear rules from organization with check mode
       cisco.meraki.meraki_mx_intrusion_prevention:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: absent
-        org_name: '{{ test_org_name }}'
+        org_name: "{{ test_org_name }}"
         allowed_rules: []
       check_mode: true
       register: cleared
@@ -304,15 +304,15 @@
 
     - name: Clear rules from organization
       cisco.meraki.meraki_mx_intrusion_prevention:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: absent
-        org_name: '{{ test_org_name }}'
+        org_name: "{{ test_org_name }}"
         allowed_rules: []
     - name: Clear rules from organization with idempotency
       cisco.meraki.meraki_mx_intrusion_prevention:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: absent
-        org_name: '{{ test_org_name }}'
+        org_name: "{{ test_org_name }}"
         allowed_rules: []
       register: del_idempotent
 
@@ -324,7 +324,7 @@
 
     - name: Delete test network
       cisco.meraki.meraki_network:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: absent
-        org_name: '{{ test_org_name }}'
-        net_name: '{{ test_net_name }} - IPS'
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }} - IPS"
