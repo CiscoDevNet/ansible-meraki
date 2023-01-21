@@ -197,6 +197,21 @@ releases:
     fragments:
     - meraki_mr_l7_firewall.yml
     release_date: '2022-11-21'
+  2.14.0:
+    changes:
+      bugfixes:
+      - Fix checkmode on merak webhook payload template update
+      - meraki_webhook - First error when updating URL in a webhook
+      minor_changes:
+      - meraki_webhook - Add payload template parameter
+    fragments:
+    - bugfixes-meraki_webhook_payload_template.yml
+    - warnings-meraki_mr_settings.yml
+    - warnings-meraki_ms_access_list.yml
+    - warnings-meraki_ms_storm_control.yml
+    - webhook-diff.yml
+    - webhook-plus-payload-templates.yml
+    release_date: '2023-01-05'
   2.2.0:
     changes:
       bugfixes:
