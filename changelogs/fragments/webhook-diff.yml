@@ -1,3 +1,0 @@
-bugfixes:
-  - meraki_webhook - First error when updating URL in a webhook
-  

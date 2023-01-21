@@ -5,6 +5,20 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.14.0
+=======
+
+Minor Changes
+-------------
+
+- meraki_webhook - Add payload template parameter
+
+Bugfixes
+--------
+
+- Fix checkmode on merak webhook payload template update
+- meraki_webhook - First error when updating URL in a webhook
+
 v2.13.0
 =======
 

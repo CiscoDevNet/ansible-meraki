@@ -60,7 +60,6 @@ options:
                 - A list of HTTP server IDs to send a Webhook to.
                 type: list
                 elements: str
-                default: []
     alerts:
         description:
         - Alert-specific configuration for each type.
@@ -104,7 +103,6 @@ options:
                         - A list of HTTP server IDs to send a Webhook to.
                         type: list
                         elements: str
-                        default: []
 
 author:
     - Kevin Breit (@kbreit)
@@ -233,28 +231,71 @@ from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki
 )
 
 
-def construct_payload(meraki, original):
-    payload = copy.deepcopy(original)
+def get_alert_by_type(type, meraki):
+    for alert in meraki.params["alerts"]:
+        if alert["alert_type"] == type:
+            return alert
+    return None
+
+
+def construct_payload(meraki, current):
+    payload = {}
     if meraki.params["default_destinations"] is not None:
-        payload["defaultDestinations"].update(meraki.params["default_destinations"])
-        payload["defaultDestinations"]["allAdmins"] = meraki.params[
-            "default_destinations"
-        ]["all_admins"]
-        payload["defaultDestinations"]["httpServerIds"] = meraki.params[
-            "default_destinations"
-        ]["http_server_ids"]
-        del payload["defaultDestinations"]["all_admins"]
-        del payload["defaultDestinations"]["http_server_ids"]
+        payload["defaultDestinations"] = {}
+        if meraki.params["default_destinations"]["all_admins"] is not None:
+            payload["defaultDestinations"]["allAdmins"] = meraki.params["default_destinations"]["all_admins"]
+        if meraki.params["default_destinations"]["snmp"] is not None:
+            payload["defaultDestinations"]["snmp"] = meraki.params["default_destinations"]["snmp"]
+        if meraki.params["default_destinations"]["emails"] is not None:
+            payload["defaultDestinations"]["emails"] = meraki.params["default_destinations"]["emails"]
+            if len(payload["defaultDestinations"]["emails"]) > 0 and payload["defaultDestinations"]["emails"][0] == "None":
+                # Ansible is setting the first item to be "None" so we need to clear this
+                # This happens when an empty list is provided to clear emails
+                del payload["defaultDestinations"]["emails"][0]
+        if meraki.params["default_destinations"]["http_server_ids"] is not None:
+            payload["defaultDestinations"]["httpServerIds"] = meraki.params["default_destinations"]["http_server_ids"]
+            if len(payload["defaultDestinations"]["httpServerIds"]) > 0 and payload["defaultDestinations"]["httpServerIds"][0] == "None":
+                # Ansible is setting the first item to be "None" so we need to clear this
+                # This happens when an empty list is provided to clear server IDs
+                del payload["defaultDestinations"]["httpServerIds"][0]
     if meraki.params["alerts"] is not None:
-        for alert in meraki.params["alerts"]:
-            alert.update(meraki.convert_snake_to_camel(alert))
-            del alert["alert_destinations"]
-        for alert_want in meraki.params["alerts"]:
-            for alert_have in payload["alerts"]:
-                if alert_want["alert_type"] == alert_have["type"]:
-                    alert_have.update(alert_want)
-                    del alert_have["alert_type"]
-                    del alert_have["alertType"]
+        payload["alerts"] = []
+        # All data should be resubmitted, otherwise it will clear the alert
+        # Also, the order matters so it should go in the same order as current
+        modified_types = [type["alert_type"] for type in meraki.params["alerts"]]
+
+        # for alert in meraki.params["alerts"]:
+        for current_alert in current["alerts"]:
+            if current_alert["type"] not in modified_types:
+                payload["alerts"].append(current_alert)
+            else:
+                alert = get_alert_by_type(current_alert["type"], meraki)
+                alert_temp = {"type": None}
+                if alert["alert_type"] is not None:
+                    alert_temp["type"] = alert["alert_type"]
+                if alert["enabled"] is not None:
+                    alert_temp["enabled"] = alert["enabled"]
+                if alert["filters"] is not None:
+                    alert_temp["filters"] = alert["filters"]
+                if alert["alert_destinations"] is not None:
+                    alert_temp["alertDestinations"] = dict()
+                    if alert["alert_destinations"]["all_admins"] is not None:
+                        alert_temp["alertDestinations"]["allAdmins"] = alert["alert_destinations"]["all_admins"]
+                    if alert["alert_destinations"]["snmp"] is not None:
+                        alert_temp["alertDestinations"]["snmp"] = alert["alert_destinations"]["snmp"]
+                    if alert["alert_destinations"]["emails"] is not None:
+                        alert_temp["alertDestinations"]["emails"] = alert["alert_destinations"]["emails"]
+                        if len(alert_temp["alertDestinations"]["emails"]) > 0 and alert_temp["alertDestinations"]["emails"][0] == "None":
+                            # Ansible is setting the first item to be "None" so we need to clear this
+                            # This happens when an empty list is provided to clear emails
+                            del alert_temp["defaultDestinations"]["emails"][0]
+                    if alert["alert_destinations"]["http_server_ids"] is not None:
+                        alert_temp["alertDestinations"]["httpServerIds"] = alert["alert_destinations"]["http_server_ids"]
+                        if len(alert_temp["alertDestinations"]["httpServerIds"]) > 0 and alert_temp["alertDestinations"]["httpServerIds"][0] == "None":
+                            # Ansible is setting the first item to be "None" so we need to clear this
+                            # This happens when an empty list is provided to clear server IDs
+                            del alert_temp["defaultDestinations"]["httpServerIds"][0]
+                payload["alerts"].append(alert_temp)
     return payload
 
 
@@ -267,7 +308,7 @@ def main():
         all_admins=dict(type="bool"),
         snmp=dict(type="bool"),
         emails=dict(type="list", elements="str"),
-        http_server_ids=dict(type="list", elements="str", default=[]),
+        http_server_ids=dict(type="list", elements="str"),
     )
 
     alerts_arg_spec = dict(
@@ -328,8 +369,6 @@ def main():
         path = meraki.construct_path("get_all", net_id=net_id)
         original = meraki.request(path, method="GET")
         payload = construct_payload(meraki, original)
-        # meraki.fail_json(msg="Compare", original=original, payload=payload)
-        # meraki.fail_json(msg=payload)
         if meraki.is_update_required(original, payload):
             if meraki.check_mode is True:
                 meraki.generate_diff(original, payload)

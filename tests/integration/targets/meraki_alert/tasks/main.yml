@@ -1,172 +1,345 @@
 # Test code for the Meraki modules
-# Copyright: (c) 2020, Kevin Breit (@kbreit)
+# Copyright: (c) 2020, 2023 Kevin Breit (@kbreit)
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
 - name: Block of tests
   block:
-  - name: Create network with type wireless
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkWireless
-      type: wireless
-      timezone: America/Chicago
-    delegate_to: localhost
+    - name: Create network with type wireless
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: present
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        type: wireless
+        timezone: America/Chicago
+      delegate_to: localhost
 
-  - name: Update settings with check mode
-    cisco.meraki.meraki_alert:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkWireless
-      state: present
-      default_destinations:
-        emails:
-          - '{{ email_prefix }}@{{ email_domain }}'
-          - '{{ email_prefix }}2@{{ email_domain }}'
-        all_admins: false
-        snmp: false
-        http_server_ids:
-          - abcdefg
-      alerts:
-        - alert_type: "gatewayDown"
-          enabled: true
-          filters:
-            timeout: 60
-          alert_destinations:
-            emails:
-              - '{{ email_prefix }}@{{ email_domain }}'
-              - '{{ email_prefix }}2@{{ email_domain }}'
-            all_admins: false
-            snmp: false
-        - alert_type: "usageAlert"
-          enabled: true
-          filters:
-            period: 1200
-            threshold: 104857600
-          alert_destinations:
-            emails:
-              - '{{ email_prefix }}@{{ email_domain }}'
-              - '{{ email_prefix }}2@{{ email_domain }}'
-            all_admins: true
-            snmp: false
-    delegate_to: localhost
-    register: update_check
-    check_mode: true
+    - name: Create webhook
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        name: Test webhook
+        url: "https://webhook.site/f113313e-fbad-464d-9fbe-ed2392e1ee8c"
+        shared_secret: "abc123"
+      delegate_to: localhost
+      register: webhook
 
-  - name: Assert update_check
-    ansible.builtin.assert:
-      that:
-        - update_check.data is defined
-        - update_check.diff is defined
-        - update_check is changed
-        - update_check.data.default_destinations.http_server_ids.0 == "abcdefg"
+    - name: Update settings with check mode
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        default_destinations:
+          emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+          all_admins: false
+          snmp: false
+          http_server_ids:
+            - "aHR0cHM6Ly93ZWJob29rLnNpdGUvZjExMzMxM2UtZmJhZC00NjRkLTlmYmUtZWQyMzkyZTFlZThjCg=="
+        alerts:
+          - alert_type: "gatewayDown"
+            enabled: true
+            filters:
+              timeout: 60
+            alert_destinations:
+              emails:
+                - '{{ email_prefix }}@{{ email_domain }}'
+                - '{{ email_prefix }}2@{{ email_domain }}'
+              all_admins: false
+              snmp: false
+          - alert_type: "usageAlert"
+            enabled: true
+            filters:
+              period: 1200
+              threshold: 104857600
+            alert_destinations:
+              emails:
+                - '{{ email_prefix }}@{{ email_domain }}'
+                - '{{ email_prefix }}2@{{ email_domain }}'
+              all_admins: true
+              snmp: false
+      delegate_to: localhost
+      register: update_check
+      check_mode: true
 
-  - name: Update settings
-    cisco.meraki.meraki_alert:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkWireless
-      state: present
-      default_destinations:
-        emails:
-          - '{{ email_prefix }}@{{ email_domain }}'
-          - '{{ email_prefix }}2@{{ email_domain }}'
-        all_admins: false
-        snmp: false
-      alerts:
-        - alert_type: "gatewayDown"
-          enabled: true
-          filters:
-            timeout: 60
-          alert_destinations:
-            emails:
-              - '{{ email_prefix }}@{{ email_domain }}'
-              - '{{ email_prefix }}2@{{ email_domain }}'
-            all_admins: false
-            snmp: false
-        - alert_type: "usageAlert"
-          enabled: true
-          filters:
-            period: 1200
-            threshold: 104857600
-          alert_destinations:
-            emails:
-              - '{{ email_prefix }}@{{ email_domain }}'
-              - '{{ email_prefix }}2@{{ email_domain }}'
-            all_admins: true
-            snmp: false
-    delegate_to: localhost
-    register: update
+    - name: Assert update_check
+      ansible.builtin.assert:
+        that:
+          - update_check.data is defined
+          - update_check.diff is defined
+          - update_check is changed
+          - update_check.data.default_destinations.http_server_ids | length == 1
 
-  - name: Assert update
-    ansible.builtin.assert:
-      that:
-        - update.data is defined
-        - update.diff is defined
-        - update is changed
+    - name: Update settings
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        default_destinations:
+          emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+          all_admins: false
+          snmp: false
+        alerts:
+          - alert_type: "gatewayDown"
+            enabled: true
+            filters:
+              timeout: 60
+            alert_destinations:
+              emails:
+                - '{{ email_prefix }}@{{ email_domain }}'
+                - '{{ email_prefix }}2@{{ email_domain }}'
+              all_admins: false
+              snmp: false
+          - alert_type: "usageAlert"
+            enabled: true
+            filters:
+              period: 1200
+              threshold: 104857600
+            alert_destinations:
+              emails:
+                - '{{ email_prefix }}@{{ email_domain }}'
+                - '{{ email_prefix }}2@{{ email_domain }}'
+              all_admins: true
+              snmp: false
+      delegate_to: localhost
+      register: update
 
-  - name: Update settings idempotent
-    cisco.meraki.meraki_alert:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkWireless
-      state: present
-      default_destinations:
-        emails:
-          - '{{ email_prefix }}@{{ email_domain }}'
-          - '{{ email_prefix }}2@{{ email_domain }}'
-        all_admins: false
-        snmp: false
-      alerts:
-        - alert_type: "gatewayDown"
-          enabled: true
-          filters:
-            timeout: 60
-          alert_destinations:
-            emails:
-              - '{{ email_prefix }}@{{ email_domain }}'
-              - '{{ email_prefix }}2@{{ email_domain }}'
-            all_admins: false
-            snmp: false
-        - alert_type: "usageAlert"
-          enabled: true
-          filters:
-            period: 1200
-            threshold: 104857600
-          alert_destinations:
-            emails:
-              - '{{ email_prefix }}@{{ email_domain }}'
-              - '{{ email_prefix }}2@{{ email_domain }}'
-            all_admins: true
-            snmp: false
-    delegate_to: localhost
-    register: update_idempotent
+    - name: Assert update
+      ansible.builtin.assert:
+        that:
+          - update.data is defined
+          - update.diff is defined
+          - update is changed
+          - update.data.default_destinations.emails | length == 2
 
-  - name: Assert update_idempotent
-    ansible.builtin.assert:
-      that:
-        - update_idempotent.data is defined
-        - update_idempotent is not changed
+    - name: Update settings idempotent
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        default_destinations:
+          emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+          all_admins: false
+          snmp: false
+        alerts:
+          - alert_type: "gatewayDown"
+            enabled: true
+            filters:
+              timeout: 60
+            alert_destinations:
+              emails:
+                - '{{ email_prefix }}@{{ email_domain }}'
+                - '{{ email_prefix }}2@{{ email_domain }}'
+              all_admins: false
+              snmp: false
+          - alert_type: "usageAlert"
+            enabled: true
+            filters:
+              period: 1200
+              threshold: 104857600
+            alert_destinations:
+              emails:
+                - '{{ email_prefix }}@{{ email_domain }}'
+                - '{{ email_prefix }}2@{{ email_domain }}'
+              all_admins: true
+              snmp: false
+      delegate_to: localhost
+      register: update_idempotent
 
-  - name: Query all settings
-    cisco.meraki.meraki_alert:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: IntTestNetworkWireless
-      state: query
-    delegate_to: localhost
-    register: query_all
+    - name: Assert update_idempotent
+      ansible.builtin.assert:
+        that:
+          - update_idempotent.data is defined
+          - update_idempotent is not changed
 
-  - name: Debug query_all
-    ansible.builtin.debug:
-      var: query_all
+    - name: Remove Email from settings
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        default_destinations:
+          all_admins: false
+          snmp: false
+          emails: []
+        alerts:
+          - alert_type: "gatewayDown"
+            enabled: true
+            filters:
+              timeout: 60
+            alert_destinations:
+              all_admins: false
+              snmp: false
+              emails: []
+          - alert_type: "usageAlert"
+            enabled: true
+            filters:
+              period: 1200
+              threshold: 104857600
+            alert_destinations:
+              all_admins: true
+              snmp: false
+      delegate_to: localhost
+      register: removeemailupdate
 
-  - name: Asset query_all
-    ansible.builtin.assert:
-      that:
-        - query_all.data is defined
+    - name: Assert remove email update
+      ansible.builtin.assert:
+        that:
+          - removeemailupdate.data is defined
+          - removeemailupdate.diff is defined
+          - removeemailupdate is changed
+          - removemeailupdate.data.default_destinations.email is not defined
+
+    - name: Remove email settings idempotent
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        default_destinations:
+          all_admins: false
+          snmp: false
+        alerts:
+          - alert_type: "gatewayDown"
+            enabled: true
+            filters:
+              timeout: 60
+            alert_destinations:
+              all_admins: false
+              snmp: false
+              emails: []
+          - alert_type: "usageAlert"
+            enabled: true
+            filters:
+              period: 1200
+              threshold: 104857600
+            alert_destinations:
+              all_admins: true
+              snmp: false
+      delegate_to: localhost
+      register: removeemailupdate_idempotent
+
+    - name: Remove Email Assert update_idempotent
+      ansible.builtin.assert:
+        that:
+          - removeemailupdate_idempotent.data is defined
+          - removeemailupdate_idempotent is not changed
+
+    - name: Set default destination email address and HTTP server ID
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        default_destinations:
+          all_admins: false
+          snmp: false
+          emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+          http_server_ids:
+            - '{{ webhook.data.id }}'
+      delegate_to: localhost
+      register: set_default_lists
+
+    - name: Assert default destination items
+      ansible.builtin.assert:
+        that:
+          - set_default_lists.data is defined
+          - set_default_lists is changed
+          - set_default_lists.data.default_destinations.emails | length == 2
+          - set_default_lists.data.default_destinations.http_server_ids| length == 1
+
+    - name: Update default destinations without HTTP server IDs for testing purposes
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        default_destinations:
+          all_admins: false
+          snmp: false
+          emails:
+            - '{{ email_prefix }}@{{ email_domain }}'
+            - '{{ email_prefix }}2@{{ email_domain }}'
+      delegate_to: localhost
+
+    - name: Query all settings
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: query
+      delegate_to: localhost
+      register: query_for_webhook
+
+    - name: Check for HTTP server IDs
+      ansible.builtin.assert:
+        that:
+          - query_for_webhook.data.default_destinations.http_server_ids | length == 1
+
+    - name: Clear default destination email addresses
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        default_destinations:
+          all_admins: false
+          snmp: false
+          emails:
+            -
+      delegate_to: localhost
+      register: clear_emails
+
+    - name: Assert emails were cleared
+      ansible.builtin.assert:
+        that:
+          - clear_emails.data.default_destinations.emails | length == 0
+
+    - name: Clear default destination HTTP server IDs
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: present
+        default_destinations:
+          all_admins: false
+          snmp: false
+          http_server_ids:
+            -
+      delegate_to: localhost
+      register: clear_http_ids
+
+    - name: Assert that HTTP servers were cleared
+      ansible.builtin.assert:
+        that:
+          - clear_http_ids.data.default_destinations.http_server_ids | length == 0
+
+    - name: Query all settings
+      cisco.meraki.meraki_alert:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: IntTestNetworkWireless
+        state: query
+      delegate_to: localhost
+      register: query_all
+
+    - name: Asset query_all
+      ansible.builtin.assert:
+        that:
+          - query_all.data is defined
 
 
 #############################################################################
