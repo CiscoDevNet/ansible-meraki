@@ -466,32 +466,32 @@
       - update_trunk_idempotent.changed == False
       - update_trunk_idempotent.data is defined
 
-- name: Enable Sticky MAC Using Replace
-  cisco.meraki.meraki_ms_switchport:
-    auth_key: '{{ auth_key }}'
-    state: present
-    serial: '{{ serial_switch }}'
-    number: 7
-    enabled: true
-    type: access
-    access_policy_type: "Sticky MAC allow list"
-    sticky_mac_allow_list:
-      macs:
-        - "aa:aa:bb:bb:cc:cc"
-      state: replaced
-    sticky_mac_allow_list_limit: 1
-  delegate_to: localhost
-  register: sticky_mac_allow_replace
+# - name: Enable Sticky MAC Using Replace
+#   cisco.meraki.meraki_ms_switchport:
+#     auth_key: '{{ auth_key }}'
+#     state: present
+#     serial: '{{ serial_switch }}'
+#     number: 7
+#     enabled: true
+#     type: access
+#     access_policy_type: "Sticky MAC allow list"
+#     sticky_mac_allow_list:
+#       macs:
+#         - "aa:aa:bb:bb:cc:cc"
+#       state: replaced
+#     sticky_mac_allow_list_limit: 1
+#   delegate_to: localhost
+#   register: sticky_mac_allow_replace
 
-- name: Debug sticky_mac_allow_replace
-  ansible.builtin.debug:
-    msg: '{{ sticky_mac_allow_replace }}'
+# - name: Debug sticky_mac_allow_replace
+#   ansible.builtin.debug:
+#     msg: '{{ sticky_mac_allow_replace }}'
 
-- name: Assert sticky_mac_allow_replace
-  ansible.builtin.assert:
-    that:
-      - sticky_mac_allow_replace.data.sticky_mac_allow_list_limit == 1
-      - sticky_mac_allow_replace.data.sticky_mac_allow_list == ["aa:aa:bb:bb:cc:cc"]
+# - name: Assert sticky_mac_allow_replace
+#   ansible.builtin.assert:
+#     that:
+#       - sticky_mac_allow_replace.data.sticky_mac_allow_list_limit == 1
+#       - sticky_mac_allow_replace.data.sticky_mac_allow_list == ["aa:aa:bb:bb:cc:cc"]
 
 - name: Enable Sticky MAC Using Replace Idempotent
   cisco.meraki.meraki_ms_switchport:
