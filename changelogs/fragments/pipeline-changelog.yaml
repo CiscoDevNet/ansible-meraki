@@ -1,0 +1,2 @@
+bugfixes:
+- Update pipeline to use newer version of action to detect changed files.
