@@ -155,7 +155,7 @@ data:
 
 
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
+from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec, recursive_diff
 from copy import deepcopy
 
 
@@ -233,11 +233,17 @@ def main():
     if module.params['state'] == 'present':
         payload = dict()
         if meraki.params['allowed_urls']:
-            payload['allowedUrlPatterns'] = meraki.params['allowed_urls']
+            if meraki.params['allowed_urls'] == ['None']:  # Corner case for resetting
+                payload['allowedUrlPatterns'] = []
+            else:
+                payload['allowedUrlPatterns'] = meraki.params['allowed_urls']
         if meraki.params['blocked_urls']:
-            payload['blockedUrlPatterns'] = meraki.params['blocked_urls']
+            if meraki.params['blocked_urls'] == ['None']:  # Corner case for resetting
+                payload['blockedUrlPatterns'] = []
+            else:
+                payload['blockedUrlPatterns'] = meraki.params['blocked_urls']
         if meraki.params['blocked_categories']:
-            if len(meraki.params['blocked_categories']) == 0:  # Corner case for resetting
+            if meraki.params['blocked_categories'] == ['None']:  # Corner case for resetting
                 payload['blockedUrlCategories'] = []
             else:
                 category_path = meraki.construct_path('categories', net_id=net_id)
@@ -273,8 +279,12 @@ def main():
                 meraki.exit_json(**meraki.result)
             response = meraki.request(path, method='PUT', payload=json.dumps(payload))
             meraki.result['data'] = response
-            meraki.result['changed'] = True
-            meraki.generate_diff(current, response)
+            if recursive_diff(current, response) is None:
+                meraki.result['changed'] = False
+                meraki.result['data'] = str(recursive_diff(current, response))
+            else:
+                meraki.result['changed'] = True
+                meraki.generate_diff(current, response)
         else:
             meraki.result['data'] = current
             if module.check_mode:
