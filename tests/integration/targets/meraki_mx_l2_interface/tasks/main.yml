@@ -5,158 +5,157 @@
 ---
 - name: Block of tasks
   block:
-  - name: Create network with type appliance
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_appliance_net_name }}'
-      type: appliance
-      timezone: America/Chicago
-    delegate_to: localhost
-    register: create_net
+    - name: Create network with type appliance
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
+        type: appliance
+        timezone: America/Chicago
+      delegate_to: localhost
+      register: create_net
 
-  - name: Claim a device into a network
-    cisco.meraki.meraki_device:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_appliance_net_name }}'
-      serial: '{{ serial_appliance }}'
-      state: present
-    delegate_to: localhost
+    - name: Claim a device into a network
+      cisco.meraki.meraki_device:
+        auth_key: "{{ auth_key }}"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
+        serial: "{{ serial_appliance }}"
+        state: present
+      delegate_to: localhost
 
-  - name: Enable VLAN support on appliance network
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_appliance_net_name }}'
-      enable_vlans: true
-    delegate_to: localhost
+    - name: Enable VLAN support on appliance network
+      cisco.meraki.meraki_network:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
+        enable_vlans: true
+      delegate_to: localhost
 
-  - name: Create a VLAN
-    cisco.meraki.meraki_mx_vlan:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_appliance_net_name }}'
-      state: present
-      vlan_id: 10
-      name: TestVLAN
-      subnet: 192.0.10.0/24
-      appliance_ip: 192.0.10.1
-    delegate_to: localhost
+    - name: Create a VLAN
+      cisco.meraki.meraki_mx_vlan:
+        auth_key: "{{ auth_key }}"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
+        state: present
+        vlan_id: 10
+        name: TestVLAN
+        subnet: 192.0.10.0/24
+        appliance_ip: 192.0.10.1
+      delegate_to: localhost
 
-  - name: Query layer 2 interface settings
-    cisco.meraki.meraki_mx_l2_interface:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_appliance_net_name }}'
-      state: query
-    delegate_to: localhost
-    register: query_all
+    - name: Query layer 2 interface settings
+      cisco.meraki.meraki_mx_l2_interface:
+        auth_key: "{{ auth_key }}"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
+        state: query
+      delegate_to: localhost
+      register: query_all
 
-  - name: Assert query_all
-    ansible.builtin.assert:
-      that:
-        - query_all.data is defined
+    - name: Assert query_all
+      ansible.builtin.assert:
+        that:
+          - query_all.data is defined
 
-  - name: Query a single layer 2 interface settings
-    cisco.meraki.meraki_mx_l2_interface:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_appliance_net_name }}'
-      state: query
-      number: 2
-    delegate_to: localhost
-    register: query_one
+    - name: Query a single layer 2 interface settings
+      cisco.meraki.meraki_mx_l2_interface:
+        auth_key: "{{ auth_key }}"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
+        state: query
+        number: 2
+      delegate_to: localhost
+      register: query_one
 
-  - name: Assert query_one
-    ansible.builtin.assert:
-      that:
-        - query_one.data is defined
+    - name: Assert query_one
+      ansible.builtin.assert:
+        that:
+          - query_one.data is defined
 
-  - name: Update interface configuration with check mode
-    cisco.meraki.meraki_mx_l2_interface:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_appliance_net_name }}'
-      state: present
-      number: 2
-      port_type: access
-      vlan: 10
-    delegate_to: localhost
-    register: update_check
-    check_mode: true
+    - name: Update interface configuration with check mode
+      cisco.meraki.meraki_mx_l2_interface:
+        auth_key: "{{ auth_key }}"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
+        state: present
+        number: 2
+        port_type: access
+        vlan: 10
+      delegate_to: localhost
+      register: update_check
+      check_mode: true
 
-  - name: Debug update_check
-    ansible.builtin.debug:
-      var: update_check
+    - name: Debug update_check
+      ansible.builtin.debug:
+        var: update_check
 
-  - name: Assert update_check
-    ansible.builtin.assert:
-      that:
-        - update_check.data is defined
-        - update_check.data.vlan == 10
-        - update_check is changed
+    - name: Assert update_check
+      ansible.builtin.assert:
+        that:
+          - update_check.data is defined
+          - update_check.data.vlan == 10
+          - update_check is changed
 
-  - name: Update interface configuration
-    cisco.meraki.meraki_mx_l2_interface:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_appliance_net_name }}'
-      state: present
-      number: 2
-      port_type: access
-      vlan: 10
-    delegate_to: localhost
-    register: update
+    - name: Update interface configuration
+      cisco.meraki.meraki_mx_l2_interface:
+        auth_key: "{{ auth_key }}"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
+        state: present
+        number: 2
+        port_type: access
+        vlan: 10
+      delegate_to: localhost
+      register: update
 
-  - name: Assert update
-    ansible.builtin.assert:
-      that:
-        - update.diff is defined
-        - update.data is defined
-        - update.data.vlan == 10
-        - update is changed
+    - name: Assert update
+      ansible.builtin.assert:
+        that:
+          - update.diff is defined
+          - update.data is defined
+          - update.data.vlan == 10
+          - update is changed
 
-  - name: Update interface configuration with idempotency
-    cisco.meraki.meraki_mx_l2_interface:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_appliance_net_name }}'
-      state: present
-      number: 2
-      port_type: access
-      vlan: 10
-    delegate_to: localhost
-    register: update_idempotent
+    - name: Update interface configuration with idempotency
+      cisco.meraki.meraki_mx_l2_interface:
+        auth_key: "{{ auth_key }}"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
+        state: present
+        number: 2
+        port_type: access
+        vlan: 10
+      delegate_to: localhost
+      register: update_idempotent
 
-  - name: Assert update_idempotent
-    ansible.builtin.assert:
-      that:
-        - update_idempotent.data is defined
-        - update_idempotent.data.vlan == 10
-        - update_idempotent is not changed
+    - name: Assert update_idempotent
+      ansible.builtin.assert:
+        that:
+          - update_idempotent.data is defined
+          - update_idempotent.data.vlan == 10
+          - update_idempotent is not changed
 
-
-#############################################################################
-# Tear down starts here
-#############################################################################
+  #############################################################################
+  # Tear down starts here
+  #############################################################################
 
   always:
     - name: Remove device from network
       cisco.meraki.meraki_device:
-        auth_key: '{{ auth_key }}'
-        org_name: '{{ test_org_name }}'
-        net_name: '{{ test_appliance_net_name }}'
-        serial: '{{ serial_appliance }}'
+        auth_key: "{{ auth_key }}"
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
+        serial: "{{ serial_appliance }}"
         state: absent
       delegate_to: localhost
 
     - name: Delete network
       cisco.meraki.meraki_network:
-        auth_key: '{{ auth_key }}'
+        auth_key: "{{ auth_key }}"
         state: absent
-        org_name: '{{ test_org_name }}'
-        net_name: '{{ test_appliance_net_name }}'
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_appliance_net_name }}"
       delegate_to: localhost
