@@ -1,2 +1,0 @@
-bugfixes:
-  - meraki_alert - Fix situation where specifying emails may crash.

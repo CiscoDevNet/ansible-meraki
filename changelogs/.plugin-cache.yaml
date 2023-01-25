@@ -196,6 +196,11 @@ plugins:
       name: meraki_network
       namespace: ''
       version_added: null
+    meraki_network_settings:
+      description: Manage the settings of networks in the Meraki cloud
+      name: meraki_network_settings
+      namespace: ''
+      version_added: null
     meraki_organization:
       description: Manage organizations in the Meraki cloud
       name: meraki_organization
@@ -226,4 +231,4 @@ plugins:
   strategy: {}
   test: {}
   vars: {}
-version: 2.14.0
+version: 2.15.0
