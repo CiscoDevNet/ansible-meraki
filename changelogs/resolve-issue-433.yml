@@ -1,0 +1,2 @@
+bugfixes:
+  - meraki_webhook - resolved issue with empty array of data #433
