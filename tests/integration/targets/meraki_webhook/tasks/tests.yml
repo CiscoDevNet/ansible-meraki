@@ -17,6 +17,22 @@
       net_name: '{{test_net_name}}'
       type: appliance
 
+  - name: Query for any webhooks expecting None
+    meraki_webhook:
+      auth_key: '{{auth_key}}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+    register: query_none
+
+  - debug:
+      var: query_none
+    
+  - assert:
+      that:
+        - query_none is not changed
+        - query_none.data[0] is not defined
+
   - name: Create webhook with check mode
     meraki_webhook:
       auth_key: '{{auth_key}}'
