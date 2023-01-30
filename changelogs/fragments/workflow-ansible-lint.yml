@@ -1,2 +1,0 @@
-trivial:
-  - Added new workflow checker for a changes tests via ansible-lint

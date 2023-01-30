@@ -1,2 +1,0 @@
-known_issues:
-  - meraki_network - Updated documentation for `local_status_page_enabled` and `remote_status_page_enabled` as these no longer work.
