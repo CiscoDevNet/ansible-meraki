@@ -75,6 +75,23 @@
   - set_fact:
       webhook_id: '{{create_one.data.id}}'
 
+  - name: Query all webhooks expecting 1
+    meraki_webhook:
+      auth_key: '{{auth_key}}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}'
+    register: query_one
+
+  - debug:
+      var: query_one
+
+  - assert:
+      that:
+        - query_one.data is defined
+        - query_one.data[0] is defined
+        - query_one.data[1] is not defined
+
   - name: Query one webhook
     meraki_webhook:
       auth_key: '{{auth_key}}'

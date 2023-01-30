@@ -1,2 +1,0 @@
-bugfix:
-  - Resolved an issue where an empty response from the API triggered an exception in module meraki_webhook
