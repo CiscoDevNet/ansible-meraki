@@ -210,10 +210,11 @@ def sanitize_no_log_values(meraki):
     except KeyError:
         pass
     try:
-        meraki.result["data"][0][
-            "shared_secret"
-        ] = "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER"
-    except KeyError:
+        for i in meraki.result['data']:
+            i[
+                "shared_secret"
+            ] = "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER"
+    except (KeyError, TypeError):
         pass
     try:
         meraki.result["data"]["shared_secret"] = "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER"
