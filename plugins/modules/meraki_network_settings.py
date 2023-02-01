@@ -286,8 +286,8 @@ def main():
     if meraki.params["net_name"] and meraki.params["net_id"]:
         meraki.fail_json(msg="net_name and net_id are mutually exclusive")
     if (
-        meraki.params["local_status_page_enabled"] is True
-        and meraki.params["remote_status_page_enabled"] is False
+        meraki.params["local_status_page_enabled"] is False
+        and meraki.params["remote_status_page_enabled"] is True
     ):
         meraki.fail_json(
             msg="local_status_page_enabled must be true when setting remote_status_page_enabled"
