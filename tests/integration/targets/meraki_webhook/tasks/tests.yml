@@ -5,340 +5,340 @@
 ---
 - name: Test Cases for meraki_webhook module
   block:
-  - name: Test an API key is provided
-    ansible.builtin.fail:
-      msg: Please define an API key
-    when: auth_key is not defined
+    - name: Test an API key is provided
+      ansible.builtin.fail:
+        msg: Please define an API key
+      when: auth_key is not defined
 
-  - name: Create test network
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      type: appliance
+    - name: Create test network
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: present
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        type: appliance
 
-  - name: Create webhook with check mode
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      name: Test_Hook
-      url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
-      shared_secret: shhhdonttellanyone
-    check_mode: yes
-    register: create_one_check
+    - name: Create webhook with check mode
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: present
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        name: Test_Hook
+        url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
+        shared_secret: shhhdonttellanyone
+      check_mode: true
+      register: create_one_check
 
-  - name: Create webhook with check mode - debug
-    ansible.builtin.debug:
-      var: create_one_check
+    - name: Create webhook with check mode - debug
+      ansible.builtin.debug:
+        var: create_one_check
 
-  - name: Create webhook with check mode - assert
-    ansible.builtin.assert:
-      that:
-        - create_one_check is changed
-        - create_one_check.data is defined
+    - name: Create webhook with check mode - assert
+      ansible.builtin.assert:
+        that:
+          - create_one_check is changed
+          - create_one_check.data is defined
 
-  - name: Create webhook
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      name: Test_Hook
-      url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
-      shared_secret: shhhdonttellanyone
-    register: create_one
+    - name: Create webhook
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: present
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        name: Test_Hook
+        url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
+        shared_secret: shhhdonttellanyone
+      register: create_one
 
-  - name: Create webhook - debug
-    ansible.builtin.debug:
-      var: create_one
+    - name: Create webhook - debug
+      ansible.builtin.debug:
+        var: create_one
 
-  - name: Create webhook - assert
-    ansible.builtin.assert:
-      that:
-        - create_one is changed
-        - create_one.data is defined
+    - name: Create webhook - assert
+      ansible.builtin.assert:
+        that:
+          - create_one is changed
+          - create_one.data is defined
 
-  - name: Set webhook_id for future use
-    ansible.builtin.set_fact:
-      webhook_id: '{{ create_one.data.id }}'
+    - name: Set webhook_id for future use
+      ansible.builtin.set_fact:
+        webhook_id: '{{ create_one.data.id }}'
 
-  - name: Query one webhook
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: query
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      name: Test_Hook
-    register: query_one
+    - name: Query one webhook
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: query
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        name: Test_Hook
+      register: query_one
 
-  - name: Query one webhook - debug
-    ansible.builtin.debug:
-      var: query_one
+    - name: Query one webhook - debug
+      ansible.builtin.debug:
+        var: query_one
 
-  - name: Query one webhook - assert
-    ansible.builtin.assert:
-      that:
-        - query_one.data is defined
+    - name: Query one webhook - assert
+      ansible.builtin.assert:
+        that:
+          - query_one.data is defined
 
-  - name: Query one webhook with id
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: query
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      webhook_id: '{{ webhook_id }}'
-    register: query_one_id
+    - name: Query one webhook with id
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: query
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        webhook_id: '{{ webhook_id }}'
+      register: query_one_id
 
-  - name: Query one webhook with id - debug
-    ansible.builtin.debug:
-      var: query_one_id
+    - name: Query one webhook with id - debug
+      ansible.builtin.debug:
+        var: query_one_id
 
-  - name: Query one webhook with id - assert
-    ansible.builtin.assert:
-      that:
-        - query_one_id.data is defined
+    - name: Query one webhook with id - assert
+      ansible.builtin.assert:
+        that:
+          - query_one_id.data is defined
 
-  - name: Update webhook with check mode
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      name: Test_Hook
-      url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
-      shared_secret: shhhdonttellanyonehere
-    check_mode: yes
-    register: update_check
+    - name: Update webhook with check mode
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: present
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        name: Test_Hook
+        url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
+        shared_secret: shhhdonttellanyonehere
+      check_mode: true
+      register: update_check
 
-  - name: Update webhook with check mode - assert
-    ansible.builtin.assert:
-      that:
-        - update_check is changed
-        - update_check.data is defined
+    - name: Update webhook with check mode - assert
+      ansible.builtin.assert:
+        that:
+          - update_check is changed
+          - update_check.data is defined
 
-  # - name: Update webhook
-  #   cisco.meraki.meraki_webhook:
-  #     auth_key: '{{ auth_key }}'
-  #     state: present
-  #     org_name: '{{ test_org_name }}'
-  #     net_name: '{{ test_net_name }}'
-  #     name: Test_Hook
-  #     url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
-  #     shared_secret: shhhdonttellanyonehere
-  #   register: update
-  #
-  # - ansible.builtin.debug:
-  #     var: update
-  #
-  # - ansible.builtin.assert:
-  #     that:
-  #       - update is changed
-  #       - update.data is defined
-  #       - update.diff.before.shared_secret == 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
-  #
-  # - name: Update webhook with idempotency
-  #   cisco.meraki.meraki_webhook:
-  #     auth_key: '{{ auth_key }}'
-  #     state: present
-  #     org_name: '{{ test_org_name }}'
-  #     net_name: '{{ test_net_name }}'
-  #     name: Test_Hook
-  #     url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
-  #     shared_secret: shhhdonttellanyonehere
-  #   register: update_idempotent
-  #
-  # - ansible.builtin.debug:
-  #     var: update_idempotent
-  #
-  # - ansible.builtin.assert:
-  #     that:
-  #       - update_idempotent is not changed
-  #       - update_idempotent.data is defined
-  #
-  # - name: Update webhook with id
-  #   cisco.meraki.meraki_webhook:
-  #     auth_key: '{{ auth_key }}'
-  #     state: present
-  #     org_name: '{{ test_org_name }}'
-  #     net_name: '{{ test_net_name }}'
-  #     webhook_id: '{{ webhook_id }}'
-  #     name: Test_Hook
-  #     url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
-  #     shared_secret: shhhdonttellanyonehereid
-  #   register: update_id
-  #
-  # - ansible.builtin.debug:
-  #     var: update_id
-  #
-  # - ansible.builtin.assert:
-  #     that:
-  #       - update_id is changed
-  #       - update_id.data is defined
-  #
+    # - name: Update webhook
+    #   cisco.meraki.meraki_webhook:
+    #     auth_key: '{{ auth_key }}'
+    #     state: present
+    #     org_name: '{{ test_org_name }}'
+    #     net_name: '{{ test_net_name }}'
+    #     name: Test_Hook
+    #     url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
+    #     shared_secret: shhhdonttellanyonehere
+    #   register: update
+    #
+    # - ansible.builtin.debug:
+    #     var: update
+    #
+    # - ansible.builtin.assert:
+    #     that:
+    #       - update is changed
+    #       - update.data is defined
+    #       - update.diff.before.shared_secret == 'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER'
+    #
+    # - name: Update webhook with idempotency
+    #   cisco.meraki.meraki_webhook:
+    #     auth_key: '{{ auth_key }}'
+    #     state: present
+    #     org_name: '{{ test_org_name }}'
+    #     net_name: '{{ test_net_name }}'
+    #     name: Test_Hook
+    #     url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
+    #     shared_secret: shhhdonttellanyonehere
+    #   register: update_idempotent
+    #
+    # - ansible.builtin.debug:
+    #     var: update_idempotent
+    #
+    # - ansible.builtin.assert:
+    #     that:
+    #       - update_idempotent is not changed
+    #       - update_idempotent.data is defined
+    #
+    # - name: Update webhook with id
+    #   cisco.meraki.meraki_webhook:
+    #     auth_key: '{{ auth_key }}'
+    #     state: present
+    #     org_name: '{{ test_org_name }}'
+    #     net_name: '{{ test_net_name }}'
+    #     webhook_id: '{{ webhook_id }}'
+    #     name: Test_Hook
+    #     url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
+    #     shared_secret: shhhdonttellanyonehereid
+    #   register: update_id
+    #
+    # - ansible.builtin.debug:
+    #     var: update_id
+    #
+    # - ansible.builtin.assert:
+    #     that:
+    #       - update_id is changed
+    #       - update_id.data is defined
+    #
 
-  - name: Create webhook payload template for a webhook
-    cisco.meraki.meraki_webhook_payload_template:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      state: present
-      name: TestPayloadTemplate
-      body: "a fake body"
-    register: payload_template
+    - name: Create webhook payload template for a webhook
+      cisco.meraki.meraki_webhook_payload_template:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        state: present
+        name: TestPayloadTemplate
+        body: "a fake body"
+      register: payload_template
 
-  - name: Debug payload_template
-    ansible.builtin.debug:
-      var: payload_template
+    - name: Debug payload_template
+      ansible.builtin.debug:
+        var: payload_template
 
-  - name: Create webhook with a payload template
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      payload_template_name: TestPayloadTemplate
-      name: Test_Hook_with_template
-      url: https://webhook.site/8eb5b76f-b167
-      shared_secret: shhhdonttellanyone
-    register: webhook_with_template
+    - name: Create webhook with a payload template
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: present
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        payload_template_name: TestPayloadTemplate
+        name: Test_Hook_with_template
+        url: https://webhook.site/8eb5b76f-b167
+        shared_secret: shhhdonttellanyone
+      register: webhook_with_template
 
-  - name: Create webhook with a payload template - debug
-    ansible.builtin.debug:
-      var: webhook_with_template
+    - name: Create webhook with a payload template - debug
+      ansible.builtin.debug:
+        var: webhook_with_template
 
-  - name: Create webhook with a payload template - assert
-    ansible.builtin.assert:
-      that:
-        - webhook_with_template is changed
-        - webhook_with_template.data is defined
-        - webhook_with_template.data.payload_template.name == "TestPayloadTemplate"
+    - name: Create webhook with a payload template - assert
+      ansible.builtin.assert:
+        that:
+          - webhook_with_template is changed
+          - webhook_with_template.data is defined
+          - webhook_with_template.data.payload_template.name == "TestPayloadTemplate"
 
-  - name: Delete webhook with payload template
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      name: Test_Hook_with_template
-    register: delete_hook_with_template
+    - name: Delete webhook with payload template
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        name: Test_Hook_with_template
+      register: delete_hook_with_template
 
-  - name: Delete webhook with payload template - debug
-    ansible.builtin.debug:
-      var: delete_hook_with_template
+    - name: Delete webhook with payload template - debug
+      ansible.builtin.debug:
+        var: delete_hook_with_template
 
-  - name: Delete webhook with payload template - assert
-    ansible.builtin.assert:
-      that:
-        - delete_hook_with_template is changed
+    - name: Delete webhook with payload template - assert
+      ansible.builtin.assert:
+        that:
+          - delete_hook_with_template is changed
 
-  - name: Create test webhook
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      name: Test_Hook
-      test: test
-      url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
-    register: webhook_test
+    - name: Create test webhook
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: present
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        name: Test_Hook
+        test: test
+        url: https://webhook.site/8eb5b76f-b167-4cb8-9fc4-42621b724244
+      register: webhook_test
 
-  - name: Set test_id for future use
-    ansible.builtin.set_fact:
-      test_id: '{{ webhook_test.data.id }}'
+    - name: Set test_id for future use
+      ansible.builtin.set_fact:
+        test_id: '{{ webhook_test.data.id }}'
 
-  - name: Create test webhook - debug
-    ansible.builtin.debug:
-      var: test_id
+    - name: Create test webhook - debug
+      ansible.builtin.debug:
+        var: test_id
 
-  - name: Get webhook status
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: query
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      test_id: '{{ test_id }}'
-    register: webhook_test_status
+    - name: Get webhook status
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: query
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        test_id: '{{ test_id }}'
+      register: webhook_test_status
 
-  - name: Get webhook status - debug
-    ansible.builtin.debug:
-      var: webhook_test_status
+    - name: Get webhook status - debug
+      ansible.builtin.debug:
+        var: webhook_test_status
 
-  - name: Get webhook status - assert
-    ansible.builtin.assert:
-      that:
-        - webhook_test_status.data is defined
+    - name: Get webhook status - assert
+      ansible.builtin.assert:
+        that:
+          - webhook_test_status.data is defined
 
-  - name: Query all webhooks
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: query
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-    register: query_all
+    - name: Query all webhooks
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: query
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+      register: query_all
 
-  - name: Query all webhooks - debug
-    ansible.builtin.debug:
-      var: query_all
+    - name: Query all webhooks - debug
+      ansible.builtin.debug:
+        var: query_all
 
-  - name: Delete webhook invalid webhook
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      name: Test_Hook_Invalid
-    check_mode: yes
-    register: delete_invalid
-    ignore_errors: yes
+    - name: Delete webhook invalid webhook
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        name: Test_Hook_Invalid
+      check_mode: true
+      register: delete_invalid
+      ignore_errors: true
 
-  - name: Delete webhook invalid webhook - debug
-    ansible.builtin.debug:
-      var: delete_invalid
+    - name: Delete webhook invalid webhook - debug
+      ansible.builtin.debug:
+        var: delete_invalid
 
-  - name: Delete webhook invalid webhook - assert
-    ansible.builtin.assert:
-      that:
-        - 'delete_invalid.msg == "There is no webhook with the name Test_Hook_Invalid"'
+    - name: Delete webhook invalid webhook - assert
+      ansible.builtin.assert:
+        that:
+          - 'delete_invalid.msg == "There is no webhook with the name Test_Hook_Invalid"'
 
-  - name: Delete webhook in check mode
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      name: Test_Hook
-    check_mode: yes
-    register: delete_check
+    - name: Delete webhook in check mode
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        name: Test_Hook
+      check_mode: true
+      register: delete_check
 
-  - name: Delete webhook in check mode - debug
-    ansible.builtin.debug:
-      var: delete_check
+    - name: Delete webhook in check mode - debug
+      ansible.builtin.debug:
+        var: delete_check
 
-  - name: Delete webhook in check mode - assert
-    ansible.builtin.assert:
-      that:
-        - delete_check is changed
+    - name: Delete webhook in check mode - assert
+      ansible.builtin.assert:
+        that:
+          - delete_check is changed
 
-  - name: Delete webhook
-    cisco.meraki.meraki_webhook:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      org_name: '{{ test_org_name }}'
-      net_name: '{{ test_net_name }}'
-      name: Test_Hook
-    register: delete
+    - name: Delete webhook
+      cisco.meraki.meraki_webhook:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        name: Test_Hook
+      register: delete
 
-  - name: Delete webhook - debug
-    ansible.builtin.debug:
-      var: delete
+    - name: Delete webhook - debug
+      ansible.builtin.debug:
+        var: delete
 
-  - name: Delete webhook - assert
-    ansible.builtin.assert:
-      that:
-        - delete is changed
+    - name: Delete webhook - assert
+      ansible.builtin.assert:
+        that:
+          - delete is changed
 
   #############################################################################
   # Tear down starts here
