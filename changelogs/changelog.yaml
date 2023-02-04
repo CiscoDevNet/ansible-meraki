@@ -197,6 +197,50 @@ releases:
     fragments:
     - meraki_mr_l7_firewall.yml
     release_date: '2022-11-21'
+  2.14.0:
+    changes:
+      bugfixes:
+      - Fix checkmode on merak webhook payload template update
+      - meraki_webhook - First error when updating URL in a webhook
+      minor_changes:
+      - meraki_webhook - Add payload template parameter
+    fragments:
+    - bugfixes-meraki_webhook_payload_template.yml
+    - warnings-meraki_mr_settings.yml
+    - warnings-meraki_ms_access_list.yml
+    - warnings-meraki_ms_storm_control.yml
+    - webhook-diff.yml
+    - webhook-plus-payload-templates.yml
+    release_date: '2023-01-05'
+  2.15.0:
+    changes:
+      bugfixes:
+      - Resolved issue
+      - Update pipeline to use newer version of action to detect changed files.
+      - meraki_alert - Fix situation where specifying emails may crash.
+      - meraki_mx_site_to_site_vpn - Check mode should no longer apply changes when
+        enabled.
+      known_issues:
+      - meraki_network - Updated documentation for `local_status_page_enabled` and
+        `remote_status_page_enabled` as these no longer work.
+      minor_changes:
+      - New module - meraki_network_settings - Configure detailed settings of a network.
+    fragments:
+    - 412-meraki_network-settings.yaml
+    - 412-network-settings.yaml
+    - 414-alert-emails.yaml
+    - issue-meraki_mx_content_filtering.yml
+    - mx-s2s.yaml
+    - pipeline-changelog.yaml
+    - warnings-meraki_ms_ospf.yml
+    - warnings-meraki_ms_stack.yml
+    - warnings-meraki_ms_switchport.yml
+    - warnings-meraki_mx_content_filtering.yml
+    - warnings-meraki_mx_intrusion_prevention.yml
+    - warnings-meraki_mx_l2_interface.yml
+    - warnings-meraki_ssid.yml
+    - workflow-ansible-lint.yml
+    release_date: '2023-01-24'
   2.2.0:
     changes:
       bugfixes:

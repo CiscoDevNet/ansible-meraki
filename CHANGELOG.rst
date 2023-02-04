@@ -5,6 +5,41 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.15.0
+=======
+
+Minor Changes
+-------------
+
+- New module - meraki_network_settings - Configure detailed settings of a network.
+
+Bugfixes
+--------
+
+- Resolved issue
+- Update pipeline to use newer version of action to detect changed files.
+- meraki_alert - Fix situation where specifying emails may crash.
+- meraki_mx_site_to_site_vpn - Check mode should no longer apply changes when enabled.
+
+Known Issues
+------------
+
+- meraki_network - Updated documentation for `local_status_page_enabled` and `remote_status_page_enabled` as these no longer work.
+
+v2.14.0
+=======
+
+Minor Changes
+-------------
+
+- meraki_webhook - Add payload template parameter
+
+Bugfixes
+--------
+
+- Fix checkmode on merak webhook payload template update
+- meraki_webhook - First error when updating URL in a webhook
+
 v2.13.0
 =======
 

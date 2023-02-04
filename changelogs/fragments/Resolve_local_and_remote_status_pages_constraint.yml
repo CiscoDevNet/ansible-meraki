@@ -1,0 +1,2 @@
+bugfixes:
+  - Corrects constraints applied to local and remote status page settings to align with API behaviour (https://github.com/CiscoDevNet/ansible-meraki/issues/437)
