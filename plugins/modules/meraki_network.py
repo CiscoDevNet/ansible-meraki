@@ -359,7 +359,7 @@ def main():
                 meraki.exit_json(**meraki.result)
             else:
                 meraki.result["data"] = meraki.get_net(
-                    meraki.params["org_name"], meraki.params["net_name"], data=nets
+                    meraki.params["org_name"], net_name=meraki.params["net_name"], data=nets, net_id=meraki.params["net_id"],
                 )
                 meraki.exit_json(**meraki.result)
     elif meraki.params["state"] == "present":
