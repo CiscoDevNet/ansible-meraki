@@ -316,8 +316,9 @@ def main():
         payload = {
             "name": meraki.params["name"],
             "url": meraki.params["url"],
-            "sharedSecret": meraki.params["shared_secret"],
         }
+        if meraki.params["shared_secret"] is not None:
+            payload["sharedSecret"] = meraki.params["shared_secret"]
         if payload_template_id is not None:
             payload["payloadTemplate"] = {"payloadTemplateId": payload_template_id}
 
