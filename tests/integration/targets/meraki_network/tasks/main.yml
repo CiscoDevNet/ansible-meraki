@@ -453,10 +453,33 @@
     delegate_to: localhost
     register: net_query_one
 
-  - name: Query assertions
+  - name: Query one network - assert
     assert:
       that:
         - 'net_query_one.data.name == "IntTestNetworkSwitch"'
+        - 'query_config_template.data.name == "{{ test_template_name }}"'
+
+  - name: Set net_id
+    ansible.builtin.set_fact:
+      net_id: "{{ net_query_one.data.id }}"
+
+  - name: Query one network by ID
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_id: "{{ net_id}}"
+    delegate_to: localhost
+    register: net_query_one_id
+
+  - name: Query one network by ID - debug
+    ansible.builtin.debug:
+      var: net_query_one_id
+
+  - name: Query one network by ID - assert
+    ansible.builtin.assert:
+      that:
+        - 'net_query_one_id.data.name == "IntTestNetworkSwitch"'
         - 'query_config_template.data.name == "{{ test_template_name }}"'
 
 #############################################################################

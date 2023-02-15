@@ -1,0 +1,2 @@
+bugfixes:
+  - Enables meraki_network query by net_id (https://github.com/CiscoDevNet/ansible-meraki/issues/441)
