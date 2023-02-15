@@ -5,6 +5,17 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.15.1
+=======
+
+Bugfixes
+--------
+
+- Corrects constraints applied to local and remote status page settings to align with API behaviour (https://github.com/CiscoDevNet/ansible-meraki/issues/437)
+- Enables meraki_network query by net_id (https://github.com/CiscoDevNet/ansible-meraki/issues/441)
+- Resolved an issue where an empty response from the API triggered an exception in module meraki_webhook (https://github.com/CiscoDevNet/ansible-meraki/issues/433)
+- Resolves issues with meraki_webhook shared_secret defaulting to null; (https://github.com/CiscoDevNet/ansible-meraki/issues/439); Also adds Test Coverage for shared secret idempotency and resolves test file lint issues.
+
 v2.15.0
 =======
 

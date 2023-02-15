@@ -241,6 +241,24 @@ releases:
     - warnings-meraki_ssid.yml
     - workflow-ansible-lint.yml
     release_date: '2023-01-24'
+  2.15.1:
+    changes:
+      bugfixes:
+      - Corrects constraints applied to local and remote status page settings to align
+        with API behaviour (https://github.com/CiscoDevNet/ansible-meraki/issues/437)
+      - Enables meraki_network query by net_id (https://github.com/CiscoDevNet/ansible-meraki/issues/441)
+      - Resolved an issue where an empty response from the API triggered an exception
+        in module meraki_webhook (https://github.com/CiscoDevNet/ansible-meraki/issues/433)
+      - Resolves issues with meraki_webhook shared_secret defaulting to null; (https://github.com/CiscoDevNet/ansible-meraki/issues/439);
+        Also adds Test Coverage for shared secret idempotency and resolves test file
+        lint issues.
+    fragments:
+    - 433_Resolve_meraki_webhook_fail_when_none_defined.yml
+    - Resolve_local_and_remote_status_pages_constraint.yml
+    - Resolve_meraki_network_query_by_ID_returns_empty_data_object.yml
+    - Resolve_shared_secret_defaulting_to_null.yml
+    - warnings-meraki_ms_link_aggregation.yml
+    release_date: '2023-02-15'
   2.2.0:
     changes:
       bugfixes:
