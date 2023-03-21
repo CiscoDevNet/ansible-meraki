@@ -468,7 +468,16 @@ def main():
             "systems_management_enrollment"
         ],
     }
-
+    # Execute check for argument completeness
+    if meraki.params["access_policy_type"] == "Hybrid authentication":
+        try:
+            if isinstance(meraki.params["increase_access_speed"], bool):
+                pass
+            else:
+                meraki.fail_json(msg="Increase Access Speed attribute only takes boolean value")
+        except NameError:
+            meraki.fail_json(msg="Increase Access Speed attribute needs to be defined when setting access policy type as Hybrid Authentication")
+            
     if meraki.params["state"] == "query":
         if meraki.params["number"]:
             path = meraki.construct_path(
