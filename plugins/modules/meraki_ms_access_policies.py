@@ -68,6 +68,11 @@ options:
         - Set if the Systems Management Enrollemnt is enabled or disabled
         type: bool
         default: False
+    increase_access_speed:
+        description:
+        - Required if access_policy_type is set to 'Hybrid Authentication'
+        type: bool
+        default: False
     radius_servers:
         description:
         - List of RADIUS servers.
@@ -343,6 +348,7 @@ def main():
             ],
         ),
         systems_management_enrollment=dict(type="bool", default=False),
+        increase_access_speed=dict(type="bool"),
         radius_servers=dict(
             type="list", default=None, elements="dict", options=radius_arg_spec
         ),
@@ -452,6 +458,7 @@ def main():
         "radiusCoaSupportEnabled": meraki.params["radius_coa_enabled"],
         "hostMode": meraki.params["host_mode"],
         "accessPolicyType": meraki.params["access_policy_type"],
+        "increaseAccessSpeed": meraki.params["increase_access_speed"],
         "guestVlanId": meraki.params["guest_vlan"],
         "voiceVlanClients": meraki.params["voice_vlan_clients"],
         "urlRedirectWalledGardenEnabled": False,
