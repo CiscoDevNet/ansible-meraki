@@ -72,7 +72,7 @@ options:
         description:
         - Required if access_policy_type is set to 'Hybrid Authentication'
         type: bool
-        default: False
+        default: None
     radius_servers:
         description:
         - List of RADIUS servers.
@@ -477,7 +477,7 @@ def main():
                 meraki.fail_json(msg="Increase Access Speed attribute only takes boolean value")
         except NameError:
             meraki.fail_json(msg="Increase Access Speed attribute needs to be defined when setting access policy type as Hybrid Authentication")
-            
+
     if meraki.params["state"] == "query":
         if meraki.params["number"]:
             path = meraki.construct_path(
