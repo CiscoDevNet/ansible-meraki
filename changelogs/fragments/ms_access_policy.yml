@@ -1,0 +1,2 @@
+major:
+  - ms_access_policy module, when setting access policy type as Hybrid Authentication needs increaseAccessSpeed attribute to be set
