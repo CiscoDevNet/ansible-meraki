@@ -560,11 +560,11 @@
       delegate_to: localhost
       register: delete_access_policy
 
+#Hybrid Authentication method requires increaseAccessSpeed attribute of API to be set
 - name: Testing meraki_ms_access_policies with auth_mode as "my RADIUS server" and access_policy_type "Hybrid Authentication
-  #Hybrid Authentication method requires increaseAccessSpeed attribute of API to be set
   block:
     - name: Create a access policy meraki_ms_access_policies with auth_mode as "my RADIUS server" and access_policy_type "Hybrid Authentication"
-      meraki_ms_access_policies:
+      cisco.meraki.meraki_ms_access_policies:
         state: present
         org_name: "{{ org_name }}"
         use_proxy: True
@@ -603,7 +603,7 @@
       ansible.builtin.assert:
         that:
           - create_access_policy_my_radius_server_bybrid is changed
-          - query_one.data.increase_access_speed
+          - query_one.data.increase_access_speed is true
 
   always:
     - name: Delete access policy
