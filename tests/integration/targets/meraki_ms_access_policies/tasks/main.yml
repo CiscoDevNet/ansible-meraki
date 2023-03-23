@@ -560,25 +560,24 @@
       delegate_to: localhost
       register: delete_access_policy
 
-#Hybrid Authentication method requires increaseAccessSpeed attribute of API to be set
+# Hybrid Authentication method requires increaseAccessSpeed attribute of API to be set
 - name: Testing meraki_ms_access_policies with auth_mode as "my RADIUS server" and access_policy_type "Hybrid Authentication
   block:
     - name: Create a access policy meraki_ms_access_policies with auth_mode as "my RADIUS server" and access_policy_type "Hybrid Authentication"
       cisco.meraki.meraki_ms_access_policies:
         state: present
         org_name: "{{ org_name }}"
-        use_proxy: True
         auth_key: "{{ auth_key }}"
         net_name: "{{ network_name }}"
         access_policy_type: "Hybrid authentication"
         name: "RADIUS"
         radius_servers:
-        - host: "10.0.0.1"
-          port: 1812
-          secret: "secret123"
-        - host: "10.0.0.2"
-          port: 1812
-          secret: "secret123"
+          - host: "10.0.0.1"
+            port: 1812
+            secret: "secret123"
+          - host: "10.0.0.2"
+            port: 1812
+            secret: "secret123"
         radius_testing: true
         radius_coa_enabled: true
         radius_accounting_enabled: false
