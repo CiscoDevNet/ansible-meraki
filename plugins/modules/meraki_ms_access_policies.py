@@ -293,6 +293,7 @@ data:
 """
 
 from ansible.module_utils.basic import AnsibleModule, json
+from ansible.module_utils.common.dict_transformations import recursive_diff
 from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import (
     MerakiModule,
     meraki_argument_spec,
@@ -457,8 +458,8 @@ def main():
         },
         "radiusCoaSupportEnabled": meraki.params["radius_coa_enabled"],
         "hostMode": meraki.params["host_mode"],
-        "accessPolicyType": meraki.params["access_policy_type"],
         "increaseAccessSpeed": meraki.params["increase_access_speed"],
+        "accessPolicyType": meraki.params["access_policy_type"],
         "guestVlanId": meraki.params["guest_vlan"],
         "voiceVlanClients": meraki.params["voice_vlan_clients"],
         "urlRedirectWalledGardenEnabled": False,
@@ -470,13 +471,10 @@ def main():
     }
     # Execute check for argument completeness
     if meraki.params["access_policy_type"] == "Hybrid authentication":
-        try:
-            if isinstance(meraki.params["increase_access_speed"], bool):
-                pass
-            else:
-                meraki.fail_json(msg="Increase Access Speed attribute only takes boolean value")
-        except NameError:
-            meraki.fail_json(msg="Increase Access Speed attribute needs to be defined when setting access policy type as Hybrid Authentication")
+        if isinstance(meraki.params["increase_access_speed"], bool):
+            pass
+        else:
+            meraki.fail_json(msg="Increase Access Speed attribute only takes boolean value")
 
     if meraki.params["state"] == "query":
         if meraki.params["number"]:
