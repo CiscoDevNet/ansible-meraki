@@ -1,0 +1,294 @@
+# Test code for the Meraki modules
+# Copyright: (c) 2023, Kevin Breit (@kbreit)
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+---
+- block:
+  - name: Create network with type switch
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      type: switch
+      timezone: America/Chicago
+    delegate_to: localhost
+    register: create_net_switch
+
+  - name: Get network settings
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+    delegate_to: localhost
+    register: query_net
+
+  - name: Update network settings with check mode
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: false
+    delegate_to: localhost
+    register: set_local_check
+    check_mode: true
+
+  - name: Assert settings local status page enabled
+    ansible.builtin.assert:
+      that:
+        - set_local_check is changed
+        - set_local_check.data is defined
+        - set_local_check.data.local_status_page_enabled == false
+        - set_local_check.data.password is not defined
+
+  - name: Update network settings
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: false
+    delegate_to: localhost
+    register: set_local
+
+  - name: Assert settings local status page enabled
+    ansible.builtin.assert:
+      that:
+        - set_local is changed
+        - set_local.data is defined
+        - set_local.data.local_status_page_enabled == false
+
+  - name: Update network settings with idempotency
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: false
+    delegate_to: localhost
+    register: set_local_idempotent
+
+  - name: Assert settings local status page enabled with idempotency
+    ansible.builtin.assert:
+      that:
+        - set_local_idempotent is not changed
+        - set_local_idempotent.data is defined
+        - set_local_idempotent.data.local_status_page_enabled == false
+
+  - name: Enable password on local page with check mode
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: true
+      local_status_page:
+        authentication:
+          enabled: true
+          password: abc123
+    delegate_to: localhost
+    register: set_auth_check
+    check_mode: true
+
+  - name: Assert auth settings with check mode
+    ansible.builtin.assert:
+      that:
+        - set_auth_check is changed
+        - set_auth_check.data is defined
+        - set_auth_check.data.local_status_page_enabled == true
+        - set_auth_check.data.local_status_page.authentication.enabled == true
+
+  - name: Enable password on local page
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: true
+      local_status_page:
+        authentication:
+          enabled: true
+          password: abc123
+    delegate_to: localhost
+    register: set_auth
+
+  - debug:
+      var: set_auth
+
+  - name: Assert auth settings
+    ansible.builtin.assert:
+      that:
+        - set_auth is changed
+        - set_auth.data is defined
+        - set_auth.data.local_status_page_enabled == true
+        - set_auth.data.local_status_page.authentication.enabled == true
+      
+  - name: Enable password on local page with idempotency
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: true
+      local_status_page:
+        authentication:
+          enabled: true
+          password: abc123
+    delegate_to: localhost
+    register: set_auth_idempotent
+
+  - name: Assert auth settings with idempotency
+    ansible.builtin.assert:
+      that:
+        - set_auth_idempotent is not changed
+        - set_auth_idempotent.data is defined
+        - set_auth_idempotent.data.local_status_page_enabled == true
+        - set_auth_idempotent.data.local_status_page.authentication.enabled == true
+
+  - name: Enable secure port with check mode
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      secure_port:
+        enabled: true
+    delegate_to: localhost
+    register: set_port_check
+    check_mode: true
+
+  - name: Assert secure port settings with check mode
+    ansible.builtin.assert:
+      that:
+        - set_port_check is changed
+        - set_port_check.data is defined
+        - set_port_check.data.secure_port.enabled == true
+
+  - name: Enable secure port
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      secure_port:
+        enabled: true
+    delegate_to: localhost
+    register: sec_port
+
+  - debug:
+      var: sec_port
+
+  - name: Assert secure port settings
+    ansible.builtin.assert:
+      that:
+        - sec_port is changed
+        - sec_port.data is defined
+        - sec_port.data.secure_port.enabled == true
+        
+  - name: Enable secure port with idempotency
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      secure_port:
+        enabled: true
+    delegate_to: localhost
+    register: sec_port_idempotent
+
+  - debug:
+      var: sec_port_idempotent
+
+  - name: Assert secure port settings with idempotency
+    ansible.builtin.assert:
+      that:
+        - sec_port_idempotent is not changed
+        - sec_port_idempotent.data is defined
+        - sec_port_idempotent.data.secure_port.enabled == true
+
+  - name: Test status pages - local disabled remote disabled
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: no
+      remote_status_page_enabled: no
+    delegate_to: localhost
+    register: status_pages_1
+    
+  - name: Assert status pages - local disabled remote disabled
+    ansible.builtin.assert:
+      that:
+        - status_pages_1.changed == True
+        - status_pages_1['data']['local_status_page_enabled'] == False
+        - status_pages_1['data']['remote_status_page_enabled'] == False
+
+  - name: Test status pages - local enabled remote disabled
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: yes
+      remote_status_page_enabled: no
+    delegate_to: localhost
+    register: status_pages_2
+    
+  - name: Assert status pages - local enabled remote disabled
+    ansible.builtin.assert:
+      that:
+        - status_pages_2.changed == True
+        - status_pages_2['data']['local_status_page_enabled'] == True
+        - status_pages_2['data']['remote_status_page_enabled'] == False
+
+  - name: Test status pages - local enabled remote enabled
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: yes
+      remote_status_page_enabled: yes
+    delegate_to: localhost
+    register: status_pages_3
+    
+  - name: Assert status pages - local enabled remote enabled
+    ansible.builtin.assert:
+      that:
+        - status_pages_3.changed == True
+        - status_pages_3['data']['local_status_page_enabled'] == True
+        - status_pages_3['data']['remote_status_page_enabled'] == True
+
+  
+  - name: Test status pages - local disabled remote enabled - expected to fail
+    cisco.meraki.meraki_network_settings:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+      local_status_page_enabled: no
+      remote_status_page_enabled: yes
+    delegate_to: localhost
+    register: status_pages_4
+    ignore_errors: yes
+
+  - name: Assert status pages - local disabled remote enabled
+    ansible.builtin.assert:
+      that:
+        - status_pages_4.changed == False
+        - '"must be true when setting" in status_pages_4.msg'
+
+#############################################################################
+# Tear down starts here
+#############################################################################
+  always:
+  - name: Delete network
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: absent
+      org_name: '{{test_org_name}}'
+      net_name: NetworkSettingsTestNet
+    delegate_to: localhost

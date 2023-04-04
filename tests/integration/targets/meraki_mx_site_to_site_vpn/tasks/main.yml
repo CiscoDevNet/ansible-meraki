@@ -29,6 +29,54 @@
       net_spoke_id: '{{net_spoke.data.id}}'
       net_hub_id: '{{net_hub.data.id}}'
 
+
+  - name: Set hub mode in check mode
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+      mode: hub
+      subnets:
+        - local_subnet: '192.168.129.0/24'
+          use_vpn: no
+    delegate_to: localhost
+    register: set_hub_check
+    check_mode: true
+
+  - assert:
+      that:
+        - set_hub_check is changed
+        - set_hub_check.data is defined
+
+  - name: Set hub mode in check mode
+    meraki_site_to_site_vpn:
+      auth_key: '{{auth_key}}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+    delegate_to: localhost
+    register: query_result
+  
+  - debug:
+      var: query_result
+
+  - name: Assert check mode made no changes
+    ansible.builtin.assert:
+      that:
+        - query_result.data.subnets[0].local_subnet == "192.168.128.0/24"
+
+  - name: Create static_route
+    meraki_static_route:
+      auth_key: '{{auth_key}}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: '{{test_net_name}}_hub'
+      name: Test Route
+      subnet: 192.0.1.0/24
+      gateway_ip: 192.168.128.1
+    delegate_to: localhost
+
   - name: Set hub mode
     meraki_site_to_site_vpn:
       auth_key: '{{auth_key}}'
@@ -37,7 +85,7 @@
       net_name: '{{test_net_name}}_hub'
       mode: hub
       subnets:
-        - local_subnet: '192.168.128.0/24'
+        - local_subnet: '192.0.1.0/24'
           use_vpn: no
     delegate_to: localhost
     register: set_hub

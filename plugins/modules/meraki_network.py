@@ -65,12 +65,14 @@ options:
         type: bool
     local_status_page_enabled:
         description: >
+            - This no longer works and will likely be moved to a separate module.
             - Enables the local device status pages (U[my.meraki.com](my.meraki.com), U[ap.meraki.com](ap.meraki.com), U[switch.meraki.com](switch.meraki.com),
             U[wired.meraki.com](wired.meraki.com)).
             - Only can be specified on its own or with C(remote_status_page_enabled).
         type: bool
     remote_status_page_enabled:
         description:
+            - This no longer works and will likely be moved to a separate module.
             - Enables access to the device status page (U(http://device LAN IP)).
             - Can only be set if C(local_status_page_enabled:) is set to C(yes).
             - Only can be specified on its own or with C(local_status_page_enabled).
@@ -298,8 +300,8 @@ def main():
                 msg="The parameter 'enable_vlans' requires 'net_name' or 'net_id' to be specified"
             )
     if (
-        meraki.params["local_status_page_enabled"] is True
-        and meraki.params["remote_status_page_enabled"] is False
+        meraki.params["local_status_page_enabled"] is False
+        and meraki.params["remote_status_page_enabled"] is True
     ):
         meraki.fail_json(
             msg="local_status_page_enabled must be true when setting remote_status_page_enabled"
@@ -357,7 +359,7 @@ def main():
                 meraki.exit_json(**meraki.result)
             else:
                 meraki.result["data"] = meraki.get_net(
-                    meraki.params["org_name"], meraki.params["net_name"], data=nets
+                    meraki.params["org_name"], net_name=meraki.params["net_name"], data=nets, net_id=meraki.params["net_id"],
                 )
                 meraki.exit_json(**meraki.result)
     elif meraki.params["state"] == "present":

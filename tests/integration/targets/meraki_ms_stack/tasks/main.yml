@@ -3,27 +3,29 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
+- name: Block of tests
+  block:
   - name: Create network with type switch
-    meraki_network:
+    cisco.meraki.meraki_network:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
       type: switch
       timezone: America/Chicago
     delegate_to: localhost
     register: create_net_switch
 
-  - set_fact:
-      net_id: '{{create_net_switch.data.id}}'
+  - name: Set fact create_net_switch
+    ansible.builtin.set_fact:
+      net_id: '{{ create_net_switch.data.id }}'
 
   - name: Claim devices into network
-    meraki_device:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_id: '{{net_id}}'
-      serial: '{{item}}'
+    cisco.meraki.meraki_device:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      net_id: '{{ net_id }}'
+      serial: '{{ item }}'
       state: present
     delegate_to: localhost
     register: claim_device
@@ -33,166 +35,181 @@
       - "QBSB-D75G-PXCG"
 
   - name: Create new stack
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
       name: Test stack
       serials:
         - "QBSB-BPR6-PRER"
         - "QBSB-VLNE-E299"
     register: create
 
-  - debug:
+  - name: Debug create
+    ansible.builtin.debug:
       var: create
 
-  - set_fact:
-      stack_id: '{{create.data.id}}'
+  - name: Set fact create
+    ansible.builtin.set_fact:
+      stack_id: '{{ create.data.id }}'
 
-  - assert:
+  - name: Assert create
+    ansible.builtin.assert:
       that:
         - create.data is defined
         - create is changed
 
   - name: Add switch to stack
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-      stack_id: '{{stack_id}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
+      stack_id: '{{ stack_id }}'
       serials:
         - "QBSB-D75G-PXCG"
     register: add_stack
 
-  - assert:
+  - name: Assert add_stack
+    ansible.builtin.assert:
       that:
         - add_stack.data is defined
         - add_stack.data.serials | length == 3
         - add_stack is changed
 
   - name: Add switch to stack idempotent
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-      stack_id: '{{stack_id}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
+      stack_id: '{{ stack_id }}'
       serials:
         - "QBSB-D75G-PXCG"
     register: add_stack_idempotent
 
-  - assert:
+  - name: Assert add_stack_idempotent
+    ansible.builtin.assert:
       that:
         - add_stack_idempotent.data is defined
         - add_stack_idempotent.data.serials | length == 3
         - add_stack_idempotent is not changed
 
   - name: Remove switch from stack
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: absent
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-      stack_id: '{{stack_id}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
+      stack_id: '{{ stack_id }}'
       serials:
         - "QBSB-D75G-PXCG"
     register: remove_from_stack
 
-  - debug:
+  - name: Debug remove_from_stack
+    ansible.builtin.debug:
       var: remove_from_stack
 
-  - assert:
+  - name: Assert remove_from_stack
+    ansible.builtin.assert:
       that:
         - remove_from_stack.data is defined
         - remove_from_stack.data.serials | length == 2
         - remove_from_stack is changed
 
   - name: Remove switch from stack idempotent
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: absent
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-      stack_id: '{{stack_id}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
+      stack_id: '{{ stack_id }}'
       serials:
         - "QBSB-D75G-PXCG"
     register: remove_from_stack_idempotent
 
-  - debug:
+  - name: Debug remove_from_stack_idempotent
+    ansible.builtin.debug:
       var: remove_from_stack_idempotent
 
-  - assert:
+  - name: Assert remove_from_stack_idempotent
+    ansible.builtin.assert:
       that:
         - remove_from_stack_idempotent.data is defined
         - remove_from_stack_idempotent.data.serials | length == 2
         - remove_from_stack_idempotent is not changed
 
   - name: Query all stacks in the network
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
     register: query_all
 
-  - debug:
+  - name: Debug query_all
+    ansible.builtin.debug:
       var: query_all
 
-  - assert:
+  - name: Assert query_all
+    ansible.builtin.assert:
       that:
         - query_all.data is defined
         - query_all is not changed
 
   - name: Query one stack
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-      stack_id: '{{stack_id}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
+      stack_id: '{{ stack_id }}'
     register: query_one
 
-  - debug:
+  - name: Debug query_one
+    ansible.builtin.debug:
       var: query_one
 
-  - assert:
+  - name: Assert query_one
+    ansible.builtin.assert:
       that:
         - query_one.data is defined
         - query_one is not changed
 
   - name: Query one stack using name
-    meraki_switch_stack:
+    cisco.meraki.meraki_ms_stack:
       auth_key: '{{ auth_key }}'
       state: query
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
+      org_name: '{{ test_org_name }}'
+      net_name: '{{ test_switch_net_name }}'
       name: Test stack
     register: query_one_name
 
-  - debug:
+  - name: Debug query_one_name
+    ansible.builtin.debug:
       var: query_one_name
 
-  - assert:
+  - name: Assert query_one_name
+    ansible.builtin.assert:
       that:
         - query_one_name.data is defined
         - query_one_name is not changed
 
   always:
-  - name: Delete stack
-    meraki_switch_stack:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-      stack_id: '{{stack_id}}'
-    register: delete
+    - name: Delete stack
+      cisco.meraki.meraki_ms_stack:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_switch_net_name }}'
+        stack_id: '{{ stack_id }}'
+      register: delete
 
-  - name: Delete network
-    meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: absent
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_switch_net_name}}'
-    delegate_to: localhost
+    - name: Delete network
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: absent
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_switch_net_name }}'
+      delegate_to: localhost

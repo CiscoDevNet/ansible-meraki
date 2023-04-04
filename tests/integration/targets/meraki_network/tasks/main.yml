@@ -266,7 +266,24 @@
       that:
         - create_net_combined.data.product_types | length > 1
 
-  - name: Test status pages are mutually exclusive when on
+  - name: Test status pages - local disabled remote disabled
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkCombined
+      local_status_page_enabled: no
+      remote_status_page_enabled: no
+    delegate_to: localhost
+    register: status_pages_1
+    
+  - assert:
+      that:
+        - status_pages_1.changed == True
+        - status_pages_1['data']['local_status_page_enabled'] == False
+        - status_pages_1['data']['remote_status_page_enabled'] == False
+
+  - name: Test status pages - local enabled remote disabled
     meraki_network:
       auth_key: '{{ auth_key }}'
       state: present
@@ -275,12 +292,48 @@
       local_status_page_enabled: yes
       remote_status_page_enabled: no
     delegate_to: localhost
-    register: status_exclusivity
+    register: status_pages_2
+    
+  - assert:
+      that:
+        - status_pages_2.changed == True
+        - status_pages_2['data']['local_status_page_enabled'] == True
+        - status_pages_2['data']['remote_status_page_enabled'] == False
+
+  - name: Test status pages - local enabled remote enabled
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkCombined
+      local_status_page_enabled: yes
+      remote_status_page_enabled: yes
+    delegate_to: localhost
+    register: status_pages_3
+    
+  - assert:
+      that:
+        - status_pages_3.changed == True
+        - status_pages_3['data']['local_status_page_enabled'] == True
+        - status_pages_3['data']['remote_status_page_enabled'] == True
+
+  
+  - name: Test status pages - local disabled remote enabled - expected to fail
+    meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: present
+      org_name: '{{test_org_name}}'
+      net_name: IntTestNetworkCombined
+      local_status_page_enabled: no
+      remote_status_page_enabled: yes
+    delegate_to: localhost
+    register: status_pages_4
     ignore_errors: yes
 
   - assert:
       that:
-        - '"must be true when setting" in status_exclusivity.msg'
+        - status_pages_4.changed == False
+        - '"must be true when setting" in status_pages_4.msg'
 
   - name: Create network with one tag
     meraki_network:
@@ -360,7 +413,7 @@
         - create_net_modified_idempotent.changed == False
         - create_net_modified_idempotent.data is defined
 
-  - name: Query network settings
+  - name: Query templated network settings
     meraki_network:
       auth_key: '{{auth_key}}'
       state: query
@@ -400,10 +453,33 @@
     delegate_to: localhost
     register: net_query_one
 
-  - name: Query assertions
+  - name: Query one network - assert
     assert:
       that:
         - 'net_query_one.data.name == "IntTestNetworkSwitch"'
+        - 'query_config_template.data.name == "{{ test_template_name }}"'
+
+  - name: Set net_id
+    ansible.builtin.set_fact:
+      net_id: "{{ net_query_one.data.id }}"
+
+  - name: Query one network by ID
+    cisco.meraki.meraki_network:
+      auth_key: '{{ auth_key }}'
+      state: query
+      org_name: '{{test_org_name}}'
+      net_id: "{{ net_id}}"
+    delegate_to: localhost
+    register: net_query_one_id
+
+  - name: Query one network by ID - debug
+    ansible.builtin.debug:
+      var: net_query_one_id
+
+  - name: Query one network by ID - assert
+    ansible.builtin.assert:
+      that:
+        - 'net_query_one_id.data.name == "IntTestNetworkSwitch"'
         - 'query_config_template.data.name == "{{ test_template_name }}"'
 
 #############################################################################
