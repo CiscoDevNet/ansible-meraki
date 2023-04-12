@@ -471,6 +471,12 @@ def clear_vlan(params, payload):
     return payload
 
 
+def clear_polices(params, payload):
+    if params["access_policy_type"] is None:
+        payload["accessPolicyType"] = "Open"
+    return payload
+
+
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
@@ -646,6 +652,7 @@ def main():
             payload["stickyMacAllowList"] = macs
             payload["stickyMacAllowListLimit"] = sticky_mac_limit
         payload = clear_vlan(meraki.params, payload)
+        payload = clear_polices(meraki.params, payload)
         proposed = payload.copy()
         if meraki.params["type"] == "trunk":
             proposed["voiceVlan"] = original[

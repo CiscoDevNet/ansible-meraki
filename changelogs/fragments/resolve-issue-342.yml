@@ -1,0 +1,2 @@
+bugfixes:
+  - meraki_ms_switchport - Resolved issue with changing type from `access` (when auth_method is set up) to `open`
