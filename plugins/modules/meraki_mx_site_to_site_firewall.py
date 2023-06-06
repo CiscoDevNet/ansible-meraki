@@ -218,12 +218,12 @@ def get_rules(meraki, org_id):
 def compare_rule_count(original, payload):
     if len(original['rules']) - 1 != len(payload['rules']):  # Quick and simple check to avoid more processing
         return True
-    return False 
+    return False
 
 def compare_default_rule(original, default_rule):
     if original['rules'][len(original['rules']) - 1]['syslogEnabled'] != default_rule:
         return True
-    return False 
+    return False
 
 
 def main():
