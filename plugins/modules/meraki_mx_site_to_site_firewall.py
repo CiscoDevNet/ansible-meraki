@@ -199,11 +199,15 @@ def assemble_payload(meraki):
                   'syslog_enabled': 'syslogEnabled',
                   'comment': 'comment',
                   }
+    normalize_keys = ['dest_port', 'dest_cidr', 'src_port', 'src_cidr']
     rules = []
     for rule in meraki.params['rules']:
         proposed_rule = dict()
         for k, v in rule.items():
             proposed_rule[params_map[k]] = v
+            if k in normalize_keys:
+                if v.lower() == "any":
+                    proposed_rule[params_map[k]] = "Any" 
         rules.append(proposed_rule)
     payload = {'rules': rules}
     return payload
