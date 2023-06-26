@@ -18,6 +18,127 @@
       type: appliance
     delegate_to: localhost
 
+  - name: Test issue 302
+    meraki_mx_site_to_site_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      state: present
+      syslog_default_rule: true
+      rules:
+        - comment: Block All telnet Traffic Rename
+          src_cidr: 192.0.2.0/24
+          src_port: any
+          dest_cidr: 192.0.2.2/32
+          dest_port: 23, 22
+          protocol: tcp
+          policy: deny
+          syslog_enabled: true
+
+        - comment: Allow Middle Rule
+          src_cidr: 192.0.1.0/24
+          src_port: any
+          dest_cidr: 192.0.2.2/32
+          dest_port: 9443, 8080
+          protocol: tcp
+          policy: allow
+          syslog_enabled: true
+
+        - comment: Allow Web traffic
+          src_cidr: 192.0.1.0/24
+          src_port: any
+          dest_cidr: 192.0.2.2/32
+          dest_port: 80, 443, 8443
+          protocol: tcp
+          policy: allow
+          syslog_enabled: true
+    delegate_to: localhost
+    register: threeohtwo_original
+
+  - debug:
+      var: threeohtwo_original
+
+  - assert:
+      that:
+        - threeohtwo_original.data is defined
+        - threeohtwo_original.data.rules[0].comment == "Block All telnet Traffic Rename"
+        - threeohtwo_original.data.rules[1].comment == "Allow Middle Rule"
+        - threeohtwo_original.data.rules[2].comment == "Allow Web traffic"
+        - threeohtwo_original.data.rules[0].dest_cidr == "192.0.2.2/32"
+
+  - name: Update rules to test 302 
+    meraki_mx_site_to_site_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      state: present
+      syslog_default_rule: true
+      rules:
+        - comment: Block All telnet Traffic Rename
+          src_cidr: 192.0.2.0/24
+          src_port: any
+          dest_cidr: 192.0.2.2/32, 192.0.3.0/24
+          dest_port: 23, 22
+          protocol: tcp
+          policy: deny
+          syslog_enabled: true
+
+        - comment: Allow Web traffic
+          src_cidr: 192.0.1.0/24
+          src_port: any
+          dest_cidr: 192.0.2.2/32
+          dest_port: 80, 443, 8443
+          protocol: tcp
+          policy: allow
+          syslog_enabled: true
+
+        - comment: Allow Middle Rule
+          src_cidr: 192.0.1.0/24
+          src_port: any
+          dest_cidr: 192.0.2.2/32
+          dest_port: 9443, 8080
+          protocol: tcp
+          policy: allow
+          syslog_enabled: true
+    delegate_to: localhost
+    register: threeohtwo_update
+
+  - debug:
+      var: threeohtwo_update
+
+  - assert:
+      that:
+        - threeohtwo_update.data is defined
+        - threeohtwo_update.data.rules[0].comment == "Block All telnet Traffic Rename"
+        - threeohtwo_update.data.rules[1].comment == "Allow Web traffic"
+        - threeohtwo_update.data.rules[2].comment == "Allow Middle Rule"
+        - threeohtwo_update.data.rules[0].dest_cidr == "192.0.2.2/32,192.0.3.0/24"
+
+  - name: Test capitalization for protocol
+    meraki_mx_site_to_site_firewall:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{test_org_name}}'
+      state: present
+      syslog_default_rule: true
+      rules:
+        - comment: Block All telnet Traffic Rename
+          src_cidr: 192.0.2.0/24
+          src_port: Any
+          dest_cidr: 192.0.2.2/32, 192.0.3.0/24
+          dest_port: 23, 22
+          protocol: any 
+          policy: deny
+          syslog_enabled: true
+    delegate_to: localhost
+    register: protocol_any
+
+  - debug:
+      var: protocol_any
+
+  - assert:
+      that:
+        - protocol_any is success
+        - protocol_any is changed
+        - protocol_any.data.rules[0].protocol == "any"
+
   - name: Query firewall rules
     meraki_mx_site_to_site_firewall:
       auth_key: '{{ auth_key }}'
@@ -28,10 +149,6 @@
 
   - debug:
       var: query
-
-  # - assert:
-  #     that:
-  #       - query.data|length == 1
 
   - name: Set one firewall rule with check mode
     meraki_mx_site_to_site_firewall:

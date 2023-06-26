@@ -199,11 +199,15 @@ def assemble_payload(meraki):
                   'syslog_enabled': 'syslogEnabled',
                   'comment': 'comment',
                   }
+    normalize_keys = ['dest_port', 'dest_cidr', 'src_port', 'src_cidr']
     rules = []
     for rule in meraki.params['rules']:
         proposed_rule = dict()
         for k, v in rule.items():
             proposed_rule[params_map[k]] = v
+            if k in normalize_keys:
+                if v.lower() == "any":
+                    proposed_rule[params_map[k]] = "Any"
         rules.append(proposed_rule)
     payload = {'rules': rules}
     return payload
@@ -214,6 +218,18 @@ def get_rules(meraki, org_id):
     response = meraki.request(path, method='GET')
     if meraki.status == 200:
         return response
+
+
+def compare_rule_count(original, payload):
+    if len(original['rules']) - 1 != len(payload['rules']):  # Quick and simple check to avoid more processing
+        return True
+    return False
+
+
+def compare_default_rule(original, default_rule):
+    if original['rules'][len(original['rules']) - 1]['syslogEnabled'] != default_rule:
+        return True
+    return False
 
 
 def main():
@@ -281,24 +297,21 @@ def main():
             payload['syslogDefaultRule'] = meraki.params['syslog_default_rule']
         try:
             if meraki.params['rules'] is not None:
-                if len(rules['rules']) - 1 != len(payload['rules']):  # Quick and simple check to avoid more processing
-                    update = True
-            if meraki.params['syslog_default_rule'] is not None:
-                if rules['rules'][len(rules['rules']) - 1]['syslogEnabled'] != meraki.params['syslog_default_rule']:
-                    update = True
+                update = compare_rule_count(rules, payload)
+            if update is False and meraki.params['syslog_default_rule'] is not None:
+                update = compare_default_rule(rules, meraki.params['syslog_default_rule'])
             if update is False:
-                default_rule = rules['rules'][len(rules['rules']) - 1].copy()
-                # meraki.fail_json(msg=update)
+                default_rule = rules['rules'][len(rules['rules']) - 1].copy()  # Create copy of default rule
                 del rules['rules'][len(rules['rules']) - 1]  # Remove default rule for comparison
                 if len(rules['rules']) - 1 == 0:
                     if meraki.is_update_required(rules['rules'][0], payload['rules'][0]) is True:
                         update = True
                 else:
-                    for r in range(len(rules) - 1):
+                    for r in range(len(rules)):
                         if meraki.is_update_required(rules['rules'][r], payload['rules'][r]) is True:
                             update = True
                 rules['rules'].append(default_rule)
-        except KeyError:
+        except IndexError:
             pass
         if update is True:
             if meraki.check_mode is True:
