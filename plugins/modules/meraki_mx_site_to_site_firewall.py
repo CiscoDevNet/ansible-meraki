@@ -207,7 +207,7 @@ def assemble_payload(meraki):
             proposed_rule[params_map[k]] = v
             if k in normalize_keys:
                 if v.lower() == "any":
-                    proposed_rule[params_map[k]] = "Any" 
+                    proposed_rule[params_map[k]] = "Any"
         rules.append(proposed_rule)
     payload = {'rules': rules}
     return payload
