@@ -57,7 +57,17 @@ options:
         description:
         - Link speed for the switchport.
         default: Auto negotiate
-        choices: [Auto negotiate, 100 Megabit (auto), 100 Megabit full duplex (forced)]
+        choices: [1 Gigabit full duplex (auto),
+                1 Gigabit full duplex (forced),
+                10 Gigabit full duplex (auto),
+                10 Gigabit full duplex (forced),
+                100 Megabit (auto),
+                100 Megabit full duplex (forced),
+                2.5 Gigabit full duplex (auto),
+                2.5 Gigabit full duplex (forced),
+                5 Gigabit full duplex (auto),
+                5 Gigabit full duplex (forced),
+                Auto negotiate]
         type: str
     name:
         description:
@@ -518,9 +528,17 @@ def main():
         link_negotiation=dict(
             type="str",
             choices=[
-                "Auto negotiate",
+                "1 Gigabit full duplex (auto)",
+                "1 Gigabit full duplex (forced)",
+                "10 Gigabit full duplex (auto)",
+                "10 Gigabit full duplex (forced)",
                 "100 Megabit (auto)",
                 "100 Megabit full duplex (forced)",
+                "2.5 Gigabit full duplex (auto)",
+                "2.5 Gigabit full duplex (forced)",
+                "5 Gigabit full duplex (auto)",
+                "5 Gigabit full duplex (forced)",
+                "Auto negotiate",
             ],
             default="Auto negotiate",
         ),

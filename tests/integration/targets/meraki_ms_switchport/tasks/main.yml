@@ -780,3 +780,50 @@
     that:
       - idempotent_delete_mac.changed == False
       - idempotent_delete_mac.data is defined
+
+- name: Change the switchport to 1 GB to auto
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: "{{ auth_key }}"
+    link_negotiation: "Auto negotiate"
+    number: 9
+    serial: "{{ serial_switch }}"
+    state: present
+  register: forced_change_port
+
+- name: Change the switchport to 1 GB forced
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: "{{ auth_key }}"
+    link_negotiation: "1 Gigabit full duplex (forced)"
+    number: 9
+    serial: "{{ serial_switch }}"
+    state: present
+  register: forced_change_port
+
+- name: Debug forced_change_port
+  ansible.builtin.debug:
+    msg: "{{ forced_change_port }}"
+
+- name: Assert the port forced port
+  ansible.builtin.assert:
+    that:
+      - forced_change_port.changed == True
+      - forced_change_port.data.link_negotiation == "1 Gigabit full duplex (forced)"
+
+- name: Change the switchport to 1 GB auto
+  cisco.meraki.meraki_ms_switchport:
+    auth_key: "{{ auth_key }}"
+    link_negotiation: "1 Gigabit full duplex (auto)"
+    number: 9
+    serial: "{{ serial_switch }}"
+    state: present
+  register: auto_change_port
+
+- name: Debug auto_change_port
+  ansible.builtin.debug:
+    msg: "{{ auto_change_port }}"
+
+- name: Assert the port auto port
+  ansible.builtin.assert:
+    that:
+      - auto_change_port.changed == True
+      - auto_change_port.data.link_negotiation == "1 Gigabit full duplex (auto)"
