@@ -7,418 +7,418 @@
   ansible.builtin.block:
     - name: Test an API key is provided
       fail:
-          msg: Please define an API key
+        msg: Please define an API key
       when: auth_key is not defined
 
     - name: Create network
       cisco.meraki.meraki_network:
-          auth_key: '{{ auth_key }}'
-          org_name: '{{test_org_name}}'
-          net_name: TestNetAppliance
-          state: present
-          type: appliance
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: TestNetAppliance
+        state: present
+        type: appliance
       delegate_to: localhost
 
     - name: Test issue 302
       cisco.meraki.meraki_mx_site_to_site_firewall:
         auth_key: '{{ auth_key }}'
-        org_name: '{{test_org_name}}'
+        org_name: '{{ test_org_name }}'
         state: present
         syslog_default_rule: true
         rules:
-            - comment: Block All telnet Traffic Rename
-              src_cidr: 192.0.2.0/24
-              src_port: any
-              dest_cidr: 192.0.2.2/32
-              dest_port: 23, 22
-              protocol: tcp
-              policy: deny
-              syslog_enabled: true
+          - comment: Block All telnet Traffic Rename
+            src_cidr: 192.0.2.0/24
+            src_port: any
+            dest_cidr: 192.0.2.2/32
+            dest_port: 23, 22
+            protocol: tcp
+            policy: deny
+            syslog_enabled: true
 
-            - comment: Allow Middle Rule
-              src_cidr: 192.0.1.0/24
-              src_port: any
-              dest_cidr: 192.0.2.2/32
-              dest_port: 9443, 8080
-              protocol: tcp
-              policy: allow
-              syslog_enabled: true
+          - comment: Allow Middle Rule
+            src_cidr: 192.0.1.0/24
+            src_port: any
+            dest_cidr: 192.0.2.2/32
+            dest_port: 9443, 8080
+            protocol: tcp
+            policy: allow
+            syslog_enabled: true
 
-            - comment: Allow Web traffic
-              src_cidr: 192.0.1.0/24
-              src_port: any
-              dest_cidr: 192.0.2.2/32
-              dest_port: 80, 443, 8443
-              protocol: tcp
-              policy: allow
-              syslog_enabled: true
+          - comment: Allow Web traffic
+            src_cidr: 192.0.1.0/24
+            src_port: any
+            dest_cidr: 192.0.2.2/32
+            dest_port: 80, 443, 8443
+            protocol: tcp
+            policy: allow
+            syslog_enabled: true
       delegate_to: localhost
       register: threeohtwo_original
 
     - ansible.builtin.debug:
-          var: threeohtwo_original
+        var: threeohtwo_original
 
     - ansible.builtin.assert:
-          that:
-              - threeohtwo_original.data is defined
-              - threeohtwo_original.data.rules[0].comment == "Block All telnet Traffic Rename"
-              - threeohtwo_original.data.rules[1].comment == "Allow Middle Rule"
-              - threeohtwo_original.data.rules[2].comment == "Allow Web traffic"
-              - threeohtwo_original.data.rules[0].dest_cidr == "192.0.2.2/32"
+        that:
+          - threeohtwo_original.data is defined
+          - threeohtwo_original.data.rules[0].comment == "Block All telnet Traffic Rename"
+          - threeohtwo_original.data.rules[1].comment == "Allow Middle Rule"
+          - threeohtwo_original.data.rules[2].comment == "Allow Web traffic"
+          - threeohtwo_original.data.rules[0].dest_cidr == "192.0.2.2/32"
 
-  - name: Update rules to test 302 
-    cisco.meraki.meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      syslog_default_rule: true
-      rules:
-        - comment: Block All telnet Traffic Rename
-          src_cidr: 192.0.2.0/24
-          src_port: any
-          dest_cidr: 192.0.2.2/32, 192.0.3.0/24
-          dest_port: 23, 22
-          protocol: tcp
-          policy: deny
-          syslog_enabled: true
+    - name: Update rules to test 302
+      cisco.meraki.meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        syslog_default_rule: true
+        rules:
+          - comment: Block All telnet Traffic Rename
+            src_cidr: 192.0.2.0/24
+            src_port: any
+            dest_cidr: 192.0.2.2/32, 192.0.3.0/24
+            dest_port: 23, 22
+            protocol: tcp
+            policy: deny
+            syslog_enabled: true
 
-        - comment: Allow Web traffic
-          src_cidr: 192.0.1.0/24
-          src_port: any
-          dest_cidr: 192.0.2.2/32
-          dest_port: 80, 443, 8443
-          protocol: tcp
-          policy: allow
-          syslog_enabled: true
+          - comment: Allow Web traffic
+            src_cidr: 192.0.1.0/24
+            src_port: any
+            dest_cidr: 192.0.2.2/32
+            dest_port: 80, 443, 8443
+            protocol: tcp
+            policy: allow
+            syslog_enabled: true
 
-        - comment: Allow Middle Rule
-          src_cidr: 192.0.1.0/24
-          src_port: any
-          dest_cidr: 192.0.2.2/32
-          dest_port: 9443, 8080
-          protocol: tcp
-          policy: allow
-          syslog_enabled: true
-    delegate_to: localhost
-    register: threeohtwo_update
+          - comment: Allow Middle Rule
+            src_cidr: 192.0.1.0/24
+            src_port: any
+            dest_cidr: 192.0.2.2/32
+            dest_port: 9443, 8080
+            protocol: tcp
+            policy: allow
+            syslog_enabled: true
+      delegate_to: localhost
+      register: threeohtwo_update
 
-  - ansible.builtin.debug:
-      var: threeohtwo_update
+    - ansible.builtin.debug:
+        var: threeohtwo_update
 
-  - ansible.builtin.assert:
-      that:
-        - threeohtwo_update.data is defined
-        - threeohtwo_update.data.rules[0].comment == "Block All telnet Traffic Rename"
-        - threeohtwo_update.data.rules[1].comment == "Allow Web traffic"
-        - threeohtwo_update.data.rules[2].comment == "Allow Middle Rule"
-        - threeohtwo_update.data.rules[0].dest_cidr == "192.0.2.2/32,192.0.3.0/24"
+    - ansible.builtin.assert:
+        that:
+          - threeohtwo_update.data is defined
+          - threeohtwo_update.data.rules[0].comment == "Block All telnet Traffic Rename"
+          - threeohtwo_update.data.rules[1].comment == "Allow Web traffic"
+          - threeohtwo_update.data.rules[2].comment == "Allow Middle Rule"
+          - threeohtwo_update.data.rules[0].dest_cidr == "192.0.2.2/32,192.0.3.0/24"
 
-  - name: Test capitalization for protocol
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      syslog_default_rule: true
-      rules:
-        - comment: Block All telnet Traffic Rename
-          src_cidr: 192.0.2.0/24
-          src_port: Any
-          dest_cidr: 192.0.2.2/32, 192.0.3.0/24
-          dest_port: 23, 22
-          protocol: any 
-          policy: deny
-          syslog_enabled: true
-    delegate_to: localhost
-    register: protocol_any
+    - name: Test capitalization for protocol
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        syslog_default_rule: true
+        rules:
+          - comment: Block All telnet Traffic Rename
+            src_cidr: 192.0.2.0/24
+            src_port: Any
+            dest_cidr: 192.0.2.2/32, 192.0.3.0/24
+            dest_port: 23, 22
+            protocol: any
+            policy: deny
+            syslog_enabled: true
+      delegate_to: localhost
+      register: protocol_any
 
-  - ansible.builtin.debug:
-      var: protocol_any
+    - ansible.builtin.debug:
+        var: protocol_any
 
-  - ansible.builtin.assert:
-      that:
-        - protocol_any is success
-        - protocol_any is changed
-        - protocol_any.data.rules[0].protocol == "any"
+    - ansible.builtin.assert:
+        that:
+          - protocol_any is success
+          - protocol_any is changed
+          - protocol_any.data.rules[0].protocol == "any"
 
-  - name: Query firewall rules
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: query
-    delegate_to: localhost
-    register: query
+    - name: Query firewall rules
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: query
+      delegate_to: localhost
+      register: query
 
-  - ansible.builtin.debug:
-      var: query
+    - ansible.builtin.debug:
+        var: query
 
-  - name: Set one firewall rule with check mode
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      rules:
-        - comment: Deny to documentation address
-          src_port: Any
-          src_cidr: Any
-          dest_port: 80,443
-          dest_cidr: 192.0.1.1/32
-          protocol: tcp
-          policy: deny
-    delegate_to: localhost
-    check_mode: yes
-    register: create_one_check
+    - name: Set one firewall rule with check mode
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        rules:
+          - comment: Deny to documentation address
+            src_port: Any
+            src_cidr: Any
+            dest_port: 80,443
+            dest_cidr: 192.0.1.1/32
+            protocol: tcp
+            policy: deny
+      delegate_to: localhost
+      check_mode: true
+      register: create_one_check
 
-  - ansible.builtin.debug:
-      var: create_one_check
+    - ansible.builtin.debug:
+        var: create_one_check
 
-  - ansible.builtin.assert:
-      that:
-        - create_one_check.data.rules|length == 2
-        - create_one_check.data.rules.0.dest_cidr == '192.0.1.1/32'
-        - create_one_check.data.rules.0.protocol == 'tcp'
-        - create_one_check.data.rules.0.policy == 'deny'
-        - create_one_check is changed
-        - create_one_check.data is defined
+    - ansible.builtin.assert:
+        that:
+          - create_one_check.data.rules|length == 2
+          - create_one_check.data.rules.0.dest_cidr == '192.0.1.1/32'
+          - create_one_check.data.rules.0.protocol == 'tcp'
+          - create_one_check.data.rules.0.policy == 'deny'
+          - create_one_check is changed
+          - create_one_check.data is defined
 
-  - name: Set one firewall rule
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      rules:
-        - comment: Deny to documentation address
-          src_port: Any
-          src_cidr: Any
-          dest_port: 80,443
-          dest_cidr: 192.0.1.1/32
-          protocol: tcp
-          policy: deny
-    delegate_to: localhost
-    register: create_one
+    - name: Set one firewall rule
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        rules:
+          - comment: Deny to documentation address
+            src_port: Any
+            src_cidr: Any
+            dest_port: 80,443
+            dest_cidr: 192.0.1.1/32
+            protocol: tcp
+            policy: deny
+      delegate_to: localhost
+      register: create_one
 
-  - ansible.builtin.debug:
-      var: create_one
+    - ansible.builtin.debug:
+        var: create_one
 
-  - ansible.builtin.assert:
-      that:
-        - create_one.data.rules|length == 2
-        - create_one.data.rules.0.dest_cidr == '192.0.1.1/32'
-        - create_one.data.rules.0.protocol == 'tcp'
-        - create_one.data.rules.0.policy == 'deny'
-        - create_one.changed == True
-        - create_one.data is defined
+    - ansible.builtin.assert:
+        that:
+          - create_one.data.rules|length == 2
+          - create_one.data.rules.0.dest_cidr == '192.0.1.1/32'
+          - create_one.data.rules.0.protocol == 'tcp'
+          - create_one.data.rules.0.policy == 'deny'
+          - create_one.changed == True
+          - create_one.data is defined
 
-  - name: Check for idempotency
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      rules:
-        - comment: Deny to documentation address
-          src_port: Any
-          src_cidr: Any
-          dest_port: 80,443
-          dest_cidr: 192.0.1.1/32
-          protocol: tcp
-          policy: deny
-    delegate_to: localhost
-    register: create_one_idempotent
+    - name: Check for idempotency
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        rules:
+          - comment: Deny to documentation address
+            src_port: Any
+            src_cidr: Any
+            dest_port: 80,443
+            dest_cidr: 192.0.1.1/32
+            protocol: tcp
+            policy: deny
+      delegate_to: localhost
+      register: create_one_idempotent
 
-  - ansible.builtin.debug:
-      msg: '{{create_one_idempotent}}'
+    - ansible.builtin.debug:
+        msg: '{{create_one_idempotent}}'
 
-  - ansible.builtin.assert:
-      that:
-        - create_one_idempotent.changed == False
-        - create_one_idempotent.data is defined
+    - ansible.builtin.assert:
+        that:
+          - create_one_idempotent.changed == False
+          - create_one_idempotent.data is defined
 
-  - name: Update one existing rule
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      rules:
-        - comment: Deny all documentation addresses
-          src_port: Any
-          src_cidr: Any
-          dest_port: 80,443
-          dest_cidr: 192.0.1.1/32,192.0.1.2/32
-          protocol: tcp
-          policy: deny
-    delegate_to: localhost
-    register: update_one
+    - name: Update one existing rule
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        rules:
+          - comment: Deny all documentation addresses
+            src_port: Any
+            src_cidr: Any
+            dest_port: 80,443
+            dest_cidr: 192.0.1.1/32,192.0.1.2/32
+            protocol: tcp
+            policy: deny
+      delegate_to: localhost
+      register: update_one
 
-  - ansible.builtin.debug:
-      msg: '{{update_one}}'
+    - ansible.builtin.debug:
+        msg: '{{update_one }}'
 
-  - ansible.builtin.assert:
-      that:
-        - update_one.changed == True
-        - update_one.data is defined
+    - ansible.builtin.assert:
+        that:
+          - update_one.changed == True
+          - update_one.data is defined
 
-  - name: Create syslog in network
-    meraki_syslog:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      net_name: TestNetAppliance
-      state: present
-      servers:
-        - host: 192.0.2.10
-          port: 514
-          roles:
-            - Appliance event log
-            - Flows
-    delegate_to: localhost
+    - name: Create syslog in network
+      meraki_syslog:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: TestNetAppliance
+        state: present
+        servers:
+          - host: 192.0.2.10
+            port: 514
+            roles:
+              - Appliance event log
+              - Flows
+      delegate_to: localhost
 
-  - name: Enable syslog for default rule with check mode
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      rules:
-        - comment: Deny to documentation address
-          src_port: Any
-          src_cidr: Any
-          dest_port: 80,443
-          dest_cidr: 192.0.1.1/32
-          protocol: tcp
-          policy: deny        
-      syslog_default_rule: yes
-    delegate_to: localhost
-    check_mode: yes
-    register: default_syslog_check
+    - name: Enable syslog for default rule with check mode
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        rules:
+          - comment: Deny to documentation address
+            src_port: Any
+            src_cidr: Any
+            dest_port: 80,443
+            dest_cidr: 192.0.1.1/32
+            protocol: tcp
+            policy: deny
+        syslog_default_rule: true
+      delegate_to: localhost
+      check_mode: true
+      register: default_syslog_check
 
-  - ansible.builtin.debug:
-      msg: '{{default_syslog_check}}'
+    - ansible.builtin.debug:
+        msg: '{{default_syslog_check}}'
 
-  - ansible.builtin.assert:
-      that:
-        - default_syslog_check.data is defined
-        - default_syslog_check.data.rules.1.syslog_enabled == True
+    - ansible.builtin.assert:
+        that:
+          - default_syslog_check.data is defined
+          - default_syslog_check.data.rules.1.syslog_enabled == True
 
-  - name: Enable syslog for default rule
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      rules:
-        - comment: Deny to documentation address
-          src_port: Any
-          src_cidr: Any
-          dest_port: 80,443
-          dest_cidr: 192.0.1.1/32
-          protocol: tcp
-          policy: deny        
-      syslog_default_rule: yes
-    delegate_to: localhost
-    register: default_syslog
+    - name: Enable syslog for default rule
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        rules:
+          - comment: Deny to documentation address
+            src_port: Any
+            src_cidr: Any
+            dest_port: 80,443
+            dest_cidr: 192.0.1.1/32
+            protocol: tcp
+            policy: deny
+        syslog_default_rule: true
+      delegate_to: localhost
+      register: default_syslog
 
-  - ansible.builtin.debug:
-      msg: '{{default_syslog}}'
+    - ansible.builtin.debug:
+        msg: '{{default_syslog}}'
 
-  - ansible.builtin.assert:
-      that:
-        - default_syslog.data is defined
+    - ansible.builtin.assert:
+        that:
+          - default_syslog.data is defined
 
-  - name: Query firewall rules
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: query
-    delegate_to: localhost
-    register: query
+    - name: Query firewall rules
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: query
+      delegate_to: localhost
+      register: query
 
-  - ansible.builtin.debug:
-      msg: '{{query.data.rules.1}}'
+    - ansible.builtin.debug:
+        msg: '{{query.data.rules.1}}'
 
-  - ansible.builtin.assert:
-      that:
-        - query.data.rules.1.syslog_enabled == True
-        - default_syslog.changed == True
+    - ansible.builtin.assert:
+        that:
+          - query.data.rules.1.syslog_enabled == True
+          - default_syslog.changed == True
 
-  - name: Disable syslog for default rule
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      rules:
-        - comment: Deny to documentation address
-          src_port: Any
-          src_cidr: Any
-          dest_port: 80,443
-          dest_cidr: 192.0.1.1/32
-          protocol: tcp
-          policy: deny        
-      syslog_default_rule: no
-    delegate_to: localhost
-    register: disable_syslog
+    - name: Disable syslog for default rule
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        rules:
+          - comment: Deny to documentation address
+            src_port: Any
+            src_cidr: Any
+            dest_port: 80,443
+            dest_cidr: 192.0.1.1/32
+            protocol: tcp
+            policy: deny
+        syslog_default_rule: false
+      delegate_to: localhost
+      register: disable_syslog
 
-  - ansible.builtin.debug:
-      msg: '{{disable_syslog}}'
+    - ansible.builtin.debug:
+        msg: '{{disable_syslog}}'
 
-  - ansible.builtin.assert:
-      that:
-        - disable_syslog.data is defined
+    - ansible.builtin.assert:
+        that:
+          - disable_syslog.data is defined
 
-  - name: Query firewall rules
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: query
-    delegate_to: localhost
-    register: query
+    - name: Query firewall rules
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: query
+      delegate_to: localhost
+      register: query
 
-  - ansible.builtin.debug:
-      msg: '{{query}}'
+    - ansible.builtin.debug:
+        msg: '{{query}}'
 
-  - name: Enable syslog for default rule with no rules and with check mode
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      syslog_default_rule: yes
-    delegate_to: localhost
-    check_mode: yes
-    register: enable_syslog_only_check
+    - name: Enable syslog for default rule with no rules and with check mode
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        syslog_default_rule: true
+      delegate_to: localhost
+      check_mode: true
+      register: enable_syslog_only_check
 
-  - ansible.builtin.debug:
-      msg: '{{enable_syslog_only_check}}'
+    - ansible.builtin.debug:
+        msg: '{{enable_syslog_only_check}}'
 
-  - ansible.builtin.assert:
-      that:
-        - enable_syslog_only_check.data.rules.1.syslog_enabled == True
-        - enable_syslog_only_check is changed
+    - ansible.builtin.assert:
+        that:
+          - enable_syslog_only_check.data.rules.1.syslog_enabled == True
+          - enable_syslog_only_check is changed
 
-  - name: Query firewall rules
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: query
-    delegate_to: localhost
-    register: query
+    - name: Query firewall rules
+      meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: query
+      delegate_to: localhost
+      register: query
 
-  - ansible.builtin.debug:
-      msg: '{{query.data.rules.1}}'
+    - ansible.builtin.debug:
+        msg: '{{query.data.rules.1}}'
 
-  - ansible.builtin.assert:
-      that:
-        - query.data.rules.1.syslog_enabled == False
-        - disable_syslog.changed == True
+    - ansible.builtin.assert:
+        that:
+          - query.data.rules.1.syslog_enabled == False
+          - disable_syslog.changed == True
 
   always:
-  - name: Delete all firewall rules
-    meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      rules: []
-    delegate_to: localhost
-    register: delete_all
+    - name: Delete all firewall rules
+      cisco.meraki.meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        state: present
+        rules: []
+      delegate_to: localhost
+      register: delete_all
 
-  - name: Delete network
-    meraki_network:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      net_name: TestNetAppliance
-      state: absent
-    delegate_to: localhost
+    - name: Delete network
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: TestNetAppliance
+        state: absent
+      delegate_to: localhost
