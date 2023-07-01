@@ -1,0 +1,2 @@
+trivial:
+  - meraki_mx_site_to_site_firewall - Update integration tests for improved syntax
