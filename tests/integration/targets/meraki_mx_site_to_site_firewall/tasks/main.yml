@@ -55,7 +55,8 @@
       delegate_to: localhost
       register: threeohtwo_original
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - threeohtwo_original.data is defined
           - threeohtwo_original.data.rules[0].comment == "Block All telnet Traffic Rename"
@@ -99,10 +100,8 @@
       delegate_to: localhost
       register: threeohtwo_update
 
-    - ansible.builtin.debug:
-        var: threeohtwo_update
-
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - threeohtwo_update.data is defined
           - threeohtwo_update.data.rules[0].comment == "Block All telnet Traffic Rename"
@@ -128,7 +127,8 @@
       delegate_to: localhost
       register: protocol_any
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - protocol_any is success
           - protocol_any is changed
@@ -159,7 +159,8 @@
       check_mode: true
       register: create_one_check
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - create_one_check.data.rules|length == 2
           - create_one_check.data.rules.0.dest_cidr == '192.0.1.1/32'
@@ -184,7 +185,8 @@
       delegate_to: localhost
       register: create_one
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - create_one.data.rules|length == 2
           - create_one.data.rules.0.dest_cidr == '192.0.1.1/32'
@@ -209,7 +211,8 @@
       delegate_to: localhost
       register: create_one_idempotent
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - create_one_idempotent.changed == False
           - create_one_idempotent.data is defined
@@ -271,7 +274,8 @@
       delegate_to: localhost
       register: default_syslog
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - default_syslog.data is defined
 
@@ -283,7 +287,8 @@
       delegate_to: localhost
       register: query
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - query.data.rules.1.syslog_enabled == True
           - default_syslog.changed == True
@@ -305,7 +310,8 @@
       delegate_to: localhost
       register: disable_syslog
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - disable_syslog.data is defined
 
@@ -327,7 +333,8 @@
       check_mode: true
       register: enable_syslog_only_check
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - enable_syslog_only_check.data.rules.1.syslog_enabled == True
           - enable_syslog_only_check is changed
@@ -340,7 +347,8 @@
       delegate_to: localhost
       register: query
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - query.data.rules.1.syslog_enabled == False
           - disable_syslog.changed == True
