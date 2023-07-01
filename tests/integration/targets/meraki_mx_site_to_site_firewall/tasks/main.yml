@@ -5,66 +5,66 @@
 ---
 - name: Run tests against meraki_mx_site_to_site_firewall
   ansible.builtin.block:
-  - name: Test an API key is provided
-    fail:
-      msg: Please define an API key
-    when: auth_key is not defined
+    - name: Test an API key is provided
+      fail:
+          msg: Please define an API key
+      when: auth_key is not defined
 
-  - name: Create network
-    cisco.meraki.meraki_network:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      net_name: TestNetAppliance
-      state: present
-      type: appliance
-    delegate_to: localhost
+    - name: Create network
+      cisco.meraki.meraki_network:
+          auth_key: '{{ auth_key }}'
+          org_name: '{{test_org_name}}'
+          net_name: TestNetAppliance
+          state: present
+          type: appliance
+      delegate_to: localhost
 
-  - name: Test issue 302
-    cisco.meraki.meraki_mx_site_to_site_firewall:
-      auth_key: '{{ auth_key }}'
-      org_name: '{{test_org_name}}'
-      state: present
-      syslog_default_rule: true
-      rules:
-        - comment: Block All telnet Traffic Rename
-          src_cidr: 192.0.2.0/24
-          src_port: any
-          dest_cidr: 192.0.2.2/32
-          dest_port: 23, 22
-          protocol: tcp
-          policy: deny
-          syslog_enabled: true
+    - name: Test issue 302
+      cisco.meraki.meraki_mx_site_to_site_firewall:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{test_org_name}}'
+        state: present
+        syslog_default_rule: true
+        rules:
+            - comment: Block All telnet Traffic Rename
+              src_cidr: 192.0.2.0/24
+              src_port: any
+              dest_cidr: 192.0.2.2/32
+              dest_port: 23, 22
+              protocol: tcp
+              policy: deny
+              syslog_enabled: true
 
-        - comment: Allow Middle Rule
-          src_cidr: 192.0.1.0/24
-          src_port: any
-          dest_cidr: 192.0.2.2/32
-          dest_port: 9443, 8080
-          protocol: tcp
-          policy: allow
-          syslog_enabled: true
+            - comment: Allow Middle Rule
+              src_cidr: 192.0.1.0/24
+              src_port: any
+              dest_cidr: 192.0.2.2/32
+              dest_port: 9443, 8080
+              protocol: tcp
+              policy: allow
+              syslog_enabled: true
 
-        - comment: Allow Web traffic
-          src_cidr: 192.0.1.0/24
-          src_port: any
-          dest_cidr: 192.0.2.2/32
-          dest_port: 80, 443, 8443
-          protocol: tcp
-          policy: allow
-          syslog_enabled: true
-    delegate_to: localhost
-    register: threeohtwo_original
+            - comment: Allow Web traffic
+              src_cidr: 192.0.1.0/24
+              src_port: any
+              dest_cidr: 192.0.2.2/32
+              dest_port: 80, 443, 8443
+              protocol: tcp
+              policy: allow
+              syslog_enabled: true
+      delegate_to: localhost
+      register: threeohtwo_original
 
-  - ansible.builtin.debug:
-      var: threeohtwo_original
+    - ansible.builtin.debug:
+          var: threeohtwo_original
 
-  - ansible.builtin.assert:
-      that:
-        - threeohtwo_original.data is defined
-        - threeohtwo_original.data.rules[0].comment == "Block All telnet Traffic Rename"
-        - threeohtwo_original.data.rules[1].comment == "Allow Middle Rule"
-        - threeohtwo_original.data.rules[2].comment == "Allow Web traffic"
-        - threeohtwo_original.data.rules[0].dest_cidr == "192.0.2.2/32"
+    - ansible.builtin.assert:
+          that:
+              - threeohtwo_original.data is defined
+              - threeohtwo_original.data.rules[0].comment == "Block All telnet Traffic Rename"
+              - threeohtwo_original.data.rules[1].comment == "Allow Middle Rule"
+              - threeohtwo_original.data.rules[2].comment == "Allow Web traffic"
+              - threeohtwo_original.data.rules[0].dest_cidr == "192.0.2.2/32"
 
   - name: Update rules to test 302 
     cisco.meraki.meraki_mx_site_to_site_firewall:
