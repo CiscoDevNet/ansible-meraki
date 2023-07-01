@@ -11,7 +11,7 @@
     when: auth_key is not defined
 
   - name: Create network
-    meraki_network:
+    cisco.meraki.meraki_network:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
       net_name: TestNetAppliance
@@ -20,7 +20,7 @@
     delegate_to: localhost
 
   - name: Test issue 302
-    meraki_mx_site_to_site_firewall:
+    cisco.meraki.meraki_mx_site_to_site_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
       state: present
@@ -55,10 +55,10 @@
     delegate_to: localhost
     register: threeohtwo_original
 
-  - debug:
+  - ansible.builtin.debug:
       var: threeohtwo_original
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - threeohtwo_original.data is defined
         - threeohtwo_original.data.rules[0].comment == "Block All telnet Traffic Rename"
@@ -67,7 +67,7 @@
         - threeohtwo_original.data.rules[0].dest_cidr == "192.0.2.2/32"
 
   - name: Update rules to test 302 
-    meraki_mx_site_to_site_firewall:
+    cisco.meraki.meraki_mx_site_to_site_firewall:
       auth_key: '{{ auth_key }}'
       org_name: '{{test_org_name}}'
       state: present
@@ -102,10 +102,10 @@
     delegate_to: localhost
     register: threeohtwo_update
 
-  - debug:
+  - ansible.builtin.debug:
       var: threeohtwo_update
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - threeohtwo_update.data is defined
         - threeohtwo_update.data.rules[0].comment == "Block All telnet Traffic Rename"
@@ -131,10 +131,10 @@
     delegate_to: localhost
     register: protocol_any
 
-  - debug:
+  - ansible.builtin.debug:
       var: protocol_any
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - protocol_any is success
         - protocol_any is changed
@@ -148,7 +148,7 @@
     delegate_to: localhost
     register: query
 
-  - debug:
+  - ansible.builtin.debug:
       var: query
 
   - name: Set one firewall rule with check mode
@@ -168,10 +168,10 @@
     check_mode: yes
     register: create_one_check
 
-  - debug:
+  - ansible.builtin.debug:
       var: create_one_check
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - create_one_check.data.rules|length == 2
         - create_one_check.data.rules.0.dest_cidr == '192.0.1.1/32'
@@ -196,10 +196,10 @@
     delegate_to: localhost
     register: create_one
 
-  - debug:
+  - ansible.builtin.debug:
       var: create_one
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - create_one.data.rules|length == 2
         - create_one.data.rules.0.dest_cidr == '192.0.1.1/32'
@@ -224,10 +224,10 @@
     delegate_to: localhost
     register: create_one_idempotent
 
-  - debug:
+  - ansible.builtin.debug:
       msg: '{{create_one_idempotent}}'
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - create_one_idempotent.changed == False
         - create_one_idempotent.data is defined
@@ -248,10 +248,10 @@
     delegate_to: localhost
     register: update_one
 
-  - debug:
+  - ansible.builtin.debug:
       msg: '{{update_one}}'
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - update_one.changed == True
         - update_one.data is defined
@@ -288,10 +288,10 @@
     check_mode: yes
     register: default_syslog_check
 
-  - debug:
+  - ansible.builtin.debug:
       msg: '{{default_syslog_check}}'
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - default_syslog_check.data is defined
         - default_syslog_check.data.rules.1.syslog_enabled == True
@@ -313,10 +313,10 @@
     delegate_to: localhost
     register: default_syslog
 
-  - debug:
+  - ansible.builtin.debug:
       msg: '{{default_syslog}}'
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - default_syslog.data is defined
 
@@ -328,10 +328,10 @@
     delegate_to: localhost
     register: query
 
-  - debug:
+  - ansible.builtin.debug:
       msg: '{{query.data.rules.1}}'
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - query.data.rules.1.syslog_enabled == True
         - default_syslog.changed == True
@@ -353,10 +353,10 @@
     delegate_to: localhost
     register: disable_syslog
 
-  - debug:
+  - ansible.builtin.debug:
       msg: '{{disable_syslog}}'
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - disable_syslog.data is defined
 
@@ -368,7 +368,7 @@
     delegate_to: localhost
     register: query
 
-  - debug:
+  - ansible.builtin.debug:
       msg: '{{query}}'
 
   - name: Enable syslog for default rule with no rules and with check mode
@@ -381,10 +381,10 @@
     check_mode: yes
     register: enable_syslog_only_check
 
-  - debug:
+  - ansible.builtin.debug:
       msg: '{{enable_syslog_only_check}}'
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - enable_syslog_only_check.data.rules.1.syslog_enabled == True
         - enable_syslog_only_check is changed
@@ -397,10 +397,10 @@
     delegate_to: localhost
     register: query
 
-  - debug:
+  - ansible.builtin.debug:
       msg: '{{query.data.rules.1}}'
 
-  - assert:
+  - ansible.builtin.assert:
       that:
         - query.data.rules.1.syslog_enabled == False
         - disable_syslog.changed == True
