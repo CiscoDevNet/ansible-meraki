@@ -252,7 +252,8 @@
       check_mode: true
       register: default_syslog_check
 
-    - ansible.builtin.assert:
+    - name: Assert previous task is correct
+      ansible.builtin.assert:
         that:
           - default_syslog_check.data is defined
           - default_syslog_check.data.rules.1.syslog_enabled == True
