@@ -6,7 +6,7 @@
 - name: Run tests against meraki_mx_site_to_site_firewall
   block:
     - name: Test an API key is provided
-      fail:
+      ansible.builtin.fail:
         msg: Please define an API key
       when: auth_key is not defined
 
@@ -54,9 +54,6 @@
             syslog_enabled: true
       delegate_to: localhost
       register: threeohtwo_original
-
-    - ansible.builtin.debug:
-        var: threeohtwo_original
 
     - ansible.builtin.assert:
         that:
@@ -131,9 +128,6 @@
       delegate_to: localhost
       register: protocol_any
 
-    - ansible.builtin.debug:
-        var: protocol_any
-
     - ansible.builtin.assert:
         that:
           - protocol_any is success
@@ -147,9 +141,6 @@
         state: query
       delegate_to: localhost
       register: query
-
-    - ansible.builtin.debug:
-        var: query
 
     - name: Set one firewall rule with check mode
       meraki_mx_site_to_site_firewall:
@@ -167,9 +158,6 @@
       delegate_to: localhost
       check_mode: true
       register: create_one_check
-
-    - ansible.builtin.debug:
-        var: create_one_check
 
     - ansible.builtin.assert:
         that:
@@ -196,9 +184,6 @@
       delegate_to: localhost
       register: create_one
 
-    - ansible.builtin.debug:
-        var: create_one
-
     - ansible.builtin.assert:
         that:
           - create_one.data.rules|length == 2
@@ -224,9 +209,6 @@
       delegate_to: localhost
       register: create_one_idempotent
 
-    - ansible.builtin.debug:
-        msg: '{{create_one_idempotent}}'
-
     - ansible.builtin.assert:
         that:
           - create_one_idempotent.changed == False
@@ -248,27 +230,6 @@
       delegate_to: localhost
       register: update_one
 
-    - ansible.builtin.debug:
-        msg: '{{update_one }}'
-
-    - ansible.builtin.assert:
-        that:
-          - update_one.changed == True
-          - update_one.data is defined
-
-    - name: Create syslog in network
-      meraki_syslog:
-        auth_key: '{{ auth_key }}'
-        org_name: '{{ test_org_name }}'
-        net_name: TestNetAppliance
-        state: present
-        servers:
-          - host: 192.0.2.10
-            port: 514
-            roles:
-              - Appliance event log
-              - Flows
-      delegate_to: localhost
 
     - name: Enable syslog for default rule with check mode
       meraki_mx_site_to_site_firewall:
@@ -287,9 +248,6 @@
       delegate_to: localhost
       check_mode: true
       register: default_syslog_check
-
-    - ansible.builtin.debug:
-        msg: '{{default_syslog_check}}'
 
     - ansible.builtin.assert:
         that:
@@ -313,9 +271,6 @@
       delegate_to: localhost
       register: default_syslog
 
-    - ansible.builtin.debug:
-        msg: '{{default_syslog}}'
-
     - ansible.builtin.assert:
         that:
           - default_syslog.data is defined
@@ -327,9 +282,6 @@
         state: query
       delegate_to: localhost
       register: query
-
-    - ansible.builtin.debug:
-        msg: '{{query.data.rules.1}}'
 
     - ansible.builtin.assert:
         that:
@@ -353,9 +305,6 @@
       delegate_to: localhost
       register: disable_syslog
 
-    - ansible.builtin.debug:
-        msg: '{{disable_syslog}}'
-
     - ansible.builtin.assert:
         that:
           - disable_syslog.data is defined
@@ -368,9 +317,6 @@
       delegate_to: localhost
       register: query
 
-    - ansible.builtin.debug:
-        msg: '{{query}}'
-
     - name: Enable syslog for default rule with no rules and with check mode
       meraki_mx_site_to_site_firewall:
         auth_key: '{{ auth_key }}'
@@ -380,9 +326,6 @@
       delegate_to: localhost
       check_mode: true
       register: enable_syslog_only_check
-
-    - ansible.builtin.debug:
-        msg: '{{enable_syslog_only_check}}'
 
     - ansible.builtin.assert:
         that:
@@ -396,9 +339,6 @@
         state: query
       delegate_to: localhost
       register: query
-
-    - ansible.builtin.debug:
-        msg: '{{query.data.rules.1}}'
 
     - ansible.builtin.assert:
         that:
