@@ -559,3 +559,58 @@
         net_name: "{{ test_net_name }}"
       delegate_to: localhost
       register: delete_access_policy
+
+# Hybrid Authentication method requires increaseAccessSpeed attribute of API to be set
+- name: Testing meraki_ms_access_policies with auth_mode as "my RADIUS server" and access_policy_type "Hybrid Authentication
+  block:
+    - name: Create a access policy meraki_ms_access_policies with auth_mode as "my RADIUS server" and access_policy_type "Hybrid Authentication"
+      cisco.meraki.meraki_ms_access_policies:
+        state: present
+        org_name: "{{ org_name }}"
+        auth_key: "{{ auth_key }}"
+        net_name: "{{ network_name }}"
+        access_policy_type: "Hybrid authentication"
+        name: "RADIUS"
+        radius_servers:
+          - host: "10.0.0.1"
+            port: 1812
+            secret: "secret123"
+          - host: "10.0.0.2"
+            port: 1812
+            secret: "secret123"
+        radius_testing: true
+        radius_coa_enabled: true
+        radius_accounting_enabled: false
+        host_mode: "Multi-Auth"
+        auth_method: "my RADIUS server"
+        voice_vlan_clients: true
+        increase_access_speed: true
+      delegate_to: localhost
+      register: create_access_policy_my_radius_server_hybrid
+
+    - name: Query one access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: query
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        number: 1
+      delegate_to: localhost
+      register: query_one
+
+    - name: Checking if the query one access policy returns right name of policy
+      ansible.builtin.assert:
+        that:
+          - create_access_policy_my_radius_server_bybrid is changed
+          - query_one.data.increase_access_speed is true
+
+  always:
+    - name: Delete access policy
+      cisco.meraki.meraki_ms_access_policies:
+        auth_key: "{{ auth_key }}"
+        state: absent
+        number: 1
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+      delegate_to: localhost
+      register: delete_access_policy
