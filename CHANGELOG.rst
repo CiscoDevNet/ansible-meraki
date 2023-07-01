@@ -5,6 +5,19 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.15.2
+=======
+
+Minor Changes
+-------------
+
+- meraki_mx_site_to_site_firewall - Fix updating VPN rules per issue 302.
+
+Bugfixes
+--------
+
+- Resolved the issue with link negotation at meraki_ms_switchport
+
 v2.15.1
 =======
 

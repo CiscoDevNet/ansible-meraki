@@ -259,6 +259,19 @@ releases:
     - Resolve_shared_secret_defaulting_to_null.yml
     - warnings-meraki_ms_link_aggregation.yml
     release_date: '2023-02-15'
+  2.15.2:
+    changes:
+      bugfixes:
+      - Resolved the issue with link negotation at meraki_ms_switchport
+      minor_changes:
+      - meraki_mx_site_to_site_firewall - Fix updating VPN rules per issue 302.
+    fragments:
+    - 302-firewallorder.yaml
+    - 445-unused-imports.yml
+    - ignore-216.yml
+    - issue-451.yml
+    - warnings-meraki_mx_l3_firewall.yml
+    release_date: '2023-07-01'
   2.2.0:
     changes:
       bugfixes:

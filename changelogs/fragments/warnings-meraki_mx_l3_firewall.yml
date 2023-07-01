@@ -1,2 +1,0 @@
-trivial:
-  - Resolved ansible-lint warnings in tests for module-meraki_mx_l3_firewall

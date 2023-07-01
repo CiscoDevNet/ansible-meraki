@@ -1,2 +1,0 @@
-minor_changes:
-- meraki_mx_site_to_site_firewall - Fix updating VPN rules per issue 302.
