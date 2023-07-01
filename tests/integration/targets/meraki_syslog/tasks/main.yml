@@ -3,226 +3,233 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
-- block:
-  - name: Test an API key is provided
-    fail:
-      msg: Please define an API key
-    when: auth_key is not defined
+- name: Execute tasks for syslog module
+  block:
+    - name: Test an API key is provided
+      ansible.builtin.fail:
+        msg: Please define an API key
+      when: auth_key is not defined
 
-  - set_fact:
-      syslog_test_net_name: 'syslog_{{test_net_name}}'
+    - name: Set test network name
+      ansible.builtin.set_fact:
+        syslog_test_net_name: 'syslog_{{ test_net_name }}'
 
-  - name: Create network with type appliance and switch
-    meraki_network:
-      auth_key: '{{ auth_key }}'
-      state: present
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      type:
-        - appliance
-        - wireless
-    delegate_to: localhost
-    register: new_net
+    - name: Create network with type appliance and switch
+      cisco.meraki.meraki_network:
+        auth_key: '{{ auth_key }}'
+        state: present
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        type:
+          - appliance
+          - wireless
+      delegate_to: localhost
+      register: new_net
 
-  - set_fact:
-      net_id: '{{new_net.data.id}}'
+    - name: Set net_id
+      ansible.builtin.set_fact:
+        net_id: '{{ new_net.data.id }}'
 
-  - name: Query syslog settings
-    meraki_syslog:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      state: query
-    delegate_to: localhost
-    register: query_all
+    - name: Query syslog settings
+      cisco.meraki.meraki_syslog:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        state: query
+      delegate_to: localhost
+      register: query_all
 
-  - name: Set syslog server
-    meraki_syslog:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      state: present
-      servers:
-        - host: 192.0.1.2
-          port: 514
-          roles:
-            - Appliance event log
-            - Flows
-    delegate_to: localhost
-    register: create_server
+    - name: Set syslog server
+      cisco.meraki.meraki_syslog:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        state: present
+        servers:
+          - host: 192.0.1.2
+            port: 514
+            roles:
+              - Appliance event log
+              - Flows
+      delegate_to: localhost
+      register: create_server
 
-  - assert:
-      that:
-        - create_server['data']['servers'][0]['host'] == "192.0.1.2"
-        - create_server is changed
+    - name: Assert host IP address
+      ansible.builtin.assert:
+        that:
+          - create_server['data']['servers'][0]['host'] == "192.0.1.2"
+          - create_server is changed
 
-  - name: Set syslog server with idempotency
-    meraki_syslog:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      state: present
-      servers:
-        - host: 192.0.1.2
-          port: 514
-          roles:
-            - Appliance event log
-            - Flows
-    delegate_to: localhost
-    register: create_server_idempotency
+    - name: Set syslog server with idempotency
+      cisco.meraki.meraki_syslog:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        state: present
+        servers:
+          - host: 192.0.1.2
+            port: 514
+            roles:
+              - Appliance event log
+              - Flows
+      delegate_to: localhost
+      register: create_server_idempotency
 
-  - assert:
-      that:
-        - create_server_idempotency.changed == False
-        - create_server_idempotency.data is defined
+    - name: Assert idempotency
+      ansible.builtin.assert:
+        that:
+          - create_server_idempotency.changed == False
+          - create_server_idempotency.data is defined
 
-  - name: Set syslog server with wireless Event log
-    meraki_syslog:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      state: present
-      servers:
-        - host: 192.0.1.2
-          port: 514
-          roles:
-            - Appliance event log
-            - Flows
-            - wireless Event log
-    delegate_to: localhost
-    register: create_server
+    - name: Set syslog server with wireless Event log
+      cisco.meraki.meraki_syslog:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        state: present
+        servers:
+          - host: 192.0.1.2
+            port: 514
+            roles:
+              - Appliance event log
+              - Flows
+              - wireless Event log
+      delegate_to: localhost
+      register: create_server
 
-  - assert:
-      that:
-        - create_server['data']['servers'][0]['host'] == "192.0.1.2"
-        - create_server is changed
+    - name: Assert host IP address
+      ansible.builtin.assert:
+        that:
+          - create_server['data']['servers'][0]['host'] == "192.0.1.2"
+          - create_server is changed
 
-  - name: Set syslog server with wireless Event log with idempotency
-    meraki_syslog:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      state: present
-      servers:
-        - host: 192.0.1.2
-          port: 514
-          roles:
-            - Appliance event log
-            - Flows
-            - wireless event log
-    delegate_to: localhost
-    register: create_server_idempotency
+    - name: Set syslog server with wireless Event log with idempotency
+      cisco.meraki.meraki_syslog:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        state: present
+        servers:
+          - host: 192.0.1.2
+            port: 514
+            roles:
+              - Appliance event log
+              - Flows
+              - wireless event log
+      delegate_to: localhost
+      register: create_server_idempotency
 
-  - assert:
-      that:
-        - create_server_idempotency.changed == False
-        - create_server_idempotency.data is defined
+    - name: Assert idempotency
+      ansible.builtin.assert:
+        that:
+          - create_server_idempotency.changed == False
+          - create_server_idempotency.data is defined
 
-  - name: Set syslog servers to address bug 288
-    meraki_syslog:
-      auth_key: "{{ auth_key }}"
-      state: present
-      org_name: "{{ test_org_name }}"
-      net_name: "{{ test_net_name }}"
-      servers:
-        - host: "10.3.15.11"
-          port: 604
-          roles:
-            - Appliance event log
-            - Security events
-        - host: "10.5.15.11"
-          port: 604
-          roles:
-            - Appliance event log
-            - Security events
-        - host: "10.9.15.11"
-          port: 604
-          roles:
-            - Appliance event log
-            - Security events
-        - host: "10.5.250.12"
-          port: 514
-          roles:
-            - Appliance event log
-            - Security events
+    - name: Set syslog servers to address bug 288
+      cisco.meraki.meraki_syslog:
+        auth_key: "{{ auth_key }}"
+        state: present
+        org_name: "{{ test_org_name }}"
+        net_name: "{{ test_net_name }}"
+        servers:
+          - host: "10.3.15.11"
+            port: 604
+            roles:
+              - Appliance event log
+              - Security events
+          - host: "10.5.15.11"
+            port: 604
+            roles:
+              - Appliance event log
+              - Security events
+          - host: "10.9.15.11"
+            port: 604
+            roles:
+              - Appliance event log
+              - Security events
+          - host: "10.5.250.12"
+            port: 514
+            roles:
+              - Appliance event log
+              - Security events
 
-  - name: Set multiple syslog servers
-    meraki_syslog:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_id: '{{net_id}}'
-      state: present
-      servers:
-        - host: 192.0.1.3
-          port: 514
-          roles:
-            - Appliance event log
-        - host: 192.0.1.4
-          port: 514
-          roles:
-            - Appliance event log
-            - Flows
-        - host: 192.0.1.5
-          port: 514
-          roles:
-            - Flows
-    delegate_to: localhost
-    register: create_multiple_servers
+    - name: Set multiple syslog servers
+      cisco.meraki.meraki_syslog:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_id: '{{ net_id }}'
+        state: present
+        servers:
+          - host: 192.0.1.3
+            port: 514
+            roles:
+              - Appliance event log
+          - host: 192.0.1.4
+            port: 514
+            roles:
+              - Appliance event log
+              - Flows
+          - host: 192.0.1.5
+            port: 514
+            roles:
+              - Flows
+      delegate_to: localhost
+      register: create_multiple_servers
 
-  - assert:
-      that:
-        - create_multiple_servers['data']['servers'][0]['host'] == "192.0.1.3"
-        - create_multiple_servers['data']['servers'][1]['host'] == "192.0.1.4"
-        - create_multiple_servers['data']['servers'][2]['host'] == "192.0.1.5"
-        - create_multiple_servers['data']['servers'] | length == 3
+    - name: Assert valid servers
+      ansible.builtin.assert:
+        that:
+          - create_multiple_servers['data']['servers'][0]['host'] == "192.0.1.3"
+          - create_multiple_servers['data']['servers'][1]['host'] == "192.0.1.4"
+          - create_multiple_servers['data']['servers'][2]['host'] == "192.0.1.5"
+          - create_multiple_servers['data']['servers'] | length == 3
 
-  - name: Create syslog server with bad name
-    meraki_syslog:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'      
-      state: present
-      servers:
-        - host: 192.0.1.6
-          port: 514
-          roles:
-            - Invalid role
-    delegate_to: localhost
-    register: invalid_role
-    ignore_errors: yes
+    - name: Create syslog server with bad name
+      cisco.meraki.meraki_syslog:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        state: present
+        servers:
+          - host: 192.0.1.6
+            port: 514
+            roles:
+              - Invalid role
+      delegate_to: localhost
+      register: invalid_role
+      ignore_errors: true
 
-  - assert:
-      that:
-        - '"Invalid role found in" in invalid_role.msg'
+    - name: Assert "Invalid role found" in previous tasks error
+      ansible.builtin.assert:
+        that:
+          - '"Invalid role found in" in invalid_role.msg'
 
-  - name: Add role to existing syslog server  # Adding doesn't work, just creation
-    meraki_syslog:
-      auth_key: '{{auth_key}}'
-      org_name: '{{test_org_name}}'
-      net_name: '{{test_net_name}}'
-      state: present
-      servers:
-        - host: 192.0.1.2
-          port: 514
-          roles:
-            - Flows
-    delegate_to: localhost
-    register: add_role
+    - name: Add role to existing syslog server  # Adding doesn't work, just creation
+      cisco.meraki.meraki_syslog:
+        auth_key: '{{ auth_key }}'
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
+        state: present
+        servers:
+          - host: 192.0.1.2
+            port: 514
+            roles:
+              - Flows
+      delegate_to: localhost
+      register: add_role
 
-  - debug:
-      msg: '{{add_role.data}}'
-
-  - assert:
-      that:
-        - add_role.data.servers.0.roles.0 == 'Flows'
+    - name: Assert flows is the role
+      ansible.builtin.assert:
+        that:
+          - add_role.data.servers.0.roles.0 == 'Flows'
 
   always:
     - name: Delete syslog test network
-      meraki_network:
+      cisco.meraki.meraki_network:
         auth_key: '{{ auth_key }}'
         state: absent
-        org_name: '{{test_org_name}}'
-        net_name: '{{test_net_name}}'
+        org_name: '{{ test_org_name }}'
+        net_name: '{{ test_net_name }}'
       delegate_to: localhost
       register: delete_all
-      ignore_errors: yes
+      ignore_errors: true
