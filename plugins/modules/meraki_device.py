@@ -292,12 +292,12 @@ def main():
 
     query_urls = {'device': '/networks/{net_id}/devices'}
     query_org_urls = {'device': '/organizations/{org_id}/devices'}
-    query_device_urls = {'device': '/networks/{net_id}/devices/{serial}'}
+    query_device_urls = {'device': '/devices/{serial}'}
     query_device_lldp_urls = {'device': '/devices/{serial}/lldpCdp'}
     claim_device_urls = {'device': '/networks/{net_id}/devices/claim'}
     bind_org_urls = {'device': '/organizations/{org_id}/claim'}
-    update_device_urls = {'device': '/networks/{net_id}/devices/'}
-    delete_device_urls = {'device': '/networks/{net_id}/devices/{serial}/remove'}
+    update_device_urls = {'device': '/devices/{serial}'}
+    delete_device_urls = {'device': '/networks/{net_id}/devices/remove'}
 
     meraki.url_catalog['get_all'].update(query_urls)
     meraki.url_catalog['get_all_org'] = query_org_urls
@@ -395,7 +395,7 @@ def main():
                     device_data = meraki.request(query_path, method='GET')
                     ignore_keys = ['lanIp', 'serial', 'mac', 'model', 'networkId', 'moveMapMarker', 'wan1Ip', 'wan2Ip']
                     if meraki.is_update_required(device_data, payload, optional_ignore=ignore_keys):
-                        path = meraki.construct_path('update', net_id=net_id) + meraki.params['serial']
+                        path = meraki.construct_path('update', custom={'serial': meraki.params['serial']})
                         updated_device = []
                         updated_device.append(meraki.request(path, method='PUT', payload=json.dumps(payload)))
                         meraki.result['data'] = updated_device
@@ -418,8 +418,9 @@ def main():
         query_path = meraki.construct_path('get_all', net_id=net_id)
         device_list = meraki.request(query_path, method='GET')
         if is_device_valid(meraki, meraki.params['serial'], device_list) is True:
-            path = meraki.construct_path('delete', net_id=net_id, custom={'serial': meraki.params['serial']})
-            request = meraki.request(path, method='POST')
+            payload = {'serial': meraki.params['serial']}
+            path = meraki.construct_path('delete', net_id=net_id)
+            request = meraki.request(path, method='POST', payload=json.dumps(payload))
             meraki.result['changed'] = True
 
     # in the event of a successful module execution, you will want to
