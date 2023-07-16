@@ -272,6 +272,19 @@ releases:
     - issue-451.yml
     - warnings-meraki_mx_l3_firewall.yml
     release_date: '2023-07-01'
+  2.15.3:
+    changes:
+      bugfixes:
+      - meraki_devices - Fix endpoints due to breaking change in Meraki API v1.33
+    fragments:
+    - cicd-3.10.yaml
+    - device-urls.yaml
+    - mxs2sfw-sanity.yaml
+    - organization-sanity.yaml
+    - snmp-sanity.yaml
+    - syslog-sanity.yaml
+    - webhook-sanity.yaml
+    release_date: '2023-07-16'
   2.2.0:
     changes:
       bugfixes:

@@ -1,2 +1,0 @@
-bugfixes:
-  - meraki_devices - Fix endpoints due to breaking change in Meraki API v1.33

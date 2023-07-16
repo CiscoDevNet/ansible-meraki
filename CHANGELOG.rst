@@ -5,6 +5,14 @@ Cisco.Meraki Release Notes
 .. contents:: Topics
 
 
+v2.15.3
+=======
+
+Bugfixes
+--------
+
+- meraki_devices - Fix endpoints due to breaking change in Meraki API v1.33
+
 v2.15.2
 =======
 
