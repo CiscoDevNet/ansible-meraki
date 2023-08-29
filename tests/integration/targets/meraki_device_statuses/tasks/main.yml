@@ -1,0 +1,41 @@
+---
+- name: Block of tests
+  block:
+  # This is commented out because a device cannot be unclaimed via API
+  # - name: Claim a device into an organization
+  #   cisco.meraki.meraki_device:
+  #     auth_key: '{{ auth_key }}'
+  #     org_name: '{{ test_org_name }}'
+  #     serial: '{{ serial }}'
+  #     state: present
+  #   delegate_to: localhost
+  #   register: claim_device_org
+
+  # - ansible.builtin.assert:
+  #     that:
+  #       - claim_device_org.changed == true
+
+  - name: Query all device statuses
+    cisco.meraki.meraki_device_statuses:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+    delegate_to: localhost
+    register: query_all
+
+  - name: Assertions against all statuses
+    ansible.builtin.assert:
+      that:
+        - query_all['data'] is defined
+        - query_all['data'] | length > 0
+
+  - name: Query by statuses
+    cisco.meraki.meraki_device_statuses:
+      auth_key: '{{ auth_key }}'
+      org_name: '{{ test_org_name }}'
+      statuses: 'dormant'
+    delegate_to: localhost
+    register: query_statuses
+
+  - debug:
+      var: query_statuses
+
