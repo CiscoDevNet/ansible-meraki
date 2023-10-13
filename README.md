@@ -1,5 +1,7 @@
 # cisco.meraki Ansible Collection
 
+**Announcement:* Cisco has announced an [official Ansible collection for Meraki](https://github.com/meraki/dashboard-api-ansible). On May 1, 2024, this repository will be archived and no longer maintained. 
+
 Ansible collection for managing and automating Cisco Meraki network environments.
 
 See the CHANGELOG.md file for details of updates in each release.
