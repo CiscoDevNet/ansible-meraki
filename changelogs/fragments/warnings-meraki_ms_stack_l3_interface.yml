@@ -1,0 +1,2 @@
+trivial:
+  - Resolved ansible-lint warnings in tests for module-meraki_ms_stack_l3_interface
