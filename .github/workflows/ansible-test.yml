@@ -22,8 +22,14 @@ jobs:
       - name: Install ansible-base (devel)
         run: pip install https://github.com/ansible/ansible/archive/devel.tar.gz --disable-pip-version-check
 
+      - name: Install pytest
+        run: pip install pytest
+
       - name: Show ansible-base version
         run: ansible --version
+
+      - name: Run pytest
+        run: pytest
 
       - name: Run sanity tests
         run: ansible-test sanity --docker -v --color

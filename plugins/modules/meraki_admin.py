@@ -5,15 +5,16 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 ---
 module: meraki_admin
 short_description: Manage administrators in the Meraki cloud
@@ -91,9 +92,9 @@ options:
 author:
     - Kevin Breit (@kbreit)
 extends_documentation_fragment: cisco.meraki.meraki
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Query information about all administrators associated to the organization
   meraki_admin:
     auth_key: abc12345
@@ -174,9 +175,9 @@ EXAMPLES = r'''
     networks:
         - id: N_12345
           access: full
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 data:
     description: List of administrators.
     returned: success
@@ -253,62 +254,58 @@ data:
             type: str
             sample: full
 
-'''
+"""
 
 import os
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import MerakiModule, meraki_argument_spec
+from ansible_collections.cisco.meraki.plugins.module_utils.network.meraki.meraki import (
+    MerakiModule,
+    meraki_argument_spec,
+)
 
 
 def get_admins(meraki, org_id):
     admins = meraki.request(
-        meraki.construct_path(
-            'query',
-            function='admin',
-            org_id=org_id
-        ),
-        method='GET'
+        meraki.construct_path("query", function="admin", org_id=org_id), method="GET"
     )
     if meraki.status == 200:
         return admins
 
 
-def get_admin_id(meraki, data, name=None, email=None):
+def get_admin_id(params, data, name=None, email=None):
     admin_id = None
     for a in data:
-        if meraki.params['name'] is not None:
-            if meraki.params['name'] == a['name']:
+        if params["name"] is not None:
+            if params["name"] == a["name"]:
                 if admin_id is not None:
-                    meraki.fail_json(msg='There are multiple administrators with the same name')
+                    return None, "There are multiple administrators with the same name"
                 else:
-                    admin_id = a['id']
-        elif meraki.params['email']:
-            if meraki.params['email'] == a['email']:
-                return a['id']
+                    admin_id = a["id"]
+        elif params["email"]:
+            if params["email"] == a["email"]:
+                return a["id"], None
     if admin_id is None:
-        meraki.fail_json(msg='No admin_id found')
-    return admin_id
+        return admin_id, "No admin_id found"
+    return admin_id, None
 
 
 def get_admin(meraki, data, id):
     for a in data:
-        if a['id'] == id:
+        if a["id"] == id:
             return a
-    meraki.fail_json(msg='No admin found by specified name or email')
+    meraki.fail_json(msg="No admin found by specified name or email")
 
 
-def find_admin(meraki, data, email):
+def find_admin(data, email):
     for a in data:
-        if a['email'] == email:
+        if a["email"] == email:
             return a
     return None
 
 
 def delete_admin(meraki, org_id, admin_id):
-    path = meraki.construct_path('revoke', 'admin', org_id=org_id) + admin_id
-    r = meraki.request(path,
-                       method='DELETE'
-                       )
+    path = meraki.construct_path("revoke", "admin", org_id=org_id) + admin_id
+    r = meraki.request(path, method="DELETE")
     if meraki.status == 204:
         return r
 
@@ -316,128 +313,142 @@ def delete_admin(meraki, org_id, admin_id):
 def network_factory(meraki, networks, nets):
     networks_new = []
     for n in networks:
-        if 'network' in n and n['network'] is not None:
-            networks_new.append({'id': meraki.get_net_id(org_name=meraki.params['org_name'],
-                                                         net_name=n['network'],
-                                                         data=nets),
-                                 'access': n['access']
-                                 })
-        elif 'id' in n:
-            networks_new.append({'id': n['id'],
-                                 'access': n['access']
-                                 })
+        if "network" in n and n["network"] is not None:
+            networks_new.append(
+                {
+                    "id": meraki.get_net_id(
+                        org_name=meraki.params["org_name"],
+                        net_name=n["network"],
+                        data=nets,
+                    ),
+                    "access": n["access"],
+                }
+            )
+        elif "id" in n:
+            networks_new.append({"id": n["id"], "access": n["access"]})
 
     return networks_new
 
 
 def create_admin(meraki, org_id, name, email):
     payload = dict()
-    payload['name'] = name
-    payload['email'] = email
+    payload["name"] = name
+    payload["email"] = email
 
-    is_admin_existing = find_admin(meraki, get_admins(meraki, org_id), email)
+    is_admin_existing = find_admin(get_admins(meraki, org_id), email)
 
-    if meraki.params['org_access'] is not None:
-        payload['orgAccess'] = meraki.params['org_access']
-    if meraki.params['tags'] is not None:
-        payload['tags'] = meraki.params['tags']
-    if meraki.params['networks'] is not None:
+    if meraki.params["org_access"] is not None:
+        payload["orgAccess"] = meraki.params["org_access"]
+    if meraki.params["tags"] is not None:
+        payload["tags"] = meraki.params["tags"]
+    if meraki.params["networks"] is not None:
         nets = meraki.get_nets(org_id=org_id)
-        networks = network_factory(meraki, meraki.params['networks'], nets)
-        payload['networks'] = networks
+        networks = network_factory(meraki, meraki.params["networks"], nets)
+        payload["networks"] = networks
     if is_admin_existing is None:  # Create new admin
         if meraki.module.check_mode is True:
-            meraki.result['data'] = payload
-            meraki.result['changed'] = True
+            meraki.result["data"] = payload
+            meraki.result["changed"] = True
             meraki.exit_json(**meraki.result)
-        path = meraki.construct_path('create', function='admin', org_id=org_id)
-        r = meraki.request(path,
-                           method='POST',
-                           payload=json.dumps(payload)
-                           )
+        path = meraki.construct_path("create", function="admin", org_id=org_id)
+        r = meraki.request(path, method="POST", payload=json.dumps(payload))
         if meraki.status == 201:
-            meraki.result['changed'] = True
+            meraki.result["changed"] = True
             return r
     elif is_admin_existing is not None:  # Update existing admin
-        if not meraki.params['tags']:
-            payload['tags'] = []
-        if not meraki.params['networks']:
-            payload['networks'] = []
+        if not meraki.params["tags"]:
+            payload["tags"] = []
+        if not meraki.params["networks"]:
+            payload["networks"] = []
         if meraki.is_update_required(is_admin_existing, payload) is True:
             if meraki.module.check_mode is True:
                 meraki.generate_diff(is_admin_existing, payload)
                 is_admin_existing.update(payload)
-                meraki.result['changed'] = True
-                meraki.result['data'] = payload
+                meraki.result["changed"] = True
+                meraki.result["data"] = payload
                 meraki.exit_json(**meraki.result)
-            path = meraki.construct_path('update', function='admin', org_id=org_id) + is_admin_existing['id']
-            r = meraki.request(path,
-                               method='PUT',
-                               payload=json.dumps(payload)
-                               )
+            path = (
+                meraki.construct_path("update", function="admin", org_id=org_id)
+                + is_admin_existing["id"]
+            )
+            r = meraki.request(path, method="PUT", payload=json.dumps(payload))
             if meraki.status == 200:
-                meraki.result['changed'] = True
+                meraki.result["changed"] = True
                 return r
         else:
-            meraki.result['data'] = is_admin_existing
+            meraki.result["data"] = is_admin_existing
             if meraki.module.check_mode is True:
-                meraki.result['data'] = payload
+                meraki.result["data"] = payload
                 meraki.exit_json(**meraki.result)
             return -1
+
+
+def setup_module_object():
+    network_arg_spec = dict(
+        id=dict(type="str"),
+        network=dict(type="str"),
+        access=dict(type="str"),
+    )
+
+    tag_arg_spec = dict(
+        tag=dict(type="str"),
+        access=dict(type="str"),
+    )
+
+    argument_spec = meraki_argument_spec()
+    argument_spec.update(
+        state=dict(type="str", choices=["present", "query", "absent"], required=True),
+        name=dict(type="str"),
+        email=dict(type="str"),
+        org_access=dict(
+            type="str", aliases=["orgAccess"], choices=["full", "read-only", "none"]
+        ),
+        tags=dict(type="list", elements="dict", options=tag_arg_spec),
+        networks=dict(type="list", elements="dict", options=network_arg_spec),
+        org_name=dict(type="str", aliases=["organization"]),
+        org_id=dict(type="str"),
+    )
+
+    # the AnsibleModule object will be our abstraction working with Ansible
+    # this includes instantiation, a couple of common attr would be the
+    # args/params passed to the execution, as well as if the module
+    # supports check mode
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True,
+    )
+    return MerakiModule(module, function="admin")
 
 
 def main():
     # define the available arguments/parameters that a user can pass to
     # the module
 
-    network_arg_spec = dict(id=dict(type='str'),
-                            network=dict(type='str'),
-                            access=dict(type='str'),
-                            )
+    meraki = setup_module_object()
 
-    tag_arg_spec = dict(tag=dict(type='str'),
-                        access=dict(type='str'),
-                        )
+    meraki.function = "admin"
+    meraki.params["follow_redirects"] = "all"
 
-    argument_spec = meraki_argument_spec()
-    argument_spec.update(state=dict(type='str', choices=['present', 'query', 'absent'], required=True),
-                         name=dict(type='str'),
-                         email=dict(type='str'),
-                         org_access=dict(type='str', aliases=['orgAccess'], choices=['full', 'read-only', 'none']),
-                         tags=dict(type='list', elements='dict', options=tag_arg_spec),
-                         networks=dict(type='list', elements='dict', options=network_arg_spec),
-                         org_name=dict(type='str', aliases=['organization']),
-                         org_id=dict(type='str'),
-                         )
+    query_urls = {
+        "admin": "/organizations/{org_id}/admins",
+    }
+    create_urls = {
+        "admin": "/organizations/{org_id}/admins",
+    }
+    update_urls = {
+        "admin": "/organizations/{org_id}/admins/",
+    }
+    revoke_urls = {
+        "admin": "/organizations/{org_id}/admins/",
+    }
 
-    # the AnsibleModule object will be our abstraction working with Ansible
-    # this includes instantiation, a couple of common attr would be the
-    # args/params passed to the execution, as well as if the module
-    # supports check mode
-    module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=True,
-                           )
-    meraki = MerakiModule(module, function='admin')
-
-    meraki.function = 'admin'
-    meraki.params['follow_redirects'] = 'all'
-
-    query_urls = {'admin': '/organizations/{org_id}/admins',
-                  }
-    create_urls = {'admin': '/organizations/{org_id}/admins',
-                   }
-    update_urls = {'admin': '/organizations/{org_id}/admins/',
-                   }
-    revoke_urls = {'admin': '/organizations/{org_id}/admins/',
-                   }
-
-    meraki.url_catalog['query'] = query_urls
-    meraki.url_catalog['create'] = create_urls
-    meraki.url_catalog['update'] = update_urls
-    meraki.url_catalog['revoke'] = revoke_urls
+    meraki.url_catalog["query"] = query_urls
+    meraki.url_catalog["create"] = create_urls
+    meraki.url_catalog["update"] = update_urls
+    meraki.url_catalog["revoke"] = revoke_urls
 
     try:
-        meraki.params['auth_key'] = os.environ['MERAKI_KEY']
+        meraki.params["auth_key"] = os.environ["MERAKI_KEY"]
     except KeyError:
         pass
 
@@ -446,59 +457,72 @@ def main():
     # state with no modifications
 
     # execute checks for argument completeness
-    if meraki.params['state'] == 'query':
-        meraki.mututally_exclusive = ['name', 'email']
-        if not meraki.params['org_name'] and not meraki.params['org_id']:
-            meraki.fail_json(msg='org_name or org_id required')
-    meraki.required_if = [(['state'], ['absent'], ['email']),
-                          ]
+    if meraki.params["state"] == "query":
+        meraki.mututally_exclusive = ["name", "email"]
+        if not meraki.params["org_name"] and not meraki.params["org_id"]:
+            meraki.fail_json(msg="org_name or org_id required")
+    meraki.required_if = [
+        (["state"], ["absent"], ["email"]),
+    ]
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
-    org_id = meraki.params['org_id']
-    if not meraki.params['org_id']:
-        org_id = meraki.get_org_id(meraki.params['org_name'])
-    if meraki.params['state'] == 'query':
+    org_id = meraki.params["org_id"]
+    if not meraki.params["org_id"]:
+        org_id = meraki.get_org_id(meraki.params["org_name"])
+    if meraki.params["state"] == "query":
         admins = get_admins(meraki, org_id)
-        if not meraki.params['name'] and not meraki.params['email']:  # Return all admins for org
-            meraki.result['data'] = admins
-        if meraki.params['name'] is not None:  # Return a single admin for org
-            admin_id = get_admin_id(meraki, admins, name=meraki.params['name'])
-            meraki.result['data'] = admin_id
+        if (
+            not meraki.params["name"] and not meraki.params["email"]
+        ):  # Return all admins for org
+            meraki.result["data"] = admins
+        if meraki.params["name"] is not None:  # Return a single admin for org
+            admin_id, err = get_admin_id(
+                meraki.params, admins, name=meraki.params["name"]
+            )
+            if err is not None:
+                meraki.fail_json(msg=err)
+            meraki.result["data"] = admin_id
             admin = get_admin(meraki, admins, admin_id)
-            meraki.result['data'] = admin
-        elif meraki.params['email'] is not None:
-            admin_id = get_admin_id(meraki, admins, email=meraki.params['email'])
-            meraki.result['data'] = admin_id
+            meraki.result["data"] = admin
+        elif meraki.params["email"] is not None:
+            admin_id, err = get_admin_id(
+                meraki.params, admins, email=meraki.params["email"]
+            )
+            if err is not None:
+                meraki.fail_json(msg=err)
+            meraki.result["data"] = admin_id
             admin = get_admin(meraki, admins, admin_id)
-            meraki.result['data'] = admin
-    elif meraki.params['state'] == 'present':
-        r = create_admin(meraki,
-                         org_id,
-                         meraki.params['name'],
-                         meraki.params['email'],
-                         )
+            meraki.result["data"] = admin
+    elif meraki.params["state"] == "present":
+        r = create_admin(
+            meraki,
+            org_id,
+            meraki.params["name"],
+            meraki.params["email"],
+        )
         if r != -1:
-            meraki.result['data'] = r
-    elif meraki.params['state'] == 'absent':
+            meraki.result["data"] = r
+    elif meraki.params["state"] == "absent":
         if meraki.module.check_mode is True:
-            meraki.result['data'] = {}
-            meraki.result['changed'] = True
+            meraki.result["data"] = {}
+            meraki.result["changed"] = True
             meraki.exit_json(**meraki.result)
-        admin_id = get_admin_id(meraki,
-                                get_admins(meraki, org_id),
-                                email=meraki.params['email']
-                                )
+        admin_id, err = get_admin_id(
+            meraki.params, get_admins(meraki, org_id), email=meraki.params["email"]
+        )
+        if err is not None:
+            meraki.fail_json(msg=err)
         r = delete_admin(meraki, org_id, admin_id)
 
         if r != -1:
-            meraki.result['data'] = r
-            meraki.result['changed'] = True
+            meraki.result["data"] = r
+            meraki.result["changed"] = True
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results
     meraki.exit_json(**meraki.result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
