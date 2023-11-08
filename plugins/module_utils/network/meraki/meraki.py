@@ -495,11 +495,11 @@ class MerakiModule(object):
             except json.decoder.JSONDecodeError:
                 return {}
             except AttributeError:
-                self.fail_json(msg="Failure occurred",
-                               response=self.response,
-                               status=self.status,
-                               body=self.body
-                               )
+                if self.retry == 5:
+                    self.fail_json(msg='Request failed 5 times. Exiting.')
+                self.module.warn("Error. Retrying {self.retry}/5.")
+                self.retry += 1
+                resp, info = self._execute_request(path, method=method, payload=payload, params=params)
 
     def exit_json(self, **kwargs):
         """Custom written method to exit from module."""
